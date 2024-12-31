@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from dateutil import parser
 from dataclasses import dataclass
 from typing import Optional, Dict, Union, Literal
 from jsonschema import validate, ValidationError
@@ -18,18 +18,12 @@ class Output:
     imageURI: Optional[str] = None
     value: Optional[Union[str, float, dict, None]] = None
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=False, indent=4)
-
 
 @dataclass
 class Error:
-    code: str
+    code: str = ""
     message: Optional[str] = None
     details: Optional[Dict[str, str]] = None
-
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=False, indent=4)
 
 
 @dataclass
@@ -37,23 +31,25 @@ class Metadata:
     processingTime: Optional[float] = None
     microservice: Optional[str] = None
 
-    def to_json(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=False, indent=4)
-
 
 @dataclass
 class ToolProcessingResult:
-    messageId: str
-    correlationId: str
-    timestamp: datetime
-    status: str
+    messageId: str = ""
+    correlationId: str = ""
+    timestamp: str = ""
+    status: str = ""
     output: Optional[Output] = None
     error: Optional[Error] = None
     metadata: Optional[Metadata] = None
 
     def __post_init__(self):
-        if isinstance(self.timestamp, datetime):
-            self.timestamp = self.timestamp.strftime("%Y-%m-%d %H:%M:%SZ")
+        self.setTimestamp(self.timestamp)
+
+    def setTimestamp(self, timestampStr: str):
+        try:
+            self.timestamp = parser.parse(timestampStr).strftime("%Y-%m-%d %H:%M:%SZ")
+        except parser.ParserError:
+            self.timestamp = ""
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=False, indent=4)

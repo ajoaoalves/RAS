@@ -1,7 +1,7 @@
 import json
 import os
-from datetime import datetime
 from dataclasses import dataclass
+from dateutil import parser
 from typing import Dict, Any
 from jsonschema import validate, ValidationError
 from jsonschema.exceptions import SchemaError
@@ -17,10 +17,9 @@ class ToolProcessingRequest:
     timestamp: str
     procedure: str
     parameters: Dict[str, Any]
-    
+
     def __post_init__(self):
-        if isinstance(self.timestamp, datetime):
-            self.timestamp = self.timestamp.strftime("%Y-%m-%d %H:%M:%SZ")
+        self.timestamp = parser.parse(self.timestamp).strftime("%Y-%m-%d %H:%M:%SZ")
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=False, indent=4)
