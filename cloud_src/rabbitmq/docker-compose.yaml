@@ -7,5 +7,6 @@ services:
     ports:
       - "5672:5672" # RabbitMQ messaging port
       - "15672:15672" # Management UI port
+      restart: unless-stopped
     volumes:
       - ./setup_queues.py:/setup_queues.py # Mount the setup script
