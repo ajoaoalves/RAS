@@ -2,18 +2,14 @@ var mongoose = require('mongoose')
 
 var projectSchema = new mongoose.Schema({
     _id: String,
-    nome: String,
-    gitlink: String,
-    tpc1: Boolean,
-    tpc2: Boolean,
-    tpc3: Boolean,
-    tpc4: Boolean,
-    tpc5: Boolean,
-    tpc6: Boolean,
-    tpc7: Boolean,
-    tpc8: Boolean,
-    teste: Number,
-    projeto: Number
+    name: String,
+    user_id: String,
 }, {versionKey: false})
 
-module.exports = mongoose.model('project',projectSchema)
+var imageSchema = new mongoose.Schema({
+    _id: String,
+    project_id: String,
+    uri: String
+})
+
+module.exports = mongoose.model('projects',projectSchema)
