@@ -5,7 +5,7 @@ module.exports.list = function(){
 }
 
 module.exports.findById = function(id){
-    return Project.findOne({id: id}).exec()
+    return Project.findOne({_id: id}).exec()
 }
 
 module.exports.insert = function(projeto){
