@@ -1,8 +1,8 @@
 ## Base de dados
-docker rm mongoEW
-docker run -d -p 27017:27017 --name mongoEW mongo
-docker cp db.json mongoEW:/tmp
-docker exec mongoEW mongoimport -d contratos -c contratos /tmp/contratos.json --jsonArray
+docker rm mongoRAS
+docker run -d -p 27017:27017 --name mongoRAS mongo
+docker cp database.json mongoRAS:/tmp
+docker exec mongoRAS mongoimport -d projects -c projects /tmp/database.json --jsonArray
 
 ## Correr
 cd PictuRAS
