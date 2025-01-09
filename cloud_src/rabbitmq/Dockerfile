@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copy the Python script into the container
 COPY setup_queues.py /setup_queues.py
+COPY rabbit_config.py /rabbit_config.py
 
 # Start RabbitMQ, wait for it to initialize, and run the setup script
 CMD ["sh", "-c", "rabbitmq-server & sleep 10 && python3 /setup_queues.py && wait"]
