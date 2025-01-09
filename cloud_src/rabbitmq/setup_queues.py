@@ -1,9 +1,15 @@
 import pika
+from pika.exchange_type import ExchangeType
 
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
-channel.exchange_declare(exchange='image_exchange', exchange_type='direct')
+
+channel.exchange_declare(
+        exchange="picturas.tools",
+        exchange_type=ExchangeType.direct,
+        durable=True,
+    )
 
 # List of queues with their routing keys
 tools_and_routing_keys = [
@@ -16,13 +22,15 @@ tools_and_routing_keys = [
     ("count_people_tool", "count_people"),
     ("object_detection_tool", "object_detection"),
     ("background_removal_tool", "background_removal"),
-    ("watermark_tool", "watermark"),
+    ("watermark-requests", "requests.watermark"),
+    ("results", "results"),
 ]
+
 
 # Declare and bind each queue
 for queue, routing_key in tools_and_routing_keys:
     channel.queue_declare(queue=queue, durable=True)  # Declare the queue
-    channel.queue_bind(exchange='image_exchange', queue=queue, routing_key=routing_key)  # Bind the queue to the exchange
+    channel.queue_bind(exchange='picturas.tools', queue=queue, routing_key=routing_key)  # Bind the queue to the exchange
 
 
 print("Queues for all tools have been set up successfully.")
