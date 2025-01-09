@@ -12,7 +12,6 @@ queues = [
     "count_people_tool",
     "object_detection_tool",
     "background_removal_tool",
-    "watermark_tool",
 ]
 
 # Connect to RabbitMQ
