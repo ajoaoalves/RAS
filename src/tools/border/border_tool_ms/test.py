@@ -36,7 +36,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 4:
         print("Usage: python script_name.py <input_image_path> <output_image_path> <size_factor> <color_factor>")
         sys.exit(1)
-    # python ../../src/tools/border/border_tool_ms/test.py src/input.jpg out/output.jpg 5 "#FF0000"
+    # Test Example: python ../../src/tools/border/border_tool_ms/test.py src/input.jpg out/output.jpg 5 "#FF0000"
 
     # Get the arguments
     input_image_path = sys.argv[1]
