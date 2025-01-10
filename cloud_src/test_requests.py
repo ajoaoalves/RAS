@@ -67,7 +67,23 @@ def publish_mock_requests_forever(procedure_name):
 if __name__ == "__main__":
     
     if len(sys.argv) < 2:
-        print("Usage: python test_requests.py <procedure_name>")
+        print('''
+              Usage: python test_requests.py <procedure_name>
+    
+    Possible procedure_name:
+            
+            border
+            crop
+            rotation
+            brightness
+            binarization
+            resize
+            count-people
+            object-detection
+            background-removal
+            watermark
+            
+              ''')
         sys.exit(1)
 
     procedure_name = sys.argv[1]  # The first argument is the procedure name
