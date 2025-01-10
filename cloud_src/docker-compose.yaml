@@ -29,7 +29,7 @@ services:
 
 
   border-tool-ms:
-    image: joaopedroabreu4/border_tool_image:latest
+    image: joaopedroabreu4/picturas_border_tool_ms:latest
     container_name: border-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
