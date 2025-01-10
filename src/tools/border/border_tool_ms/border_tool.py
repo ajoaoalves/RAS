@@ -3,12 +3,12 @@ import random
 from PIL import Image, ImageOps
 
 from .core.tool import Tool
-from .border_request_message import border_Parameters
+from .border_request_message import borderParameters
 
 
 class BorderTool(Tool):
 
-    def apply (self, parameters : border_Parameters):
+    def apply (self, parameters : borderParameters):
         """
         Apply a border to the input image and save the result.
 
