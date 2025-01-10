@@ -27,6 +27,20 @@ services:
       rabbitmq:
         condition: service_healthy
 
+
+  border-tool-ms:
+    image: joaopedroabreu4/border_tool_image:latest
+    container_name: border-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   watermark-tool-ms:
     image: prcsousa/picturas-watermark-tool-ms:latest
     container_name: watermark-tool-ms
