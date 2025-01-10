@@ -24,5 +24,5 @@ class Brightness(Tool):
             input_image = Image.open(parameters.inputImageURI)
 
             # Save the final image
-            final_image = self.apply(input_image, BrightnessParameters.brightnessValue)
+            final_image = self.apply_brightness(input_image, parameters.brightnessValue)
             final_image.save(parameters.outputImageURI)
