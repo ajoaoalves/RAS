@@ -4,10 +4,13 @@ import os
 import random
 import time
 import uuid
+import sys
 from datetime import datetime
 
 import pika
 from pika.exchange_type import ExchangeType
+
+from rabbitmq.rabbit_config import *
 
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 PICTURAS_SRC_FOLDER = os.getenv("PICTURAS_SRC_FOLDER", "./images/src/")
@@ -46,16 +49,20 @@ def publish_request_message(channel, routing_key, request_id, procedure, paramet
 def publish_mock_requests_forever():
     try:
         while True:
-            for file_name in os.listdir(PICTURAS_SRC_FOLDER):
-                request_id = str(uuid.uuid4())
+            for queue in QUEUES:
+                routing_key = queue["routing_key"]
+                procedure_name = queue["name"].replace("-requests", "")  # Remove "-requests" from the queue name
 
-                watermark_parameters = {
-                    "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
-                    "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name)
-                }
+                for file_name in os.listdir(PICTURAS_SRC_FOLDER):
+                    request_id = str(uuid.uuid4())
 
-                publish_request_message(channel, "requests.watermark", request_id, "watermark", watermark_parameters)
-                time.sleep(random.uniform(2, 5))
+                    watermark_parameters = {
+                        "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
+                        "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name)
+                    }
+
+                    publish_request_message(channel, routing_key, request_id, procedure_name, watermark_parameters)
+                    time.sleep(random.uniform(1, 1))
     finally:
         connection.close()
 
