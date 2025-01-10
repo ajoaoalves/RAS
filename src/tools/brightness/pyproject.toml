@@ -1,9 +1,8 @@
 [tool.poetry]
-name = "picturas-watermark-tool-ms"
+name = "picturas-brightness-tool-ms"
 version = "0.1.0"
-description = "PictuRAS microservice (tool) that applies a watermark to an input image, generating a new watermarked output image."
-authors = ["Afonso Costa <d13690@di.uminho.pt>", "Paulo Sousa <d7157@di.uminho.pt>"]
-readme = "README.md"
+description = "PictuRAS microservice (tool) that applies brightness filter"
+authors = ["Augusto Campos <agstcmps.111@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.13"
