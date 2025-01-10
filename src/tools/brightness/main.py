@@ -3,9 +3,9 @@ import logging
 from .config import PICTURAS_LOG_LEVEL
 from .core.message_processor import MessageProcessor
 from .core.message_queue_setup import message_queue_connect
-from .count_people_request_message import BrightnessRequestMessage
-from .count_people_result_message import BrightnessResultMessage
-from .count_people_tool import Brightness
+from .brightness_request_message import BrightnessRequestMessage
+from .brightness_result_message import BrightnessResultMessage
+from .brightness_tool import Brightness
 
 # Configuração de logging
 LOG_FORMAT = '%(asctime)s [%(levelname)s] %(message)s'
