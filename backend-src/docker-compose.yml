@@ -1,16 +1,20 @@
-version: "2"
+version: "3.9"
 services:
- api:
-  container_name: projetos-api
-  image: ras/projetos-api
-  ports:
-    - "18018:18018"
-  depends_on:
-    - mongo
-  links:
-    - mongo
- mongo:
-  container_name: mongo-server
-  image: mongo
-  ports:
-    - "27017:27017"
+  api:
+    container_name: projetos-api
+    build:
+      context: ./PictuRAS
+    ports:
+      - "18018:18018"
+    depends_on:
+      - mongo
+    links:
+      - mongo
+  mongo:
+    container_name: mongo-server
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/database.json:/tmp/database.json
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
