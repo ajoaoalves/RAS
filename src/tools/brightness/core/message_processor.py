@@ -1,5 +1,6 @@
 import functools
 import logging
+import traceback
 import time
 from threading import Thread
 from typing import Any, List, Type
@@ -85,7 +86,7 @@ class MessageProcessor:
             except Exception as e:
                 exception = e
                 LOGGER.error("Error: %s", e)
-
+                LOGGER.error("Stack trace: %s", traceback.format_exc())
             time_elapsed = time.time() - start_ts
 
             LOGGER.info("Processed request '%s' (took %.3f s)", request_msg.messageId, time_elapsed)
