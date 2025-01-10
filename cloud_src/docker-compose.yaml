@@ -13,6 +13,20 @@ services:
       interval: 5s
       timeout: 30s
 
+
+  brightness-tool-ms:
+    image: gustominox/picturas_brightness_tool_ms:1.0
+    container_name: brightness-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO # change or remove in production
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   watermark-tool-ms:
     image: prcsousa/picturas-watermark-tool-ms:latest
     container_name: watermark-tool-ms
