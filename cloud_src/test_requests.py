@@ -63,6 +63,19 @@ def publish_mock_requests_forever(procedure_name):
                         "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name),
                         "brightnessValue": random.uniform(0, 2.0)
                     }    
+                elif procedure_name == "border":
+                    # Randomize border size between 1 and 10
+                    bordersize = random.randint(1, 10)
+                    
+                    # Randomize border color as a hexadecimal value
+                    bordercolor = "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                    
+                    parameters = {
+                        "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
+                        "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name),
+                        "bordersize": bordersize,
+                        "bordercolor": bordercolor
+                    }    
                 
 
                 publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, parameters)
