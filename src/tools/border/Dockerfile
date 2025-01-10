@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.13
 
 WORKDIR /app
 
@@ -17,4 +17,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 
-CMD ["python", "border_tool_ms/main.py"]
+CMD ["python","-m", "border_tool_ms.main"]
