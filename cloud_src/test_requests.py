@@ -65,7 +65,7 @@ def publish_mock_requests_forever(procedure_name):
                     }    
                 
 
-                publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, watermark_parameters)
+                publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, parameters)
                 time.sleep(random.uniform(1, 1))
     finally:
         connection.close()
