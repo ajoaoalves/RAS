@@ -1,0 +1,27 @@
+services:
+  rabbitmq:
+    build: ./rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # RabbitMQ messaging port
+      - "15672:15672" # Management UI port
+    restart: unless-stopped
+    volumes:
+      - ./rabbitmq/setup_queues.py:/setup_queues.py # Mount the setup script
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 5s
+      timeout: 30s
+
+  watermark-tool-ms:
+    image: prcsousa/picturas-watermark-tool-ms:latest
+    container_name: watermark-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO # change or remove in production
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
