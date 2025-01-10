@@ -52,11 +52,18 @@ def publish_mock_requests_forever(procedure_name):
             
             for file_name in os.listdir(PICTURAS_SRC_FOLDER):
                 request_id = str(uuid.uuid4())
-
-                watermark_parameters = {
+                parameters = {
                     "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
                     "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name)
                 }
+
+                if procedure_name == "brightness":
+                    parameters = {
+                        "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
+                        "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name),
+                        "brightnessValue": random.uniform(0, 2.0)
+                    }    
+                
 
                 publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, watermark_parameters)
                 time.sleep(random.uniform(1, 1))
