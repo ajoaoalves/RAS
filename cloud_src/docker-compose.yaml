@@ -32,13 +32,27 @@ services:
     container_name: brightness-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
-      - PICTURAS_LOG_LEVEL=INFO # change or remove in production
+      - PICTURAS_LOG_LEVEL=INFO 
     volumes:
       - ./images/src/:/images/src/
       - ./images/out/:/images/out/
     depends_on:
       rabbitmq:
         condition: service_healthy
+
+  count-people-tool-ms:
+    image: pinheiro2/picturas_count_people_tool_ms:latest
+    container_name: count-people-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 
   border-tool-ms:
     image: joaopedroabreu4/picturas_border_tool_ms:latest
@@ -58,7 +72,7 @@ services:
     container_name: watermark-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
-      - PICTURAS_LOG_LEVEL=INFO # change or remove in production
+      - PICTURAS_LOG_LEVEL=INFO 
     volumes:
       - ./images/src/:/images/src/
       - ./images/out/:/images/out/

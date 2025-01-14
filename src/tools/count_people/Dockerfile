@@ -15,6 +15,8 @@ RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --no-root
 
 FROM python:3.12-slim AS runtime
 
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
+
 ENV VIRTUAL_ENV=/app/.venv \
     PATH="/app/.venv/bin:$PATH"
 
