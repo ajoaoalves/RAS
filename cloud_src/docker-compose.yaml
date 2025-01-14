@@ -42,7 +42,7 @@ services:
 
   count-people-tool-ms:
     image: pinheiro2/picturas_count_people_tool_ms:latest
-    container_name: brightness-tool-ms
+    container_name: count-people-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
       - PICTURAS_LOG_LEVEL=INFO 
