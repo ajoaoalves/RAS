@@ -28,7 +28,7 @@ class Brightness(Tool):
 
     def __init__(self):
         self.s3_client = S3Client(
-            endpoint_url='http://localhost:9000',  
+            endpoint_url="http://minio:9000",  # Use the MinIO endpoint from the Docker network
             access_key='ROOTNAME',  
             secret_key='CHANGEME123',  
             region_name='us-east-1'  
