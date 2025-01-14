@@ -64,6 +64,10 @@ def publish_mock_requests_forever(procedure_name):
                 if procedure_name == "brightness":
                     parameters["brightnessValue"] = random.uniform(0, 2.0)
 
+                elif procedure_name == "resize":
+                    parameters["width"] = random.randint(100, 1920)
+                    parameters["height"] = random.randint(100, 1080)
+
                 elif procedure_name == "border":
                     bordersize = random.randint(1, 10)
                     bordercolor = "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
