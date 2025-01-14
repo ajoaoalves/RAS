@@ -22,6 +22,6 @@ ENV PICTURAS_LOG_LEVEL=WARN
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
-COPY picturas_count_people_tool_ms ./picturas_count_people_tool_ms
+COPY count_people_tool_ms ./count_people_tool_ms
 
-ENTRYPOINT ["python", "-m", "picturas_count_people_tool_ms.main"]
+ENTRYPOINT ["python", "-m", "count_people_tool_ms.main"]
