@@ -28,7 +28,7 @@ services:
     restart: unless-stopped  # Automatically restart unless stopped manually
 
   brightness-tool-ms:
-    image: gustominox/picturas_brightness_tool_ms:1.0
+    image: gustominox/picturas_brightness_tool_ms:2.0
     container_name: brightness-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
