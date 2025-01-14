@@ -15,6 +15,8 @@ from rabbitmq.rabbit_config import *
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
 PICTURAS_SRC_FOLDER = os.getenv("PICTURAS_SRC_FOLDER", "./images/src/")
 PICTURAS_OUT_FOLDER = os.getenv("PICTURAS_OUT_FOLDER", "./images/out/")
+S3_SRC_FOLDER =  "src/"
+S3_OUT_FOLDER =  "out/"
 
 LOG_FORMAT = '%(asctime)s [%(levelname)s] %(message)s'
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
@@ -53,29 +55,20 @@ def publish_mock_requests_forever(procedure_name):
             for file_name in os.listdir(PICTURAS_SRC_FOLDER):
                 request_id = str(uuid.uuid4())
                 parameters = {
-                    "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
-                    "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name)
+                    "inputImageURI": os.path.join(S3_SRC_FOLDER, file_name),
+                    "outputImageURI": os.path.join(S3_OUT_FOLDER, file_name)
                 }
 
+
+                # Add additional parameters based on procedure name
                 if procedure_name == "brightness":
-                    parameters = {
-                        "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
-                        "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name),
-                        "brightnessValue": random.uniform(0, 2.0)
-                    }    
+                    parameters["brightnessValue"] = random.uniform(0, 2.0)
+
                 elif procedure_name == "border":
-                    # Randomize border size between 1 and 10
                     bordersize = random.randint(1, 10)
-                    
-                    # Randomize border color as a hexadecimal value
                     bordercolor = "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-                    
-                    parameters = {
-                        "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name),
-                        "outputImageURI": os.path.join(PICTURAS_OUT_FOLDER, file_name),
-                        "bordersize": bordersize,
-                        "bordercolor": bordercolor
-                    }    
+                    parameters["bordersize"] = bordersize
+                    parameters["bordercolor"] = bordercolor
                 
 
                 publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, parameters)
