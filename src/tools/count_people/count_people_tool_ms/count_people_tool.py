@@ -41,10 +41,5 @@ class CountPeople(Tool):
             if int(box.cls) in self.model.names and self.model.names[int(box.cls)] == 'person'
         ]
 
-        # Save the output image with detections
-        if parameters.outputImageURI:
-            output_image = results[0].plot()
-            cv2.imwrite(parameters.outputImageURI, output_image)
-
         # Return the number of people detected
         return len(people)
