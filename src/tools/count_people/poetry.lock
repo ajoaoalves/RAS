@@ -690,7 +690,7 @@ python-versions = ">=2"
 
 [[package]]
 name = "ultralytics"
-version = "8.3.59"
+version = "8.3.61"
 description = "Ultralytics YOLO 🚀 for SOTA object detection, multi-object tracking, instance segmentation, pose estimation and image classification."
 category = "main"
 optional = false
@@ -755,7 +755,7 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.13"
-content-hash = "d229904842be9a01204ef98f36196e21e01387b90a55661091f1d0833ea6423b"
+content-hash = "7a7d01284cf5e84cc3051ad879bd2f4f928172cd80d59bc6af7f5ff696bb7de5"
 
 [metadata.files]
 annotated-types = []
