@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "picturas-resize-tool-ms"
+name = "picturas_resize_tool_ms"
 version = "0.1.0"
 description = "PictuRAS microservice (tool) that resizes an image"
-authors = ["Guilherme Krull <pg55090@alunos.uminho.pt>"]
+authors = ["Guilherme Krull <pg55090@uminho.pt>"]
 
 [tool.poetry.dependencies]
 python = "^3.13"

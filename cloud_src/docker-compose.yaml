@@ -67,6 +67,20 @@ services:
       rabbitmq:
         condition: service_healthy
 
+
+  resize-tool-ms:
+    image: pg55090/picturas_resize_tool_ms:latest
+    container_name: resize-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   watermark-tool-ms:
     image: prcsousa/picturas-watermark-tool-ms:latest
     container_name: watermark-tool-ms
