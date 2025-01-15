@@ -17,41 +17,55 @@ services:
     image: quay.io/minio/minio
     container_name: minio
     ports:
-      - "9000:9000"  # For MinIO API
-      - "9001:9001"  # For MinIO Console
+      - "9000:9000"  # API do MinIO
+      - "9001:9001"  # Console do MinIO
     volumes:
-      - ~/minio/data:/data  # Mount the data directory
+      - ./minio_data:/data   
+      - ./images:/images   
     environment:
-      MINIO_ROOT_USER: ROOTNAME  # Set MinIO root user
-      MINIO_ROOT_PASSWORD: CHANGEME123  # Set MinIO root password
-    command: server /data --console-address ":9001"  # Start MinIO with console on port 9001
-    restart: unless-stopped  # Automatically restart unless stopped manually
+      MINIO_ROOT_USER: ROOTNAME  # Usuário root do MinIO
+      MINIO_ROOT_PASSWORD: CHANGEME123  # Senha root do MinIO
+    command: server /data --console-address ":9001"  # Inicia o MinIO com o console na porta 9001
+    restart: unless-stopped  # Reinicia automaticamente, a menos que seja parado manualmente
 
-  brightness-tool-ms:
-    image: gustominox/picturas_brightness_tool_ms:2.2
-    container_name: brightness-tool-ms
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - PICTURAS_LOG_LEVEL=INFO 
-    volumes:
-      - ./images/src/:/images/src/
-      - ./images/out/:/images/out/
+  setup_minio:
+    image: python:3.9-alpine
+    container_name: setup_minio
     depends_on:
-      rabbitmq:
-        condition: service_healthy
+      - minio
+    volumes:
+      - ./minio/setup_minio.py:/setup_minio.py
+    entrypoint: >
+      sh -c "pip install --no-cache-dir minio &&
+             python3 /setup_minio.py"
+    restart: "no"
+ 
 
-  count-people-tool-ms:
-    image: pinheiro2/picturas_count_people_tool_ms:latest
-    container_name: count-people-tool-ms
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - PICTURAS_LOG_LEVEL=INFO 
-    volumes:
-      - ./images/src/:/images/src/
-      - ./images/out/:/images/out/
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+  # brightness-tool-ms:
+  #   image: gustominox/picturas_brightness_tool_ms:2.2
+  #   container_name: brightness-tool-ms
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - PICTURAS_LOG_LEVEL=INFO 
+  #   volumes:
+  #     - ./images/src/:/images/src/
+  #     - ./images/out/:/images/out/
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+
+  # count-people-tool-ms:
+  #   image: pinheiro2/picturas_count_people_tool_ms:latest
+  #   container_name: count-people-tool-ms
+  #   environment:
+  #     - RABBITMQ_HOST=rabbitmq
+  #     - PICTURAS_LOG_LEVEL=INFO 
+  #   volumes:
+  #     - ./images/src/:/images/src/
+  #     - ./images/out/:/images/out/
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
 
 
   border-tool-ms:
