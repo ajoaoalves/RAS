@@ -2,10 +2,10 @@ import cv2
 from ultralytics import YOLO
 
 from .core.tool import Tool
-from .count_people_request_message import CountPeopleParameters
+from .count_objects_request_message import CountObjectsParameters
 
 
-class CountPeople(Tool):
+class CountObjects(Tool):
 
     def __init__(self, model_path: str = "yolov8n.pt") -> None:
         """
@@ -16,7 +16,7 @@ class CountPeople(Tool):
         """
         self.model = YOLO(model_path)
 
-    def apply(self, parameters: CountPeopleParameters) -> dict:
+    def apply(self, parameters: CountObjectsParameters) -> dict:
         """
         Detect and count the number of objects in an input image.
 
