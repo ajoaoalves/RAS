@@ -105,3 +105,10 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+# Ana Count objects
+
+# Francisco Rotate
+
+# Yian tool background removal
+
+# Marta Binarization
