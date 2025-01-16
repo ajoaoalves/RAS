@@ -6,6 +6,7 @@ import time
 import uuid
 import sys
 import boto3
+from botocore.exceptions import ClientError
 from datetime import datetime
 
 import pika
@@ -81,6 +82,42 @@ def publish_mock_requests_forever(procedure_name):
     finally:
         connection.close()
 
+# Function to check if a bucket exists
+def bucket_exists(bucket_name):
+    try:
+        client.head_bucket(Bucket=bucket_name)
+        print(f"Bucket '{bucket_name}' exists.")
+        return True
+    except ClientError as e:
+        # Check if the error is a 404 (bucket not found)
+        if e.response['Error']['Code'] == '404':
+            print(f"Bucket '{bucket_name}' does not exist.")
+        else:
+            print(f"Error occurred: {e}")
+        return False
+
+
+# Function to create a bucket
+def create_bucket(bucket_name):
+    try:
+        client.create_bucket(Bucket=bucket_name)
+        print(f"Bucket '{bucket_name}' created successfully.")
+    except ClientError as e:
+        print(f"Failed to create bucket '{bucket_name}': {e}")
+        sys.exit(1)
+
+# Function to upload files from local directory to MinIO bucket
+def upload_files_to_bucket(bucket_name, local_src_path, s3_dest_path):
+    for root, _, files in os.walk(local_src_path):
+        for file_name in files:
+            local_file_path = os.path.join(root, file_name)
+            s3_key = os.path.join(s3_dest_path, file_name)
+
+            try:
+                client.upload_file(local_file_path, bucket_name, s3_key)
+                print(f"Uploaded '{local_file_path}' to '{bucket_name}/{s3_key}'.")
+            except ClientError as e:
+                print(f"Failed to upload '{local_file_path}': {e}")
 
 if __name__ == "__main__":
     
@@ -108,17 +145,31 @@ if __name__ == "__main__":
     # Ensure S3 bucket 'images' exists
     client = boto3.client(
             's3',
-            endpoint_url="http://minio:9000",
+            endpoint_url="http://localhost:9000",
             aws_access_key_id='ROOTNAME',
             aws_secret_access_key='CHANGEME123',
             region_name='us-east-1'
         )
-    # if not client.bucket_exists("images"):
-    #     client.make_bucket("images")
-    #     LOGGER.info("Bucket 'images' created.")
-    # else:
-    #     LOGGER.info("Bucket 'images' already exists.")
 
+
+    # Example usage
+    bucket_name = "images"
+    if bucket_exists(bucket_name):
+        print(f"Proceeding with bucket '{bucket_name}'...")
+    else:
+        print(f"Bucket '{bucket_name}' does not exist. Creating it...")
+        create_bucket(bucket_name)
+    
+    # Copy images from ./images/src/* to MinIO bucket
+    local_src_folder = "./images/src"
+    s3_dest_folder = "src"
+
+    if os.path.exists(local_src_folder):
+        upload_files_to_bucket(bucket_name, local_src_folder, s3_dest_folder)
+    else:
+        print(f"Local source folder '{local_src_folder}' does not exist. Exiting.")
+        sys.exit(1)
+    
     procedure_name = sys.argv[1]  # The first argument is the procedure name
 
     connection, channel = message_queue_connect()
