@@ -62,6 +62,7 @@ export default {
           price: "$99.99/year",
           buttonText: "Choose Annual Plan",
         },
+        
       ],
     };
   },
