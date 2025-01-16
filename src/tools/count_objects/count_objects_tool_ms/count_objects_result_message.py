@@ -17,18 +17,18 @@ class CountObjectsResultMessage(ResultMessage[CountObjectsResultOutput]):
 
     def __init__(self, request: CountObjectsRequestMessage, tool_result: Any, exception: Exception, *args):
         """
-        Inicializa a mensagem de resultado para a contagem de pessoas.
+        Inicializa a mensagem de resultado para a contagem de objetos.
 
         Args:
             request (CountObjectsRequestMessage): Mensagem de solicitação com os parâmetros da imagem.
-            tool_result (Any): Resultado da execução da ferramenta, incluindo o número de pessoas detectadas.
+            tool_result (Any): Resultado da execução da ferramenta, incluindo o número de objetos detectados.
             exception (Exception): Exceção, caso ocorra algum erro durante o processamento.
         """
         super().__init__(request, tool_result, exception, *args)
         
         if exception is None:
-            # Criar a resposta com o número de pessoas detectadas
+            # Criar a resposta com os objetos detectados e suas contagens
             self.output = CountObjectsResultOutput(
                 type="dict",
-                count=tool_result
+                counts=tool_result  
             )

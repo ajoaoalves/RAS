@@ -14,15 +14,20 @@ def contar_objectos(imagem_path):
     # Fazer previsões
     resultados = modelo(imagem)
 
-    # Filtrar detecções de objectos
-    deteccoes = resultados[0].boxes  # Obter as caixas delimitadoras
-    objectos = [
-        box for box in deteccoes 
-        if int(box.cls) in modelo.names and modelo.names[int(box.cls)] == 'objects'
-    ]
+    # Initialize a dictionary to store counts
+    counts = {}
+
+        # Iterate over all detections
+    detections = resultados[0].boxes
+    for box in detections:
+        class_id = int(box.cls)
+        class_name = modelo.names[class_id]
+        # Increment the count for the detected class
+        counts[class_name] = counts.get(class_name, 0) + 1
+    
 
     # Retornar o número de objects
-    return len(objectos), imagem
+    return counts, imagem
 
 # Exemplo de uso
 if __name__ == "__main__":
