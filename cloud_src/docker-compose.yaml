@@ -53,7 +53,6 @@ services:
       rabbitmq:
         condition: service_healthy
 
-
   border-tool-ms:
     image: joaopedroabreu4/picturas_border_tool_ms:latest
     container_name: border-tool-ms
@@ -70,6 +69,19 @@ services:
   watermark-tool-ms:
     image: prcsousa/picturas-watermark-tool-ms:latest
     container_name: watermark-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  crop-tool-ms:
+    image: lunafigueiredo/picturas-crop-tool-ms:latest
+    container_name: crop-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
       - PICTURAS_LOG_LEVEL=INFO 

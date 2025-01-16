@@ -27,6 +27,28 @@ def message_queue_connect():
     channel = connection.channel()
     return connection, channel
 
+
+def message_queue_setup(channel,procedure_name):
+    channel.exchange_declare(
+        exchange="picturas.tools",
+        exchange_type=ExchangeType.direct,
+        durable=True,
+    )
+    channel.queue_declare(queue="results")
+    channel.queue_bind(
+        queue="results",
+        exchange="picturas.tools",
+        routing_key="results",
+    )
+    
+    channel.queue_declare(queue=f"{procedure_name}-requests", durable=True)
+    channel.queue_bind(
+        queue=f"{procedure_name}-requests",
+        exchange="picturas.tools",
+        routing_key=f"requests.{procedure_name}",
+    )
+
+
 def publish_request_message(channel, routing_key, request_id, procedure, parameters):
     # Build the request message payload
     message = {
@@ -49,7 +71,7 @@ def publish_request_message(channel, routing_key, request_id, procedure, paramet
 def publish_mock_requests_forever(procedure_name):
     try:
         while True:
-            
+
             for file_name in os.listdir(PICTURAS_SRC_FOLDER):
                 request_id = str(uuid.uuid4())
                 parameters = {
@@ -70,13 +92,27 @@ def publish_mock_requests_forever(procedure_name):
                     bordercolor = "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                     parameters["bordersize"] = bordersize
                     parameters["bordercolor"] = bordercolor
+                    
                 elif procedure_name == "count-people":
                     parameters = {
                         "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name)
                     }
 
+                elif procedure_name == "crop":
+                    # Define random crop box values
+                    crop_left = random.randint(0, 100)
+                    crop_upper = random.randint(0, 100)
+                    crop_right = random.randint(crop_left + 50, crop_left + 200)
+                    crop_lower = random.randint(crop_upper + 50, crop_upper + 200)
+
+                    # Ensure crop box is valid and within bounds
+                    crop_box = (crop_left, crop_upper, crop_right, crop_lower)
+                    parameters = {
+                        "crop_box": crop_box
+                    }
+                
                 publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, parameters)
-                time.sleep(random.uniform(1, 1))
+                time.sleep(random.uniform(2, 5))
     finally:
         connection.close()
 
@@ -106,5 +142,6 @@ if __name__ == "__main__":
     procedure_name = sys.argv[1]  # The first argument is the procedure name
 
     connection, channel = message_queue_connect()
+    message_queue_setup(channel,procedure_name)
     publish_mock_requests_forever(procedure_name)
     # TODO receive and process result messages on separate thread / runtime
