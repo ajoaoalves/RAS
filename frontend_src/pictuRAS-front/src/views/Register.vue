@@ -1,5 +1,7 @@
 <template>
-    <div class="register-view">
+    <div>
+        <Navbar/>
+        <div class="register-view">
       <h1 class="title">PICTURAS</h1>
       <h2 class="subtitle">Registro</h2>
   
@@ -7,15 +9,18 @@
         <RegisterForm @submit-register="handleRegister" />
       </div>
     </div>
+    </div>
 </template>
   
 <script>
+import Navbar from '../components/Navbar.vue';
 import RegisterForm from "../components/RegisterForm.vue";
 
 export default {
   name: "RegisterView",
   components: {
     RegisterForm,
+    Navbar
   },
   methods: {
     handleRegister(credentials) {

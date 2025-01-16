@@ -1,5 +1,7 @@
 <template>
-    <div class="login-view">
+    <div>
+        <Navbar/>
+        <div class="login-view">
       <h1 class="title">PICTURAS</h1>
       <h2 class="subtitle">Login</h2>
   
@@ -7,15 +9,18 @@
         <LoginForm @submit-login="handleLogin" />
       </div>
     </div>
+    </div>
   </template>
   
   <script>
+  import Navbar from '../components/Navbar.vue';
   import LoginForm from "../components/LoginForm.vue";
   
   export default {
     name: "LoginView",
     components: {
       LoginForm,
+      Navbar
     },
     methods: {
       handleLogin(credentials) {
