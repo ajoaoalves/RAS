@@ -36,7 +36,6 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f4f4f4;
 }
 
 .register-container {
