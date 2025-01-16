@@ -5,6 +5,7 @@ import random
 import time
 import uuid
 import sys
+import boto3
 from datetime import datetime
 
 import pika
@@ -102,6 +103,21 @@ if __name__ == "__main__":
             
               ''')
         sys.exit(1)
+
+
+    # Ensure S3 bucket 'images' exists
+    client = boto3.client(
+            's3',
+            endpoint_url="http://minio:9000",
+            aws_access_key_id='ROOTNAME',
+            aws_secret_access_key='CHANGEME123',
+            region_name='us-east-1'
+        )
+    # if not client.bucket_exists("images"):
+    #     client.make_bucket("images")
+    #     LOGGER.info("Bucket 'images' created.")
+    # else:
+    #     LOGGER.info("Bucket 'images' already exists.")
 
     procedure_name = sys.argv[1]  # The first argument is the procedure name
 
