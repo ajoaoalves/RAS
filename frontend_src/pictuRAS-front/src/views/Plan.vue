@@ -1,6 +1,8 @@
 <template>
+    <div> 
+    <Navbar/>
     <div class="plans-view">
-      <h1>Escolha o seu Plano de Subscrição</h1>
+      <h1>Choose Your Subscription Plan</h1>
       <div class="plans-container">
         <PlanCard
           v-for="plan in plans"
@@ -13,22 +15,26 @@
         />
       </div>
     </div>
-</template>
+    </div>
+  </template>
+  
 
 <script>
 import PlanCard from '../components/PlanCard.vue';
+import Navbar from '../components/Navbar.vue';
 
 export default {
   name: "PlansView",
   components: {
     PlanCard,
+    Navbar
   },
   data() {
     return {
       plans: [
         {
           id: 1,
-          name: "Plano Gratuito",
+          name: "Free Plan",
           description: [
             "Basic features with limited storage and tools.",
             "Ideal for individuals starting out."
@@ -80,4 +86,20 @@ export default {
   gap: 20px;
   flex-wrap: wrap;
 }
+
+.title-container {
+  text-align: center;
+  margin: 10px auto; /* Reduce vertical margins */
+  padding-top: 20px; /* Optional: add some space between the top of the page */
+}
+
+.banger-title {
+  font-size: 4rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #0c0134; /* Coral color for pop */
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  margin-bottom: 20px;
+}
+
 </style>

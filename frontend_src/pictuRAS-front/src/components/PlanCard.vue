@@ -63,7 +63,7 @@ export default {
 
 .plan-card .price {
   font-size: 1.5em;
-  color: #333;
+  color: #6b65db;
   margin: 15px 0;
 }
 
