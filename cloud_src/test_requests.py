@@ -34,7 +34,7 @@ def message_queue_setup(channel,procedure_name):
         exchange_type=ExchangeType.direct,
         durable=True,
     )
-    channel.queue_declare(queue="results")
+    channel.queue_declare(queue="results", durable=True)
     channel.queue_bind(
         queue="results",
         exchange="picturas.tools",
@@ -94,6 +94,10 @@ def publish_mock_requests_forever(procedure_name):
                     parameters["bordercolor"] = bordercolor
                     
                 elif procedure_name == "count-people":
+                    parameters = {
+                        "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name)
+                    }
+                elif procedure_name == "object-detection":
                     parameters = {
                         "inputImageURI": os.path.join(PICTURAS_SRC_FOLDER, file_name)
                     }
