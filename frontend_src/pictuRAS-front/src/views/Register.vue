@@ -36,6 +36,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background-color: #f4f4f4;
 }
 
 .register-container {
@@ -43,6 +44,35 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-field {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.register-button {
+  margin-top: 10px;
+  background-color: #28a745;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.error-message {
+  color: red;
+  margin-top: 5px;
+  text-align: center;
 }
 </style>

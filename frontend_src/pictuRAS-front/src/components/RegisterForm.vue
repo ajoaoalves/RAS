@@ -40,7 +40,7 @@
   
       <!-- Confirmar Senha -->
       <div>
-        <label for="confirmPassword" class="label">Confirmar Senha:</label>
+        <label for="confirmPassword" class="label">Confirmar senha:</label>
         <input
           v-model="confirmPassword"
           type="password"
