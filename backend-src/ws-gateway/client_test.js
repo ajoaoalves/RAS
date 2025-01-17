@@ -8,7 +8,7 @@ socket.on('connect', () => {
     console.log('Connected to WebSocket server');
 
     // Send a "run_project" request to the server
-    const projectRequest = { type: 'run_project', projectId: '12345' };
+    const projectRequest = { type: 'run_project', projectId: '516d3862-2a87-4e04-baf8-5bf640b94838' };
     console.log('Sending:', projectRequest);
     socket.emit('run_project', projectRequest);
 });
