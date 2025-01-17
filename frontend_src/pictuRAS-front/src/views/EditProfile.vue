@@ -73,7 +73,6 @@ export default {
   justify-content: center;
   height: 100vh;
   width: 100vw;
-  background-color: #dfe8f5; /* Azul claro */
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
@@ -110,7 +109,6 @@ export default {
 .profile-info {
   text-align: left;
   font-size: 1rem;
-  background-color: #f9f9f9;
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #ddd;
