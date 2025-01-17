@@ -9,14 +9,14 @@ const cors = require('cors');
 
 // Configurations
 const PORT = process.env.PORT || 8080;
-const PROJECTS_BACKEND_URL = 'http://localhost:80/projects';
+const PROJECTS_BACKEND_URL = 'http://projects-api:18018/projects';
 const STATIC_FILE_SERVER = '';
 
 const app = express();
 
 // Middlewares
-app.use(express.json()); 
-app.use(cors()); 
+app.use(express.json());
+app.use(cors());
 
 // Test endpoint
 app.get('/', (req, res) => {
