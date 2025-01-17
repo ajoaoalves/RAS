@@ -27,8 +27,8 @@ app.get('/', (req, res) => res.send('Socket.IO WebSocket Gateway is running...')
 
 /**
 // Handle WebSocket connections from browser
-
 */
+
 io.on('connection', (socket) => {
     console.log(`New client connected: ${socket.id}`);
 
@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
         try {
             // Parse the incoming data to extract projectId
             const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-            const projectId = parsedData.projectData._id;
+            const projectId = parsedData._id;
 
             if (!projectId) {
                 throw new Error('Invalid project data: projectId is missing');
@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
         try {
             // Parse the incoming data to extract projectId
             const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-            const projectId = parsedData.projectData._id;
+            const projectId = parsedData._id;
 
             if (!projectId) {
                 throw new Error('Invalid project data: projectId is missing');
