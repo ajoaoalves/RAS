@@ -32,17 +32,27 @@ io.on('connection', (socket) => {
     // Handle "save_project" messages
     socket.on('save_project', async (data) => {
         console.log('Received save_project:', data);
-
         try {
+            // Parse the incoming data to extract projectId
+            const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+            const projectId = parsedData.projectData._id;
+
+            if (!projectId) {
+                throw new Error('Invalid project data: projectId is missing');
+            }
+
             // Forward the request to the Projects Backend Service
-            const response = await axios.put(PROJECTS_BACKEND_URL + "/" + data.projectId, { data });
+            const response = await axios.put(`${PROJECTS_BACKEND_URL}/${projectId}`, { data: parsedData });
             console.log('Forwarded to Projects Backend:', response.data);
 
+            // Map this connection to the project ID for state updates
+            connections.set(projectId, socket);
+
             // Send acknowledgment back to the client
-            socket.emit('ack', { message: 'Project save request forwarded', projectId: data.projectId });
+            socket.emit('ack', { message: 'Project save request forwarded', projectId });
         } catch (error) {
-            console.error('Error forwarding request:', error.message);
-            socket.emit('error', { message: 'Failed to process request' });
+            console.error('Error processing request:', error.message);
+            socket.emit('error', { message: 'Failed to process request', error: error.message });
         }
     });
 
@@ -51,18 +61,26 @@ io.on('connection', (socket) => {
         console.log('Received run_project:', data);
 
         try {
+            // Parse the incoming data to extract projectId
+            const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+            const projectId = parsedData.projectData._id;
+
+            if (!projectId) {
+                throw new Error('Invalid project data: projectId is missing');
+            }
+
             // Forward the request to the Projects Backend Service
-            const response = await axios.put(PROJECTS_BACKEND_URL + "/" + data.projectId + "/exec", { data });
+            const response = await axios.put(`${PROJECTS_BACKEND_URL}/${projectId}/exec`, { data: parsedData });
             console.log('Forwarded to Projects Backend:', response.data);
 
             // Map this connection to the project ID for state updates
-            connections.set(data.projectId, socket);
+            connections.set(projectId, socket);
 
             // Send acknowledgment back to the client
-            socket.emit('ack', { message: 'Project run request forwarded', projectId: data.projectId });
+            socket.emit('ack', { message: 'Project run request forwarded', projectId });
         } catch (error) {
-            console.error('Error forwarding request:', error.message);
-            socket.emit('error', { message: 'Failed to process request' });
+            console.error('Error processing request:', error.message);
+            socket.emit('error', { message: 'Failed to process request', error: error.message });
         }
     });
 
