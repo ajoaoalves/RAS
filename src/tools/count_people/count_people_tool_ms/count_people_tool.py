@@ -1,5 +1,7 @@
 import boto3
 from ultralytics import YOLO
+from PIL import Image, ImageEnhance
+from io import BytesIO
 
 from .core.tool import Tool
 from .count_people_request_message import CountPeopleParameters
