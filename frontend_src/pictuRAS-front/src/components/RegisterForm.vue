@@ -12,6 +12,19 @@
           required
         />
       </div>
+
+      <!-- Campo de Username -->
+      <div>
+        <label for="username" class="label">Username:</label>
+        <input
+          v-model="username"
+          type="username"
+          id="username"
+          class="input-field"
+          placeholder="exemplo1234"
+          required
+        />
+      </div>
   
       <!-- Campo de E-mail -->
       <div>
