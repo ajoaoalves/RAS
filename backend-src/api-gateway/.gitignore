@@ -1,25 +1,2 @@
-# Ignorar a pasta node_modules
+# ignore node modules files, use `npm install` to create it
 node_modules/
-
-# Ignorar arquivos de log
-*.log
-
-# Ignorar arquivos de sistema do macOS
-.DS_Store
-
-# Ignorar arquivos de configuração do editor VS Code
-.vscode/
-
-# Ignorar arquivos de configuração do npm
-npm-debug.log
-yarn-error.log
-
-# Ignorar arquivos de ambiente
-.env
-
-# Ignorar arquivos gerados pelo build
-dist/
-build/
-
-# Ignorar arquivos temporários de sistemas Unix
-*.swp
