@@ -48,6 +48,26 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Handle "save_project" messages
+    socket.on('save_project', async (data) => {
+        console.log('Received save_project:', data);
+
+        try {
+            // Forward the save request to the Projects Backend Service
+            const response = await axios.put(`${PROJECTS_BACKEND_URL}/${data.projectId}`, {
+                projectId: data.projectId,
+                content: data.content, // Assuming "content" contains the project data to be saved
+            });
+            console.log('Project save request forwarded to backend:', response.data);
+
+            // Send acknowledgment back to the client
+            socket.emit('ack', { message: 'Project save request forwarded', projectId: data.projectId });
+        } catch (error) {
+            console.error('Error forwarding save request:', error.message);
+            socket.emit('error', { message: 'Failed to save project', details: error.message });
+        }
+    });
+
     // Handle client disconnection
     socket.on('disconnect', () => {
         console.log(`Client disconnected: ${socket.id}`);
