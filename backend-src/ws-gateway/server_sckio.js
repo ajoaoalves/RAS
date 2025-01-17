@@ -5,6 +5,7 @@ const axios = require('axios'); // For HTTP communication with Projects Backend
 
 const PORT = process.env.PORT || 8080;
 const PROJECTS_BACKEND_URL = 'http://projects-backend-service:3000/projects'; // Replace with the actual backend service URL
+const PROJECTS_BACKEND_WS_URL = 'http://projects-backend-service:3000'; // Backend WebSocket URL
 
 // Create an Express app and HTTP server
 const app = express();
@@ -60,32 +61,38 @@ io.on('connection', (socket) => {
     });
 });
 
-// Function to handle updates from the Projects Backend Service
-async function listenToProjectUpdates() {
-    console.log('Listening for project updates...');
+// Function to connect to the Projects Backend WebSocket
+function connectToBackendWebSocket() {
+    const backendSocket = require('socket.io-client')(PROJECTS_BACKEND_WS_URL);
 
-    // Simulate listening for updates (replace this with RabbitMQ, SSE, or WebSocket)
-    setInterval(async () => {
-        try {
-            // Fetch project state updates from the backend service
-            const response = await axios.get(`${PROJECTS_BACKEND_URL}/updates`);
-            const updates = response.data;
+    backendSocket.on('connect', () => {
+        console.log('Connected to Projects Backend WebSocket');
+    });
 
-            // Send updates to the corresponding clients
-            updates.forEach((update) => {
-                const socket = connections.get(update.projectId);
-                if (socket) {
-                    socket.emit('project_update', { state: update.state, projectId: update.projectId });
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching project updates:', error.message);
+    // Handle project updates from the backend
+    backendSocket.on('project_update', (update) => {
+        console.log('Received project update from backend:', update);
+
+        const socket = connections.get(update.projectId);
+        if (socket) {
+            socket.emit('project_update', { state: update.state, projectId: update.projectId });
         }
-    }, 5000); // Check for updates every 5 seconds (adjust as needed)
+    });
+
+    // Handle backend WebSocket disconnection
+    backendSocket.on('disconnect', () => {
+        console.warn('Projects Backend WebSocket disconnected. Reconnecting...');
+        setTimeout(connectToBackendWebSocket, 5000); // Retry connection after 5 seconds
+    });
+
+    // Handle backend WebSocket errors
+    backendSocket.on('error', (error) => {
+        console.error('Error with Projects Backend WebSocket:', error.message);
+    });
 }
 
-// Start listening for project updates
-listenToProjectUpdates();
+// Start listening for backend updates
+connectToBackendWebSocket();
 
 // Start the server
 server.listen(PORT, () => {
