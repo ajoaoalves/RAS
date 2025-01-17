@@ -5,7 +5,7 @@ RABBITMQ_PORT = os.getenv("RABBITMQ_PORT", 5672)
 RABBITMQ_USER = os.getenv("RABBITMQ_USER", "guest")
 RABBITMQ_PASS = os.getenv("RABBITMQ_PASS", "guest")
 
-RABBITMQ_REQUESTS_QUEUE_NAME = os.getenv("RABBITMQ_REQUESTS_QUEUE_NAME", "remove-background-requests")
+RABBITMQ_REQUESTS_QUEUE_NAME = os.getenv("RABBITMQ_REQUESTS_QUEUE_NAME", "background-removal-requests")
 
 RABBITMQ_RESULTS_EXCHANGE = os.getenv("RABBITMQ_RESULTS_EXCHANGE", "picturas.tools")
 RABBITMQ_RESULTS_ROUTING_KEY = os.getenv("RABBITMQ_RESULTS_ROUTING_KEY", "results")
