@@ -1,88 +1,100 @@
-const WebSocket = require('ws');
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const axios = require('axios'); // For HTTP communication with Projects Backend
 
 const PORT = process.env.PORT || 8080;
 const PROJECTS_BACKEND_URL = 'http://projects-backend-service:3000/projects'; // Replace with the actual backend service URL
+const PROJECTS_BACKEND_WS_URL = 'http://projects-backend-service:3000'; // Backend WebSocket URL
 
-// Create an Express app
+// Create an Express app and HTTP server
 const app = express();
-app.get('/', (req, res) => res.send('WebSocket Gateway is running...'));
-app.listen(PORT, () => console.log(`HTTP server listening on port ${PORT}`));
+const server = http.createServer(app);
 
-// Create a WebSocket Server
-const wss = new WebSocket.Server({ port: 8081 });
+// Create a Socket.IO server
+const io = new Server(server, {
+    cors: {
+        origin: '*', // Allow all origins (configure for production)
+    },
+});
 
-console.log(`WebSocket server listening on port 8081`);
-
-// Maintain a mapping of WebSocket connections to projects
+// Maintain a mapping of Socket.IO connections to projects
 const connections = new Map();
 
-wss.on('connection', (ws) => {
-    console.log('New WebSocket connection');
+// Serve a basic HTTP endpoint
+app.get('/', (req, res) => res.send('Socket.IO WebSocket Gateway is running...'));
 
-    ws.on('message', async (message) => {
-        const decodedMessage = message.toString(); // Convert buffer to string
-        console.log('Received:', decodedMessage);
+// Handle WebSocket connections
+io.on('connection', (socket) => {
+    console.log(`New client connected: ${socket.id}`);
+
+    // Handle "run_project" messages
+    socket.on('run_project', async (data) => {
+        console.log('Received run_project:', data);
 
         try {
-            // Parse the message (assuming it's JSON)
-            const data = JSON.parse(decodedMessage);
+            // Forward the request to the Projects Backend Service
+            const response = await axios.post(PROJECTS_BACKEND_URL, { projectId: data.projectId });
+            console.log('Forwarded to Projects Backend:', response.data);
 
-            if (data.type === 'run_project') {
-                // Forward the request to the Projects Backend Service
-                const response = await axios.post(PROJECTS_BACKEND_URL, { projectId: data.projectId });
-                console.log('Forwarded to Projects Backend:', response.data);
+            // Map this connection to the project ID for state updates
+            connections.set(data.projectId, socket);
 
-                // Map this connection to the project ID for state updates
-                connections.set(data.projectId, ws);
-
-                // Send acknowledgment back to the WebSocket client
-                ws.send(JSON.stringify({ type: 'ack', message: 'Project run request forwarded', projectId: data.projectId }));
-            } else {
-                ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }));
-            }
+            // Send acknowledgment back to the client
+            socket.emit('ack', { message: 'Project run request forwarded', projectId: data.projectId });
         } catch (error) {
-            console.error('Error handling message:', error);
-            ws.send(JSON.stringify({ type: 'error', message: 'Failed to process request' }));
+            console.error('Error forwarding request:', error.message);
+            socket.emit('error', { message: 'Failed to process request' });
         }
     });
 
-    ws.on('close', () => {
-        console.log('WebSocket connection closed');
-        // Optionally clean up the mapping
-        for (const [projectId, connection] of connections.entries()) {
-            if (connection === ws) {
+    // Handle client disconnection
+    socket.on('disconnect', () => {
+        console.log(`Client disconnected: ${socket.id}`);
+
+        // Clean up the mapping
+        for (const [projectId, clientSocket] of connections.entries()) {
+            if (clientSocket === socket) {
                 connections.delete(projectId);
             }
         }
     });
 });
 
-// Function to handle updates from the Projects Backend Service
-async function listenToProjectUpdates() {
-    // Example: Use long polling, SSE, or WebSocket to listen for updates
-    console.log('Listening for project updates...');
+// Function to connect to the Projects Backend WebSocket
+function connectToBackendWebSocket() {
+    const backendSocket = require('socket.io-client')(PROJECTS_BACKEND_WS_URL);
 
-    // Replace this with the actual subscription method (e.g., RabbitMQ, polling, or WebSocket)
-    setInterval(async () => {
-        try {
-            // Fetch project state updates from the backend service
-            const response = await axios.get(`${PROJECTS_BACKEND_URL}/updates`);
-            const updates = response.data;
+    backendSocket.on('connect', () => {
+        console.log('Connected to Projects Backend WebSocket');
+    });
 
-            // Send updates to the corresponding WebSocket clients
-            updates.forEach((update) => {
-                const ws = connections.get(update.projectId);
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'update', state: update.state, projectId: update.projectId }));
-                }
-            });
-        } catch (error) {
-            console.error('Error fetching project updates:', error);
+    // Handle project updates from the backend
+    backendSocket.on('project_update', (update) => {
+        console.log('Received project update from backend:', update);
+
+        const socket = connections.get(update.projectId);
+        if (socket) {
+            socket.emit('project_update', { state: update.state, projectId: update.projectId });
         }
-    }, 5000); // Check for updates every 5 seconds (adjust as needed)
+    });
+
+    // Handle backend WebSocket disconnection
+    backendSocket.on('disconnect', () => {
+        console.warn('Projects Backend WebSocket disconnected. Reconnecting...');
+        setTimeout(connectToBackendWebSocket, 5000); // Retry connection after 5 seconds
+    });
+
+    // Handle backend WebSocket errors
+    backendSocket.on('error', (error) => {
+        console.error('Error with Projects Backend WebSocket:', error.message);
+    });
 }
 
-// Start listening for project updates
-listenToProjectUpdates();
+// Start listening for backend updates
+connectToBackendWebSocket();
+
+// Start the server
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
