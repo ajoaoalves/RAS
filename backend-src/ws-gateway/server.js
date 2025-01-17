@@ -24,7 +24,11 @@ const connections = new Map();
 // Serve a basic HTTP endpoint
 app.get('/', (req, res) => res.send('Socket.IO WebSocket Gateway is running...'));
 
-// Handle WebSocket connections
+
+/**
+// Handle WebSocket connections from browser
+
+*/
 io.on('connection', (socket) => {
     console.log(`New client connected: ${socket.id}`);
 
