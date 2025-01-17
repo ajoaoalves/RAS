@@ -8,6 +8,15 @@
         "_id": "d3011aad-7c20-4f4a-8191-7749325a49ae",
         "uri": "https://s3.picturas.com/d3011aad-7c20-4f4a-8191-7749325a49ae.jpeg"
       }
+    ],
+    "tools": [
+      {
+        "_id": "a5c27b9d-1261-4291-ae34-4b70877a3e58",
+        "procedure": "Rotação",
+        "parameters": [
+          { "name": "Ãngulo", "value": 90 }
+        ]
+      }
     ]
   },
   {
@@ -18,6 +27,14 @@
       {
         "_id": "fa9012eb-874d-4cd7-a0e5-432b2e9fbe8a",
         "uri": "https://s3.picturas.com/fa9012eb-874d-4cd7-a0e5-432b2e9fbe8a.jpeg"
+      }
+    ],
+    "tools": [
+      {
+        "_id": "d8cdbb19-9a29-4e7e-a1ad-59c63b71f5e2",
+        "procedure": "Remoção do fundo da imagem",
+        "parameters": [
+        ]
       }
     ]
   },
@@ -30,6 +47,15 @@
         "_id": "b7c5a9f3-3827-45e2-a5d8-8f32c5e4f9a6",
         "uri": "https://s3.picturas.com/b7c5a9f3-3827-45e2-a5d8-8f32c5e4f9a6.jpeg"
       }
+    ],
+    "tools": [
+      {
+        "_id": "bc9b9a36-028d-475b-a5ff-dbf1a23c1fe2",
+        "procedure": "Alteração do brilho e contraste",
+        "parameters": [
+          { "name": "Valor", "value": 2.5 }
+        ]
+      }
     ]
   },
   {
@@ -40,6 +66,14 @@
       {
         "_id": "e93c5f7a-b2a4-489f-8493-7f6a1e0d9b2c",
         "uri": "https://s3.picturas.com/e93c5f7a-b2a4-489f-8493-7f6a1e0d9b2c.jpeg"
+      }
+    ],
+    "tools": [
+      {
+        "_id": "a3e1b9d7-847e-4e93-80bb-6b26f8e4f3ad",
+        "procedure": "Contar pessoas",
+        "parameters": [
+        ]
       }
     ]
   },
@@ -52,6 +86,14 @@
         "_id": "a2b3c4d5-678e-4a9b-923c-8f6e5b7d1f0a",
         "uri": "https://s3.picturas.com/a2b3c4d5-678e-4a9b-923c-8f6e5b7d1f0a.jpeg"
       }
+    ],
+    "tools": [
+      {
+        "_id": "f0a7d8d6-1156-49da-8782-66dbbdf6dbfc",
+        "procedure": "Contar Objectos",
+        "parameters": [
+        ]
+      }
     ]
   },
   {
@@ -62,6 +104,16 @@
       {
         "_id": "b8c7f5e9-2a3d-45c9-bd8f-9a1e0c6f4b7a",
         "uri": "https://s3.picturas.com/b8c7f5e9-2a3d-45c9-bd8f-9a1e0c6f4b7a.jpeg"
+      }
+    ],
+    "tools": [
+      {
+        "_id": "1dbed013-9254-4798-b6f9-2da9383a5fdd",
+        "procedure": "Colocação de bordos coloridos",
+        "parameters": [
+          { "name": "Tamanho da Borda", "value": 2 },
+          { "name": "Cor", "value": "Preto" }
+        ]
       }
     ]
   },
@@ -74,6 +126,14 @@
         "_id": "c9d0e1f2-34a5-45b8-94c3-e7f6a9b0d1a8",
         "uri": "https://s3.picturas.com/c9d0e1f2-34a5-45b8-94c3-e7f6a9b0d1a8.jpeg"
       }
+    ],
+    "tools": [
+      {
+        "_id": "1dbed013-9254-4798-b6f9-2da9383a5fdd",
+        "procedure": "Contar pessoas",
+        "parameters": [
+        ]
+      }
     ]
   },
   {
@@ -84,6 +144,16 @@
       {
         "_id": "d1f3a5c6-7b8a-4c9e-923f-0e9a8b7c5d4a",
         "uri": "https://s3.picturas.com/d1f3a5c6-7b8a-4c9e-923f-0e9a8b7c5d4a.jpeg"
+      }
+    ],
+    "tools": [
+      {
+        "_id": "ac99d7d3-2040-402f-9a5c-6e1f6b27989d",
+        "procedure": "Alteração do brilho e contraste",
+        "parameters": [
+          { "name": "Tamanho da Borda", "value": 4 },
+          { "name": "Cor", "value": "Vermelho" }
+        ]
       }
     ]
   },
@@ -96,6 +166,14 @@
         "_id": "e2f4a6b7-89c3-4b9a-bd5e-7a6c8f9d1a0e",
         "uri": "https://s3.picturas.com/e2f4a6b7-89c3-4b9a-bd5e-7a6c8f9d1a0e.jpeg"
       }
+    ],
+    "tools": [
+      {
+        "_id": "a7736a43-1bb6-4a93-b9c7-65ac05e4f75d",
+        "procedure": "Contar Objectos",
+        "parameters": [
+        ]
+      }
     ]
   },
   {
@@ -107,6 +185,16 @@
         "_id": "f3a2b4c5-6d7e-4e9f-a8c9-1b7f5d4a0e6c",
         "uri": "https://s3.picturas.com/f3a2b4c5-6d7e-4e9f-a8c9-1b7f5d4a0e6c.jpeg"
       }
+    ],
+    "tools": [
+      {
+        "_id": "b6e582a3-f7a1-496b-b8d3-7f4b1c6e0f6d",
+        "procedure": "Rotação",
+        "parameters": [
+          { "name": "Ãngulo", "value": 180 }
+        ]
+      }
     ]
   }
 ]
+

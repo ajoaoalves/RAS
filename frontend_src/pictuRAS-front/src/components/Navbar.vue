@@ -5,6 +5,7 @@
         <ul class="navbar-links">
           <li><a href="/" class="navbar-link">Home</a></li>
           <li><a href="/projects" class="navbar-link">My Projects</a></li>
+          <li><a href="/profile" class="navbar-link">Profile</a></li>
           <li><a href="/login" class="navbar-link">Login</a></li>
         </ul>
       </div>

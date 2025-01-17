@@ -29,4 +29,11 @@ router.put('/projects/:id', function(req, res) {
   .catch(erro => res.status(524).jsonp(erro))
 });
 
+router.delete('/projects/:id', function(req, res) {
+  console.log(req.body)
+  Project.deleteProject(req.params.id, req.body)
+  .then(data => res.status(200).jsonp(data))
+  .catch(erro => res.status(525).jsonp(erro))
+});
+
 module.exports = router;
