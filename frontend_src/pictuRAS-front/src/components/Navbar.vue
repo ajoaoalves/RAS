@@ -4,9 +4,8 @@
         <a href="/" class="navbar-logo">PICTURAS</a>
         <ul class="navbar-links">
           <li><a href="/" class="navbar-link">Home</a></li>
-          <li><a href="/plans" class="navbar-link">Plans</a></li>
-          <li><a href="/about" class="navbar-link">About</a></li>
-          <li><a href="/contact" class="navbar-link">Contact</a></li>
+          <li><a href="/projects" class="navbar-link">My Projects</a></li>
+          <li><a href="/login" class="navbar-link">Login</a></li>
         </ul>
       </div>
     </nav>
@@ -54,7 +53,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #ff7f50;
+    background-color: #09008a;
     color: white;
     padding: 15px 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
