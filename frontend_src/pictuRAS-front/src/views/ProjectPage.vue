@@ -1,69 +1,141 @@
 <template>
-    <div class="project-page">
+    <div class="dashboard">
       <Navbar />
-      <div class="project-header">
-        <h1>Manage Project: {{ projectName }}</h1>
-      </div>
   
-      <!-- Project Images Section -->
-      <section class="project-images">
-        <h2>Upload Images</h2>
-        <input type="file" multiple @change="uploadImages" accept="image/*" />
-        <p v-if="uploadError" class="error">{{ uploadError }}</p>
-        <div class="image-list">
-          <h3>Uploaded Images:</h3>
-          <ul>
-            <li v-for="(image, index) in projectImages" :key="index" class="image-item">
-              <img :src="image.url" alt="Uploaded Image" />
-              <button class="delete-button" @click="deleteImage(index)">Delete</button>
+      <!-- Header Section -->
+      <header class="dashboard-header">
+        <h1>Project Dashboard: {{ projectName }}</h1>
+        <button class="save-button" @click="saveProject">Save Project</button>
+      </header>
+  
+      <!-- Main Content -->
+      <div class="dashboard-main">
+        <!-- Upload Images Section -->
+        <section class="upload-section">
+          <h2>Upload Images</h2>
+          <input type="file" multiple @change="uploadImages" accept="image/*" />
+          <p v-if="uploadError" class="error">{{ uploadError }}</p>
+          <div class="uploaded-images">
+            <h3>Uploaded Images:</h3>
+            <ul>
+              <li v-for="(image, index) in projectImages" :key="index">
+                <img
+                  :src="image.url"
+                  :alt="image.name"
+                  class="thumbnail"
+                  @click="selectImage(index)"
+                />
+                {{ image.name }}
+                <button class="delete-button" @click="deleteImage(index)">Delete</button>
+              </li>
+            </ul>
+          </div>
+        </section>
+  
+        <!-- Tools Section -->
+        <section class="tools-section">
+          <h2>Tools</h2>
+          <div class="tools-grid">
+            <ToolComponent
+              v-for="tool in availableTools"
+              :key="tool.id"
+              :tool="tool"
+              @applyTool="applyTool"
+            />
+          </div>
+        </section>
+        <section class="toolchain-section">
+          <h2>Toolchain</h2>
+          <ul class="toolchain-list">
+            <li
+              v-for="(tool, index) in selectedTools"
+              :key="index"
+              class="toolchain-item"
+            >
+              <span>{{ tool.name }} (Instance {{ index + 1 }})</span>
+              <button @click="editTool(index)" class="edit-button">Edit</button>
+              <button @click="removeTool(index)" class="remove-button">Remove</button>
+              <button
+                @click="moveTool(index, -1)"
+                :disabled="index === 0"
+                class="move-button"
+              >
+                ↑
+              </button>
+              <button
+                @click="moveTool(index, 1)"
+                :disabled="index === selectedTools.length - 1"
+                class="move-button"
+              >
+                ↓
+              </button>
             </li>
           </ul>
-        </div>
-      </section>
+          <button class="process-button" @click="processImages">Process Images</button>
+        </section>
+        <!-- Preview Section -->
+        <section class="preview-section">
+          <h2>Preview</h2>
+          <div v-if="selectedImage !== null" class="preview-container">
+            <h3>{{ projectImages[selectedImage].name }}</h3>
+            <div
+              v-for="(step, stepIndex) in selectedTools"
+              :key="stepIndex"
+              class="preview-thumbnail"
+            >
+              <img
+                :src="projectImages[selectedImage].url"
+                :alt="`Preview Step ${stepIndex + 1}`"
+                class="thumbnail"
+                @click="openImage(projectImages[selectedImage].url)"
+              />
+              <p>Step {{ stepIndex + 1 }}: {{ step.name }}</p>
+            </div>
+          </div>
+          <p v-else>No image selected. Click on an image to view its preview.</p>
+        </section>
   
-      <!-- Project Tools Section -->
-      <section class="project-tools">
-        <h2>Manage Tools</h2>
-        <div class="tools-container">
-          <div class="available-tools">
-            <h3>Available Tools</h3>
-            <ul>
-              <li v-for="tool in availableTools" :key="tool.id" class="tool-item">
-                {{ tool.name }}
-                <button class="add-button" @click="addTool(tool)">Add</button>
-              </li>
-            </ul>
-          </div>
-          <div class="selected-tools">
-            <h3>Selected Tools</h3>
-            <ul>
-              <li v-for="(tool, index) in selectedTools" :key="tool.id" class="tool-item">
-                {{ tool.name }}
-                <button class="remove-button" @click="removeTool(index)">Remove</button>
-                <button class="move-button" @click="moveToolUp(index)" :disabled="index === 0">↑</button>
-                <button class="move-button" @click="moveToolDown(index)" :disabled="index === selectedTools.length - 1">↓</button>
-              </li>
-            </ul>
-          </div>
+        <!-- Toolchain Section -->
+        
+  
+        <!-- Edit Tool Modal -->
+        <div
+  v-if="editingTool !== null && selectedTools[editingTool] && selectedTools[editingTool].parameters && Object.keys(selectedTools[editingTool].parameters).length > 0"
+  class="modal"
+  @click="closeEditModal"
+>
+  <div class="modal-content" @click.stop>
+    <h3>Edit Tool: {{ selectedTools[editingTool].name }}</h3>
+    <div v-for="(value, key) in selectedTools[editingTool].parameters" :key="key">
+      <label :for="key">{{ key }}</label>
+      <input
+        v-if="typeof value === 'number' || typeof value === 'string'"
+        :type="typeof value === 'number' ? 'number' : 'text'"
+        :id="key"
+        v-model="selectedTools[editingTool].parameters[key]"
+      />
+    </div>
+    <button class="save-button" @click="saveToolEdits">Save</button>
+  </div>
+</div>
+
+<p v-else>No parameters to edit for this tool.</p>
+  
+        <!-- Modal Section for Image Zoom -->
+        <div v-if="zoomedImage" class="modal" @click="zoomedImage = null">
+          <img :src="zoomedImage" alt="Zoomed Image" class="zoomed-image" />
         </div>
-        <button
-          class="process-button"
-          @click="processImages"
-          :disabled="!selectedTools.length || !projectImages.length"
-        >
-          Process Images
-        </button>
-      </section>
+      </div>
     </div>
   </template>
   
   <script>
   import Navbar from "../components/Navbar.vue";
+  import ToolComponent from "../components/ToolComponent.vue";
+  
   export default {
-    name: "ProjectPage",
-    components: {
-        Navbar
-    },
+    name: "ProjectDashboard",
+    components: { Navbar, ToolComponent },
     props: {
       projectId: {
         type: String,
@@ -79,12 +151,34 @@
         projectImages: [],
         selectedTools: [],
         availableTools: [
-          { id: 1, name: "Rotate" },
-          { id: 2, name: "Crop" },
-          { id: 3, name: "Resize" },
-          { id: 4, name: "Adjust Brightness" },
+          {
+            id: 1,
+            name: "Rotate",
+            parameters: [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }],
+          },
+          {
+            id: 2,
+            name: "Crop",
+            parameters: [
+              { name: "width", label: "Width (px)", type: "number", value: 100 },
+              { name: "height", label: "Height (px)", type: "number", value: 100 },
+            ],
+          },
+          {
+            id: 3,
+            name: "Resize",
+            parameters: [{ name: "scale", label: "Scale (factor)", type: "number", value: 1 }],
+          },
+          {
+            id: 4,
+            name: "Adjust Brightness",
+            parameters: [{ name: "brightness", label: "Brightness (%)", type: "number", value: 100 }],
+          },
         ],
         uploadError: "",
+        zoomedImage: null,
+        selectedImage: null,
+        editingTool: null,
       };
     },
     methods: {
@@ -94,7 +188,7 @@
           if (file.size <= 5 * 1024 * 1024) {
             const reader = new FileReader();
             reader.onload = () => {
-              this.projectImages.push({ url: reader.result, file });
+              this.projectImages.push({ url: reader.result, name: file.name });
             };
             reader.readAsDataURL(file);
           } else {
@@ -103,110 +197,176 @@
         });
       },
       deleteImage(index) {
+        if (this.selectedImage === index) {
+          this.selectedImage = null;
+        }
         this.projectImages.splice(index, 1);
       },
-      addTool(tool) {
-        if (!this.selectedTools.some((t) => t.id === tool.id)) {
-          this.selectedTools.push({ ...tool });
-        }
+      applyTool(tool) {
+        const newToolInstance = { ...tool, parameters: JSON.parse(JSON.stringify(tool.parameters)), id: Date.now() };
+        this.selectedTools.push(newToolInstance);
       },
       removeTool(index) {
         this.selectedTools.splice(index, 1);
       },
-      moveToolUp(index) {
-        if (index > 0) {
-          const temp = this.selectedTools[index];
-          this.selectedTools[index] = this.selectedTools[index - 1];
-          this.selectedTools[index - 1] = temp;
-        }
+      editTool(index) {
+  const tool = this.selectedTools[index];
+  if (tool && tool.parameters && Object.keys(tool.parameters).length > 0) {
+    this.editingTool = index;
+  } else {
+    console.warn("No parameters found for the selected tool:", tool);
+    this.editingTool = null;
+  }
+},
+
+      saveToolEdits() {
+        this.editingTool = null;
       },
-      moveToolDown(index) {
-        if (index < this.selectedTools.length - 1) {
-          const temp = this.selectedTools[index];
-          this.selectedTools[index] = this.selectedTools[index + 1];
-          this.selectedTools[index + 1] = temp;
-        }
+      closeEditModal() {
+        this.editingTool = null;
+      },
+      moveTool(index, direction) {
+        const newIndex = index + direction;
+        const temp = this.selectedTools[index];
+        this.selectedTools[index] = this.selectedTools[newIndex];
+        this.selectedTools[newIndex] = temp;
       },
       processImages() {
-        const processingRequest = {
-          projectId: this.projectId,
-          tools: this.selectedTools,
-          images: this.projectImages.map((img) => img.file),
-        };
-        console.log("Processing Images Request: ", processingRequest);
+        console.log("Processing images with toolchain:", this.selectedTools);
+      },
+      saveProject() {
+        console.log("Saving project...");
+      },
+      selectImage(index) {
+        this.selectedImage = index;
+      },
+      openImage(url) {
+        this.zoomedImage = url;
       },
     },
   };
   </script>
   
   <style scoped>
-  .project-page {
+  .dashboard {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    padding: 20px;
-    min-height: 100vh;
     color: #333;
+    padding: 20px;
+    background: #f9f9f9;
   }
   
-  .project-header {
-    text-align: center;
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
-    background-color: #007bff;
-    color: white;
-    padding: 15px;
+  }
+  
+  .dashboard-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .upload-section,
+  .tools-section,
+  .preview-section,
+  .toolchain-section {
+    background: #fff;
     border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 15px;
   }
   
-  .project-header h1 {
-    margin: 0;
-    font-size: 2rem;
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
   }
   
-  .project-images,
-  .project-tools {
-    margin-bottom: 30px;
+  .preview-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   
-  .project-images h2,
-  .project-tools h2 {
-    font-size: 1.5rem;
+  .preview-thumbnail {
+    text-align: center;
+  }
+  
+  .toolchain-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .toolchain-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
   }
   
-  .image-list ul {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  
-  .image-item img {
+  .thumbnail {
     width: 100px;
     height: 100px;
     object-fit: cover;
     border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .zoomed-image {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   
   button {
     padding: 5px 10px;
-    border-radius: 5px;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease;
   }
   
-  button:hover {
-    transform: scale(1.05);
-  }
-  
-  .add-button {
-    background-color: #28a745;
+  .save-button {
+    background-color: #007bff;
     color: white;
   }
   
-  .remove-button,
   .delete-button {
     background-color: #dc3545;
     color: white;
+  }
+  
+  .remove-button {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .edit-button {
+    background-color: #ffc107;
+    color: black;
   }
   
   .move-button {
@@ -215,29 +375,13 @@
   }
   
   .process-button {
-    background-color: #007bff;
+    background-color: #28a745;
     color: white;
-    margin-top: 20px;
   }
   
   button:disabled {
-    background-color: #6c757d;
+    background-color: #ccc;
     cursor: not-allowed;
-  }
-  
-  .tools-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  li {
-    margin-bottom: 10px;
   }
   </style>
   
