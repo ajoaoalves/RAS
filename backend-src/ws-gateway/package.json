@@ -2,8 +2,10 @@
   "name": "ws-gateway",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "dependencies": {
+    "axios": "^0.27.2",
     "express": "^4.21.2",
     "ws": "^8.18.0"
   },

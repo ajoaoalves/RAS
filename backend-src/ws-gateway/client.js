@@ -4,7 +4,12 @@ const ws = new WebSocket('ws://localhost:8081');
 
 ws.on('open', () => {
     console.log('Connected to WebSocket server');
-    ws.send('Hello from client!');
+
+    // Send a test message to the server
+    const testMessage = JSON.stringify({ type: 'run_project', projectId: '12345' });
+    console.log('Sending:', testMessage);
+    ws.send(testMessage);
+
 });
 
 ws.on('message', (message) => {
