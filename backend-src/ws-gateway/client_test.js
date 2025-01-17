@@ -7,10 +7,23 @@ const socket = io('http://localhost:8080');
 socket.on('connect', () => {
     console.log('Connected to WebSocket server');
 
-    // Send a "run_project" request to the server
-    const projectRequest = { type: 'run_project', projectId: '516d3862-2a87-4e04-baf8-5bf640b94838' };
+    const projectRequest = {
+        type: 'save_project',
+        projectData: {
+            _id: "516d3862-2a87-4e04-baf8-5bf640b94838",
+            name: "Fotografias da galaxia",
+            user_id: "0e6d0ce7-08c1-4de9-b7ff-82554bad32d8",
+            images: [
+                {
+                    _id: "d3011aad-7c20-4f4a-8191-7749325a49ae",
+                    uri: "https://s3.picturas.com/d3011aad-7c20-4f4a-8191-7749325a49ae.jpeg"
+                }
+            ]
+        }
+    };
+
     console.log('Sending:', projectRequest);
-    socket.emit('run_project', projectRequest);
+    socket.emit('save_project', projectRequest);
 });
 
 // Handle acknowledgment from the server
