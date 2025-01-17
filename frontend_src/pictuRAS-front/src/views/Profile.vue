@@ -2,39 +2,18 @@
     <div>
       <Navbar />
       <div class="profile-view">
-        <h1 class="title">PICTURAS</h1>
+        <div class="profile-card">
+          <h1 class="title">PICTURAS</h1>
+          <h2 class="profile-title">O teu perfil</h2>
   
-        <div class="profile-container">
-          <div class="profile-card">
-            <div class="profile-header">
-              <i class="fas fa-user-circle"></i>
-              <h2>O teu perfil</h2>
-            </div>
+          <div class="profile-info">
+            <p><strong>Nome completo:</strong><br> {{ user.fullName }}</p>
+            <p><strong>Nome de utilizador:</strong><br> {{ user.username }}</p>
+            <p><strong>E-mail:</strong><br> {{ user.email }}</p>
+          </div>
   
-            <div class="form-group">
-              <label>Nome Completo:</label>
-              <input type="text" v-model="user.fullName" placeholder="Nome Completo" />
-            </div>
-  
-            <div class="form-group">
-              <label>Nome de Utilizador:</label>
-              <input type="text" v-model="user.username" placeholder="NomeDeUtilizador" />
-            </div>
-  
-            <div class="form-group">
-              <label>E-mail:</label>
-              <input type="email" v-model="user.email" placeholder="example@email.com" />
-            </div>
-  
-            <div class="form-group">
-              <label>Palavra-passe:</label>
-              <input type="password" v-model="user.password" placeholder="**********" />
-            </div>
-  
-            <div class="button-group">
-              <button class="save-btn" @click="saveProfile">Editar e Guardar</button>
-              <button class="cancel-btn" @click="cancelEdit">Cancelar</button>
-            </div>
+          <div class="button-group">
+            <button class="edit-btn" @click="editProfile">Editar perfil</button>
           </div>
         </div>
       </div>
@@ -52,124 +31,92 @@
     data() {
       return {
         user: {
-          fullName: "",
-          username: "",
-          email: "",
-          password: ""
+          fullName: "João Silva",
+          username: "joaosilva",
+          email: "joao.silva@email.com"
         }
       };
     },
     methods: {
-      saveProfile() {
-        console.log("Perfil guardado:", this.user);
-        alert("Perfil guardado com sucesso!");
-      },
-      cancelEdit() {
-        console.log("Edição cancelada.");
-        alert("Edição cancelada.");
+      editProfile() {
+        console.log("Redirigindo para edição do perfil...");
+        this.$router.push('/edit-profile'); // Redirige a la página de edición
       }
     }
   };
   </script>
   
   <style scoped>
-  /* Centrar toda la vista */
+  /* Asegurar que la vista cubra toda la pantalla sin barras de desplazamiento */
   .profile-view {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh; /* Ocupar toda la altura de la pantalla */
-    background-color: #dfe8f5; /* Fondo general */
+    height: 95vh;
+    width: 100vh;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  /* Tarjeta del perfil más compacta y centrada */
+  .profile-card {
+    background-color: #ffffff;
+    padding: 30px;
+    width: 50%;
+    max-width: 450px; /* Tamaño óptimo para evitar barras */
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #333;
   }
   
   /* Título principal */
   .title {
-    font-size: 3rem;
+    font-size: 2.2rem;
     font-weight: bold;
     color: #003c8f;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
   }
   
-  /* Contenedor para centrar la tarjeta */
-  .profile-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  }
-  
-  /* Tarjeta del perfil (más grande y con fondo azul) */
-  .profile-card {
-    background-color: #003c8f; /* Azul más intenso */
-    padding: 40px;
-    width: 60%; /* Más grande */
-    max-width: 700px; /* Máximo tamaño */
-    border-radius: 15px;
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    color: white;
-  }
-  
-  /* Encabezado de la tarjeta */
-  .profile-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-size: 1.5rem;
+  /* Título del perfil */
+  .profile-title {
+    font-size: 1.8rem;
     font-weight: bold;
     margin-bottom: 20px;
   }
   
-  /* Grupo de formularios */
-  .form-group {
-    text-align: left;
-    margin-bottom: 15px;
-  }
-  
-  /* Estilo de etiquetas */
-  label {
-    font-size: 1rem;
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-    color: white;
-  }
-  
-  /* Estilo de los inputs */
-  input {
+  /* Información del perfil */
+  .profile-info {
+    text-align: center;
+    font-size: 1.2rem;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
     width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    color: black;
+    box-sizing: border-box;
   }
   
-  /* Botones */
+  /* Espaciado entre el nombre del atributo y el valor */
+  .profile-info p {
+    margin: 15px 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  
+  /* Botón Editar */
   .button-group {
     display: flex;
     justify-content: center;
-    gap: 15px;
     margin-top: 20px;
   }
   
-  .save-btn {
-    background-color: white;
-    color: #003c8f;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .cancel-btn {
-    background-color: #d9534f;
+  .edit-btn {
+    background-color: #007bff;
     color: white;
-    padding: 12px 20px;
+    padding: 10px 20px;
     border: none;
     border-radius: 8px;
     font-size: 1rem;
@@ -177,20 +124,26 @@
     cursor: pointer;
   }
   
-  .save-btn:hover {
-    background-color: #f0f0f0;
+  .edit-btn:hover {
+    background-color: #0056b3;
   }
   
-  .cancel-btn:hover {
-    background-color: #c9302c;
-  }
-  
+  /* Ajustes responsivos */
   @media (max-width: 768px) {
     .profile-card {
-      width: 90%;
-      padding: 30px;
+      width: 85%;
+      padding: 25px;
+    }
+  
+    .profile-info {
+      font-size: 1rem;
+      padding: 15px;
+    }
+  
+    .edit-btn {
+      font-size: 0.9rem;
+      padding: 10px 15px;
     }
   }
   </style>
-  
   
