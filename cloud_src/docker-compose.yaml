@@ -108,6 +108,18 @@ services:
 # Ana Count objects
 
 # Francisco Rotate
+  rotate-tool-ms:
+    image: kikofallout/picturas_rotate_tool_ms:latest
+    container_name: rotate-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 # Yian tool background removal
 
