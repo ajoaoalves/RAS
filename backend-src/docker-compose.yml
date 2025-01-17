@@ -18,3 +18,10 @@ services:
     volumes:
       - ./data/database.json:/tmp/database.json
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+  

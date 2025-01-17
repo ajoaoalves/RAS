@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 // Configuração da URL base do servidor
-const BASE_URL = 'http://api-server:8080';
+const BASE_URL = 'http://localhost:8080';
 
 async function testConnection() {
     try {
@@ -29,7 +29,7 @@ async function createProject() {
         const response = await axios.post(`${BASE_URL}/projects`, projectData);
         console.log('Projeto criado com sucesso:', response.data);
     } catch (error) {
-        console.error('Erro ao criar projeto:', error.response?.data || error.message);
+        console.error('Erro ao criar projeto:', error.response.data || error.message);
     }
 }
 
@@ -48,7 +48,7 @@ async function updateProject(projectId) {
         const response = await axios.put(`${BASE_URL}/projects/${projectId}`, updateData);
         console.log('Projeto atualizado com sucesso:', response.data);
     } catch (error) {
-        console.error('Erro ao atualizar projeto:', error.response?.data || error.message);
+        console.error('Erro ao atualizar projeto:', error.response.data || error.message);
     }
 }
 
@@ -61,7 +61,7 @@ async function executeProject(projectId) {
         const response = await axios.put(`${BASE_URL}/projects/${projectId}/exec`, execData);
         console.log('Projeto executado com sucesso:', response.data);
     } catch (error) {
-        console.error('Erro ao executar projeto:', error.response?.data || error.message);
+        console.error('Erro ao executar projeto:', error.response.data || error.message);
     }
 }
 
@@ -70,7 +70,7 @@ async function getProjectDetails(projectId) {
         const response = await axios.get(`${BASE_URL}/projects/${projectId}`);
         console.log('Detalhes do projeto:', response.data);
     } catch (error) {
-        console.error('Erro ao obter detalhes do projeto:', error.response?.data || error.message);
+        console.error('Erro ao obter detalhes do projeto:', error.response.data || error.message);
     }
 }
 
@@ -79,7 +79,7 @@ async function listProjects() {
         const response = await axios.get(`${BASE_URL}/projects`);
         console.log('Lista de projetos:', response.data);
     } catch (error) {
-        console.error('Erro ao listar projetos:', error.response?.data || error.message);
+        console.error('Erro ao listar projetos:', error.response.data || error.message);
     }
 }
 
