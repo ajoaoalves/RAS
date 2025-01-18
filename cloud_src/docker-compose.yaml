@@ -119,6 +119,18 @@ services:
       rabbitmq:
         condition: service_healthy
 # Ana Count objects
+  count_objects-tool-ms:
+    image: anajoaoalves1/picturas-count-objects-ms:latest
+    container_name: count_objects-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 # Francisco Rotate
   rotate-tool-ms:
