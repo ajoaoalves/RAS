@@ -65,6 +65,9 @@ def publish_mock_requests_forever(procedure_name):
                 if procedure_name == "brightness":
                     parameters["brightnessValue"] = random.uniform(0, 2.0)
 
+                if procedure_name == "rotate":
+                    parameters["angle"] = random.uniform(0, 360)
+
                 elif procedure_name == "resize":
                     parameters["width"] = random.randint(100, 1920)
                     parameters["height"] = random.randint(100, 1080)

@@ -62,5 +62,3 @@ class Brightness(Tool):
             # Upload the final image to MinIO
             self.s3_client.upload_image(bucket_name, parameters.outputImageURI, output_stream.getvalue())
 
-        print(f"Image successfully processed and saved to {parameters.outputImageURI}")
-
