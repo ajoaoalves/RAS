@@ -23,63 +23,73 @@ app.get('/', (req, res) => {
     res.send('API Gateway is running...');
 });
 
-// Route to create a new project
-app.post('/projects', async (req, res) => {
+// Route to create a new project for a specific user
+app.post('/users/:userId/projects', async (req, res) => {
+    const { userId } = req.params;
+
     try {
-        const response = await axios.post(`${PROJECTS_BACKEND_URL}`, req.body);
+        // Forward the request to the backend service with the userId
+        const response = await axios.post(`${PROJECTS_BACKEND_URL}/users/${userId}/projects`, req.body);
         res.status(response.status).send(response.data);
     } catch (error) {
-        console.error('Error creating project:', error.message);
+        console.error('Error creating project for user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });
 
-// Route to update a project
-app.put('/projects/:projectId', async (req, res) => {
-    const { projectId } = req.params;
+
+// Route to update a project for a specific user
+app.put('/users/:userId/projects/:projectId', async (req, res) => {
+    const { userId, projectId } = req.params;
 
     try {
-        const response = await axios.put(`${PROJECTS_BACKEND_URL}/${projectId}`, req.body);
+        // Forward the request to the backend service with the userId and projectId
+        const response = await axios.post(`${PROJECTS_BACKEND_URL}/users/${userId}/projects/${projectId}`, req.body);
         res.status(response.status).send(response.data);
     } catch (error) {
-        console.error('Error updating project:', error.message);
+        console.error('Error updating project for user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });
 
-// Route to execute a project
-app.put('/projects/:projectId/exec', async (req, res) => {
-    const { projectId } = req.params;
+// Route to execute a project for a specific user
+app.put('/users/:userId/projects/:projectId/exec', async (req, res) => {
+    const { userId, projectId } = req.params;
 
     try {
-        const response = await axios.put(`${PROJECTS_BACKEND_URL}/${projectId}/exec`, req.body);
+        // Forward the request to the backend service with userId and projectId
+        const response = await axios.put(`${PROJECTS_BACKEND_URL}/users/${userId}/projects/${projectId}/exec`, req.body);
         res.status(response.status).send(response.data);
     } catch (error) {
-        console.error('Error running project:', error.message);
+        console.error('Error executing project for user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });
 
-// Route to fetch project details
-app.get('/projects/:projectId', async (req, res) => {
-    const { projectId } = req.params;
+// Route to fetch project details for a specific user
+app.get('/users/:userId/projects/:projectId', async (req, res) => {
+    const { userId, projectId } = req.params;
 
     try {
-        const response = await axios.get(`${PROJECTS_BACKEND_URL}/${projectId}`);
+        // Forward the request to the backend service with userId and projectId
+        const response = await axios.get(`${PROJECTS_BACKEND_URL}/users/${userId}/projects/${projectId}`);
         res.status(response.status).send(response.data);
     } catch (error) {
-        console.error('Error fetching project:', error.message);
+        console.error('Error fetching project for user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });
 
-// Route to list all projects
-app.get('/projects', async (req, res) => {
+// Route to list all projects for a specific user
+app.get('/users/:userId/projects', async (req, res) => {
+    const { userId } = req.params;
+
     try {
-        const response = await axios.get(`${PROJECTS_BACKEND_URL}`);
+        // Forward the request to the backend service with the userId
+        const response = await axios.get(`${PROJECTS_BACKEND_URL}/users/${userId}/projects`);
         res.status(response.status).send(response.data);
     } catch (error) {
-        console.error('Error listing projects:', error.message);
+        console.error('Error listing projects for user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });
