@@ -147,3 +147,15 @@ services:
         condition: service_healthy
 
 # Marta Binarization
+  binarization-tool-ms:
+    image: martagoncalves/picturas_binarization_tool_ms:latest
+    container_name: binarization-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
