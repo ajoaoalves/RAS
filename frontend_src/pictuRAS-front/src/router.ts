@@ -18,7 +18,7 @@ const routes = [
     { path: '/edit-profile', component: editprofile },
     { path: '/profile', component: profile },
     { path: '/projects', component: projects },
-    { path: '/projects:id', name: 'ProjectPage', component: ProjectPage },
+    { path: '/projects?:projectId', name: 'ProjectPage', component: ProjectPage },
     { path: '/image-editor', component: ImageEditor },
 ];
 
