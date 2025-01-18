@@ -43,11 +43,13 @@
       </div>
     </div>
   </template>
-  
+
   <script>
   import Navbar from "../components/Navbar.vue";
   import ProjectCard from "../components/ProjectCard.vue";
-  
+  import axios from 'axios';
+  import { useUserStore } from '../stores/UserStore';
+
   export default {
     name: "ProjectsView",
     components: {
@@ -56,15 +58,28 @@
     },
     data() {
       return {
-        projects: [
-          { id: 1, name: "Project Alpha" },
-          { id: 2, name: "Project Beta" },
-        ],
+        projects: [],
         isModalVisible: false,
         newProjectName: "",
       };
     },
+    mounted() {
+      const userStore = useUserStore();
+      userStore.setUser({ id: '0e6d0ce7-08c1-4de9-b7ff-82554bad32d8', name: 'Alice', email: 'a', type: 'sub' });
+      this.fetchProjects();
+    },
     methods: {
+      async fetchProjects() {
+        const userStore = useUserStore();
+        try {
+          const response = await axios.get(`users/${userStore.user.id}/projects`);
+          //const response = await axios.get('/projects');
+          this.projects = response.data;
+        } catch (error) {
+          console.error('Error fetching projects:', error);
+          alert('Failed to fetch projects');
+        }
+      },
       showCreateProjectModal() {
         this.isModalVisible = true;
       },
@@ -72,14 +87,19 @@
         this.isModalVisible = false;
         this.newProjectName = "";
       },
-      createProject() {
+      async createProject() {
+        const userStore = useUserStore();
         if (this.newProjectName) {
-          const newProject = {
-            id: Date.now(),
-            name: this.newProjectName,
-          };
-          this.projects.push(newProject);
-          this.closeModal();
+          const newProject = { name: this.newProjectName , user_id: userStore.user.id};
+          try {
+            const response = await axios.post(`/users/${userStore.user.id}/projects`, newProject);
+            this.projects.push(response.data);
+            this.closeModal();
+            alert('Project created successfully');
+          } catch (error) {
+            console.error('Error creating project:', error);
+            alert('Failed to create project');
+          }
         }
       },
       deleteProject(projectId) {
@@ -88,7 +108,6 @@
     },
   };
   </script>
-  
 
 
 <style scoped>
@@ -271,4 +290,4 @@
 .cancel-button:hover {
   background-color: #5a6268;
 }
-</style>  
+</style>

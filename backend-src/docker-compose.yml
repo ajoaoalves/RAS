@@ -1,23 +1,36 @@
 version: "3.9"
 services:
-  api:
+  projects-api:
     container_name: projects-api
     build:
       context: ./PictuRAS
     ports:
       - "18018:18018"
     depends_on:
-      - mongo
+      - mongo-server
     links:
-      - mongo
-  mongo:
+      - mongo-server
+    environment:
+
+      # AWS S3 configuration
+      AWS_ACCESS_KEY_ID: ROOTNAME
+      AWS_SECRET_ACCESS_KEY: CHANGEME123
+      AWS_REGION: us-east-1
+      AWS_S3_BUCKET_NAME: images
+  mongo-server:
     container_name: mongo-server
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
+      # Map MongoDB's data directory to a host directory or named volume
+      - ./data/db:/data/db
+      # Map your custom database.json file for initialization
       - ./data/database.json:/tmp/database.json
+      # Map your initialization script
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+    restart: unless-stopped
+
   api-gateway:
     container_name: api-gateway
     build:
