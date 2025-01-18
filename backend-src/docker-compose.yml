@@ -10,6 +10,14 @@ services:
       - mongo
     links:
       - mongo
+    environment:
+    
+      # AWS S3 configuration
+      AWS_ACCESS_KEY_ID: your-aws-access-key-id
+      AWS_SECRET_ACCESS_KEY: your-aws-secret-access-key
+      AWS_REGION: your-aws-region
+      AWS_S3_BUCKET_NAME: your-s3-bucket-name
+
   mongo:
     container_name: mongo-server
     image: mongo:latest
