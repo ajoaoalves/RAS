@@ -1,0 +1,2 @@
+# ignore node modules files, use `npm install` to create it
+node_modules/
