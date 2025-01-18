@@ -87,6 +87,7 @@ def publish_mock_requests_forever(procedure_name):
                     parameters["crop_box"] = crop_box
                     
                 publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, parameters)
+                # print(f"Published request for {procedure_name} with parameters: {parameters}")  # Log the published request
                 time.sleep(random.uniform(1, 1))
     finally:
         connection.close()
