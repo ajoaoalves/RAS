@@ -5,14 +5,14 @@ services:
     build:
       context: ./PictuRAS
     ports:
-      - "80:18018"
+      - "18018:18018"
     depends_on:
       - mongo
     links:
       - mongo
   mongo:
     container_name: mongo-server
-    image: mongo:4.4
+    image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
