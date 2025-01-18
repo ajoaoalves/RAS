@@ -43,11 +43,12 @@
       </div>
     </div>
   </template>
-  
+
   <script>
   import Navbar from "../components/Navbar.vue";
   import ProjectCard from "../components/ProjectCard.vue";
-  
+  import axios from 'axios';
+
   export default {
     name: "ProjectsView",
     components: {
@@ -56,15 +57,21 @@
     },
     data() {
       return {
-        projects: [
-          { id: 1, name: "Project Alpha" },
-          { id: 2, name: "Project Beta" },
-        ],
+        projects: [],
         isModalVisible: false,
         newProjectName: "",
       };
     },
     methods: {
+      async fetchProjects() {
+        try {
+          const response = await axios.get('/projects');
+          this.projects = response.data;
+        } catch (error) {
+          console.error('Error fetching projects:', error);
+          alert('Failed to fetch projects');
+        }
+      },
       showCreateProjectModal() {
         this.isModalVisible = true;
       },
@@ -72,14 +79,18 @@
         this.isModalVisible = false;
         this.newProjectName = "";
       },
-      createProject() {
+      async createProject() {
         if (this.newProjectName) {
-          const newProject = {
-            id: Date.now(),
-            name: this.newProjectName,
-          };
-          this.projects.push(newProject);
-          this.closeModal();
+          const newProject = { name: this.newProjectName };
+          try {
+            const response = await axios.post('/projects', newProject);
+            this.projects.push(response.data);
+            this.closeModal();
+            alert('Project created successfully');
+          } catch (error) {
+            console.error('Error creating project:', error);
+            alert('Failed to create project');
+          }
         }
       },
       deleteProject(projectId) {
@@ -88,7 +99,6 @@
     },
   };
   </script>
-  
 
 
 <style scoped>
@@ -271,4 +281,4 @@
 .cancel-button:hover {
   background-color: #5a6268;
 }
-</style>  
+</style>
