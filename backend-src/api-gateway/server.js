@@ -9,7 +9,7 @@ const cors = require('cors');
 
 // Configurations
 const PORT = process.env.PORT || 8080;
-const PROJECTS_BACKEND_URL = 'http://projects-api:18018/projects';
+const PROJECTS_BACKEND_URL = 'http://projects-api:18018/';
 const STATIC_FILE_SERVER = '';
 
 const app = express();
