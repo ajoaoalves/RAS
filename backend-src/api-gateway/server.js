@@ -9,7 +9,7 @@ const cors = require('cors');
 
 // Configurations
 const PORT = process.env.PORT || 8080;
-const PROJECTS_BACKEND_URL = 'http://projects-api:18018/';
+const PROJECTS_BACKEND_URL = 'http://projects-api:18018';
 const STATIC_FILE_SERVER = '';
 
 const app = express();
@@ -90,6 +90,19 @@ app.get('/users/:userId/projects', async (req, res) => {
         res.status(response.status).send(response.data);
     } catch (error) {
         console.error('Error listing projects for user:', error.message);
+        console.error('Request:' + `${PROJECTS_BACKEND_URL}/users/${userId}/projects`);
+        res.status(error.response?.status || 500).send({ error: error.message });
+    }
+});
+
+// Route to list all projects
+app.get('/projects', async (req, res) => {
+    try {
+        // Forward the request to the backend service
+        const response = await axios.get(`${PROJECTS_BACKEND_URL}/projects`);
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error listing projects:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });

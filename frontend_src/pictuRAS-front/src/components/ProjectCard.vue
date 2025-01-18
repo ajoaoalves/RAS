@@ -43,11 +43,11 @@ export default {
             this.isModalVisible = false;
         },
         deleteProject() {
-            this.$emit("delete", this.project.id);
+            this.$emit("delete", this.project._id);
             this.isModalVisible = false;
         },
         navigateToProject() {
-            this.$router.push({ name: "ProjectPage", params: { id: this.project.id } });
+            this.$router.push({ name: "ProjectPage", params: { id: this.project._id } });
         },
     },
 };

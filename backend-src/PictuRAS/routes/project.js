@@ -9,6 +9,13 @@ router.get('/projects', function (req, res, next) {
     .catch(erro => res.jsonp(erro))
 });
 
+
+router.get('/users/:userId/projects', function (req, res) {
+  Project.listUser(req.params.userId)
+    .then(data => res.jsonp(data))
+    .catch(erro => res.jsonp(erro))
+}
+);
 router.get('/users/:userId/projects/:id', function (req, res) {
   Project.findById(req.params.id)
     .then(data => res.jsonp(data))

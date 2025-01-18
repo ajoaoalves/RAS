@@ -48,6 +48,7 @@
   import Navbar from "../components/Navbar.vue";
   import ProjectCard from "../components/ProjectCard.vue";
   import axios from 'axios';
+  import { useUserStore } from '../stores/UserStore';
 
   export default {
     name: "ProjectsView",
@@ -62,10 +63,17 @@
         newProjectName: "",
       };
     },
+    mounted() {
+      const userStore = useUserStore();
+      userStore.setUser({ id: '0e6d0ce7-08c1-4de9-b7ff-82554bad32d8', name: 'Alice', email: 'a', type: 'sub' });
+      this.fetchProjects();
+    },
     methods: {
       async fetchProjects() {
+        const userStore = useUserStore();
         try {
-          const response = await axios.get('/projects');
+          const response = await axios.get(`users/${userStore.user.id}/projects`);
+          //const response = await axios.get('/projects');
           this.projects = response.data;
         } catch (error) {
           console.error('Error fetching projects:', error);
@@ -80,10 +88,11 @@
         this.newProjectName = "";
       },
       async createProject() {
+        const userStore = useUserStore();
         if (this.newProjectName) {
-          const newProject = { name: this.newProjectName };
+          const newProject = { name: this.newProjectName , user_id: userStore.user.id};
           try {
-            const response = await axios.post('/projects', newProject);
+            const response = await axios.post(`/users/${userStore.user.id}/projects`, newProject);
             this.projects.push(response.data);
             this.closeModal();
             alert('Project created successfully');
