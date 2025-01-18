@@ -84,9 +84,11 @@ def publish_mock_requests_forever(procedure_name):
 
                     # Ensure crop box is valid and within bounds
                     crop_box = (crop_left, crop_upper, crop_right, crop_lower)
-                    parameters = {"crop_box": crop_box}
-                    
+                    parameters["crop_box"] = crop_box
+                    # print(f"Generated crop parameters: {parameters}")  # Log the generated parameters
+
                 publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, parameters)
+                # print(f"Published request for {procedure_name} with parameters: {parameters}")  # Log the published request
                 time.sleep(random.uniform(1, 1))
     finally:
         connection.close()
