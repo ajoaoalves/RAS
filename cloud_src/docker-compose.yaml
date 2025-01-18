@@ -107,7 +107,7 @@ services:
         condition: service_healthy
 
   remove-background-tool-ms:
-    image: iyanfdezz/picturas-remove-background-tool-ms:latest
+    image: iyanfdezzz/picturas-remove-background-tool-ms:latest
     container_name: remove-background-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
