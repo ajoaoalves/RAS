@@ -40,7 +40,7 @@ class CropTool(Tool):
             region_name="us-east-1",
         )
 
-    def crop_image(self, image: Image.Image, crop_box):
+    def apply_crop(self, image: Image.Image, crop_box):
         """
         Crop the input image using the specified crop box.
 
@@ -56,7 +56,7 @@ class CropTool(Tool):
         return cropped_image
 
 
-    def apply_crop(self, parameters: cropParameters):
+    def apply(self, parameters: cropParameters):
         """
         Crop the input image using specified parameters and save the result.
 
@@ -65,22 +65,15 @@ class CropTool(Tool):
         """
         bucket_name = 'images'
         
-        try:
-            # Download the input image
-            input_image = self.s3_client.download_image(bucket_name, parameters.inputImageURI)
-        except Exception as e:
-            print(f"Error downloading image: {e}")
-            return
+        # Download the input image
+        input_image = self.s3_client.download_image(bucket_name, parameters.inputImageURI)
 
-        try:
-            # Apply cropping to the image
-            final_image = self.crop_image(input_image, parameters.crop_box)
+        # Apply cropping to the image
+        final_image = self.apply_crop(input_image, parameters.crop_box)
 
-            # Save the cropped image to MinIO
-            with BytesIO() as output_stream:
-                final_image.save(output_stream, format='JPEG')  # Save the image to BytesIO
-                output_stream.seek(0)
-                self.s3_client.upload_image(bucket_name, parameters.outputImageURI, output_stream.getvalue())
-            print(f"Image successfully cropped and saved to {parameters.outputImageURI}")
-        except Exception as e:
-            print(f"Error processing and uploading image: {e}")
+        # Save the cropped image to MinIO
+        with BytesIO() as output_stream:
+            final_image.save(output_stream, format='JPEG')  # Save the image to BytesIO
+            output_stream.seek(0)
+            self.s3_client.upload_image(bucket_name, parameters.outputImageURI, output_stream.getvalue())
+        print(f"Image successfully cropped and saved to {parameters.outputImageURI}")

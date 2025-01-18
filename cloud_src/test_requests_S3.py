@@ -53,14 +53,13 @@ def publish_request_message(channel, routing_key, request_id, procedure, paramet
 def publish_mock_requests_forever(procedure_name):
     try:
         while True:
-            
+
             for file_name in os.listdir(PICTURAS_SRC_FOLDER):
                 request_id = str(uuid.uuid4())
                 parameters = {
                     "inputImageURI": os.path.join(S3_SRC_FOLDER, file_name),
                     "outputImageURI": os.path.join(S3_OUT_FOLDER, file_name)
                 }
-
 
                 # Add additional parameters based on procedure name
                 if procedure_name == "brightness":
@@ -75,9 +74,20 @@ def publish_mock_requests_forever(procedure_name):
                     bordercolor = "#{:02x}{:02x}{:02x}".format(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
                     parameters["bordersize"] = bordersize
                     parameters["bordercolor"] = bordercolor
-                
 
+                elif procedure_name == "crop":
+                    # Define random crop box values
+                    crop_left = random.randint(0, 100)
+                    crop_upper = random.randint(0, 100)
+                    crop_right = random.randint(crop_left + 50, crop_left + 200)
+                    crop_lower = random.randint(crop_upper + 50, crop_upper + 200)
+
+                    # Ensure crop box is valid and within bounds
+                    crop_box = (crop_left, crop_upper, crop_right, crop_lower)
+                    parameters["crop_box"] = crop_box
+                    
                 publish_request_message(channel, "requests." + procedure_name, request_id, procedure_name, parameters)
+                # print(f"Published request for {procedure_name} with parameters: {parameters}")  # Log the published request
                 time.sleep(random.uniform(1, 1))
     finally:
         connection.close()

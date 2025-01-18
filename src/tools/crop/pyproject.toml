@@ -2,7 +2,7 @@
 name = "picturas-crop-tool-ms"
 version = "0.1.0"
 description = "PictuRAS microservice (tool) that crops an image"
-
+authors = ["Luna Figueiredo"]
 
 [tool.poetry.dependencies]
 python = "^3.13"

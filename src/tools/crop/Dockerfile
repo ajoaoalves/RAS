@@ -22,7 +22,6 @@ ENV PICTURAS_LOG_LEVEL=WARN
 
 COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 
-# Copy application code
 COPY crop_tool_ms ./crop_tool_ms
 
-CMD ["python","-m", "crop_tool_ms.main"]
+ENTRYPOINT ["python", "-m", "crop_tool_ms.main"]
