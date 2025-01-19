@@ -55,8 +55,8 @@ var imageSchema = new mongoose.Schema({
 }, { _id: false }); // Desativa o _id automático dos subdocumentos
 
 var projectSchema = new mongoose.Schema({
-    _id: String,
-    name: String, 
+    _id: { type: String, default: uuidv4 },
+    name: String,
     user_id: String,
     images: [imageSchema],
     tools: [toolSchema]

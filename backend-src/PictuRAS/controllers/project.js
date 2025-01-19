@@ -1,4 +1,5 @@
 var Project = require('../models/project')
+const { v4: uuidv4 } = require('uuid');
 
 module.exports.list = function(){
     return Project.find().sort({nome: 1}).exec()
@@ -13,6 +14,7 @@ module.exports.findById = function(id){
 }
 
 module.exports.insert = function(projeto){
+    projeto._id = uuidv4();
     return Project.create(projeto)
 }
 
