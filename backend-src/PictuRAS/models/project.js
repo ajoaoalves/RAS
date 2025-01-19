@@ -14,19 +14,44 @@ const s3 = new AWS.S3({
 
 
 var parametersSchema = new mongoose.Schema({
-    name: String,
-    value: { type: mongoose.Schema.Types.Mixed }
+    // Specific Parameters for 'border'
+    bordersize: { type: Number, required: false },
+    bordercolor: { type: String, required: false },
+
+    // Specific Parameters for 'brightness'
+    brightnessValue: { type: Number, required: false },
+
+    // Specific Parameters for 'crop'
+    crop_box: {
+        type: [Number], // Expecting an array of 4 numbers
+        validate: {
+            validator: function (v) {
+                return !v || v.length === 4; // Validate if null/undefined or has exactly 4 elements
+            },
+            message: props => `O campo crop_box deve conter exatamente 4 números. Recebido: ${props.value.length}`,
+        },
+        required: false,
+    },
+
+    // Specific Parameters for 'resize'
+    width: { type: Number, required: false },
+    height: { type: Number, required: false },
+
+    // Specific Parameters for 'rotation' and 'watermark'
+    angle: { type: Number, required: false },
+
 }, { _id: false });
 
+
 var toolSchema = new mongoose.Schema({
-    _id: String,
+    _id: String, 
     procedure: String,
     parameters: { type: [parametersSchema], required: false }
 }, { _id: false });
 
 var imageSchema = new mongoose.Schema({
     _id: String,
-    uri: String
+    uri: String 
 }, { _id: false }); // Desativa o _id automático dos subdocumentos
 
 var projectSchema = new mongoose.Schema({

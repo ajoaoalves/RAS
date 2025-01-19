@@ -1,5 +1,20 @@
 version: "3.9"
 services:
+  
+  rabbitmq:
+    build: ./rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # RabbitMQ messaging port
+      - "15672:15672" # Management UI port
+    restart: unless-stopped
+    volumes:
+      - ./rabbitmq/setup_queues.py:/setup_queues.py # Mount the setup script
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 5s
+      timeout: 30s
+
   projects-api:
     container_name: projects-api
     build:
@@ -8,8 +23,7 @@ services:
       - "18018:18018"
       - "3000:3000"
     depends_on:
-      - mongo-server
-    links:
+      - rabbitmq
       - mongo-server
     environment:
 
