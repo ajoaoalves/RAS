@@ -6,8 +6,11 @@ const { v4: uuidv4 } = require('uuid');
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION
+    region: process.env.AWS_REGIO,
+    endpoint: 'http://minio:9000', // MinIO endpoint URL
+    s3ForcePathStyle: true // Required for MinIO
 });
+
 
 
 var parametersSchema = new mongoose.Schema({
@@ -59,14 +62,33 @@ var projectSchema = new mongoose.Schema({
     tools: [toolSchema]
 }, { versionKey: false });
 
-module.exports = mongoose.model('projects', projectSchema);
 
+// Download an image from S3
+projectSchema.methods.downloadImageFromS3 = async function (key) {
+    const bucketName = process.env.AWS_S3_BUCKET_NAME;
 
+    try {
+        const params = {
+            Bucket: bucketName,
+            Key: key, // The S3 object key for the image
+        };
+
+        const image = await s3.getObject(params).promise();
+
+        // Return the binary data and content type
+        return {
+            data: image.Body,
+            contentType: image.ContentType,
+        };
+    } catch (error) {
+        throw new Error(`Failed to download image from S3: ${error.message}`);
+    }
+};
 
 // Upload image to S3 before saving
-projectSchema.methods.uploadImageToS3 = async function (fileBuffer, fileName) {
+projectSchema.methods.uploadImageToS3FromBrowser = async function (fileBuffer, projectId) {
     const bucketName = process.env.AWS_S3_BUCKET_NAME;
-    const key = `images/${uuidv4()}-${fileName}`;
+    const key = `src/${projectId}/${uuidv4()}`;
 
     try {
         const uploadResult = await s3.upload({
@@ -78,16 +100,18 @@ projectSchema.methods.uploadImageToS3 = async function (fileBuffer, fileName) {
         }).promise();
 
         // Return the public URL of the uploaded image
-        return uploadResult.Location;
+        return key;
     } catch (error) {
         throw new Error(`Failed to upload image to S3: ${error.message}`);
     }
 };
 
 // Add images to a project
-projectSchema.methods.addImage = async function (fileBuffer, fileName) {
-    const imageUrl = await this.uploadImageToS3(fileBuffer, fileName);
+projectSchema.methods.addImageFromBrowser = async function (fileBuffer, projectId) {
+    const imageUrl = await this.uploadImageToS3FromBrowser(fileBuffer, projectId);
 
     this.images.push({ uri: imageUrl });
     await this.save();
 };
+
+module.exports = mongoose.model('projects', projectSchema);

@@ -1,22 +1,26 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const { io: Client } = require('socket.io-client'); // For connecting to Projects WS
 const axios = require('axios'); // For HTTP communication with Projects Backend
 
 const PORT = process.env.PORT || 8180;
 const PROJECTS_BACKEND_URL = 'http://localhost:18018/projects';
-const PROJECTS_BACKEND_WS_URL = 'http://localhost:3000/'; // Backend WebSocket URL
+const PROJECTS_BACKEND_WS_URL = 'http://localhost:3000'; // Backend WebSocket URL
 
 // Create an Express app and HTTP server
 const app = express();
 const server = http.createServer(app);
 
 // Create a Socket.IO server
-// const io = new Server(server, {
-//     cors: {
-//         origin: '*', // Allow all origins (configure for production)
-//     },
-// });
+const io = new Server(server, {
+    cors: {
+        origin: '*', // Allow all origins (configure for production)
+    },
+});
+
+// Create a WebSocket client for the Projects WebSocket server
+const backendSocket = Client(PROJECTS_BACKEND_WS_URL);
 
 // Maintain a mapping of Socket.IO connections to projects
 const connections = new Map();
@@ -24,115 +28,89 @@ const connections = new Map();
 // Serve a basic HTTP endpoint
 app.get('/', (req, res) => res.send('Socket.IO WebSocket Gateway is running...'));
 
-
 /**
-// Handle WebSocket connections from browser
-*/
+ * Handle WebSocket connections from browser
+ */
+io.on('connection', (socket) => {
+    console.log(`New client connected: ${socket.id}`);
 
-// io.on('connection', (socket) => {
-//     console.log(`New client connected: ${socket.id}`);
+    // Handle "image" event from the client
+    socket.on('image', async (data) => {
+        try {
+            const { projectId, imageData } = data;
+
+            if (!projectId || !imageData) {
+                console.error('Invalid data received. Missing projectId or imageData.');
+                socket.emit('error', { message: 'Invalid data. projectId and imageData are required.' });
+                return;
+            }
+
+            connections.set(projectId, socket);
+            console.log(`Added client ${socket.id} to connections map.`);
 
 
-//     // Handle "save_project" messages
-//     socket.on('save_project', async (data) => {
-//         console.log('Received save_project:', data);
-//         try {
-//             // Parse the incoming data to extract projectId
-//             const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-//             const projectId = parsedData._id;
+            console.log(`Received image for project ID: ${projectId}`);
 
-//             if (!projectId) {
-//                 throw new Error('Invalid project data: projectId is missing');
-//             }
-
-//             // Forward the request to the Projects Backend Service
-//             const response = await axios.put(`${PROJECTS_BACKEND_URL}/${projectId}`, { data: parsedData });
-//             console.log('Forwarded to Projects Backend:', response.data);
-
-//             // Map this connection to the project ID for state updates
-//             connections.set(projectId, socket);
-
-//             // Send acknowledgment back to the client
-//             socket.emit('ack', { message: 'Project save request forwarded', projectId });
-//         } catch (error) {
-//             console.error('Error processing request:', error.message);
-//             socket.emit('error', { message: 'Failed to process request', error: error.message });
-//         }
-//     });
-
-//     // Handle "run_project" messages
-//     socket.on('run_project', async (data) => {
-//         console.log('Received run_project:', data);
-
-//         try {
-//             // Parse the incoming data to extract projectId
-//             const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-//             const projectId = parsedData._id;
-
-//             if (!projectId) {
-//                 throw new Error('Invalid project data: projectId is missing');
-//             }
-
-//             // Forward the request to the Projects Backend Service
-//             const response = await axios.put(`${PROJECTS_BACKEND_URL}/${projectId}/exec`, { data: parsedData });
-//             console.log('Forwarded to Projects Backend:', response.data);
-
-//             // Map this connection to the project ID for state updates
-//             connections.set(projectId, socket);
-
-//             // Send acknowledgment back to the client
-//             socket.emit('ack', { message: 'Project run request forwarded', projectId });
-//         } catch (error) {
-//             console.error('Error processing request:', error.message);
-//             socket.emit('error', { message: 'Failed to process request', error: error.message });
-//         }
-//     });
-
-//     // Handle client disconnection
-//     socket.on('disconnect', () => {
-//         console.log(`Client disconnected: ${socket.id}`);
-
-//         // Clean up the mapping
-//         for (const [projectId, clientSocket] of connections.entries()) {
-//             if (clientSocket === socket) {
-//                 connections.delete(projectId);
-//             }
-//         }
-//     });
-// });
-
-// Function to connect to the Projects Backend WebSocket
-function connectToBackendWebSocket() {
-    const backendSocket = require('socket.io-client')(PROJECTS_BACKEND_WS_URL);
-
-    backendSocket.on('connect', () => {
-        console.log('Connected to Projects Backend WebSocket');
-    });
-
-    // Handle project updates from the backend
-    backendSocket.on('project_update', (update) => {
-        console.log('Received project update from backend:', update);
-
-        const socket = connections.get(update.projectId);
-        if (socket) {
-            socket.emit('project_update', { state: update.state, projectId: update.projectId });
+            // Forward the image data to the Projects WebSocket server
+            backendSocket.emit('image', { projectId, imageData }, (response) => {
+                if (response.success) {
+                    console.log(`Image successfully sent to Projects WS for project ID: ${projectId}`);
+                    socket.emit('ack', { message: 'Image processed successfully by Projects WS', projectId });
+                } else {
+                    console.error(`Error from Projects WS: ${response.error || 'Unknown error'}`);
+                    socket.emit('error', { message: response.error || 'Failed to process image in Projects WS' });
+                }
+            });
+        } catch (error) {
+            console.error('Error processing image:', error.message);
+            socket.emit('error', { message: 'Failed to process image', error: error.message });
         }
     });
 
-    // Handle backend WebSocket disconnection
-    backendSocket.on('disconnect', () => {
-        console.warn('Projects Backend WebSocket disconnected. Reconnecting...');
-        setTimeout(connectToBackendWebSocket, 5000); // Retry connection after 5 seconds
-    });
+    // Handle client disconnection
+    socket.on('disconnect', () => {
+        console.log(`Client disconnected: ${socket.id}`);
 
-    // Handle backend WebSocket errors
-    backendSocket.on('error', (error) => {
-        console.error('Error with Projects Backend WebSocket:', error.message);
+        // Remove the client from the connections map
+        if (connections.has(socket.id)) {
+            connections.delete(socket.id);
+            console.log(`Removed client ${socket.id} from connections map.`);
+        }
     });
-}
+});
 
-// Start listening for backend updates
-connectToBackendWebSocket();
+
+// Handle connection to the Projects WebSocket server
+backendSocket.on('connect', () => {
+    console.log('Connected to Projects WebSocket server');
+});
+
+backendSocket.on('disconnect', () => {
+    console.log('Disconnected from Projects WebSocket server');
+});
+backendSocket.on('preview_update', (metadata, binaryData) => {
+    const { projectId, contentType } = metadata;
+
+    console.log(`Received preview update for project ID: ${projectId}`);
+
+    // Retrieve the client socket from the connections map
+    const clientSocket = connections.get(projectId);
+
+    if (!clientSocket) {
+        console.error(`No client connected for project ID: ${projectId}`);
+        return;
+    }
+
+    // Send the preview image to the client
+    console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
+    clientSocket.emit('preview_image', { contentType }, binaryData);
+});
+
+
+
+backendSocket.on('error', (error) => {
+    console.error('Error in Projects WebSocket connection:', error.message);
+});
 
 // Start the server
 server.listen(PORT, () => {

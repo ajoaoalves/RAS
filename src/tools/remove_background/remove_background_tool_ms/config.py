@@ -11,5 +11,5 @@ RABBITMQ_RESULTS_EXCHANGE = os.getenv("RABBITMQ_RESULTS_EXCHANGE", "picturas.too
 RABBITMQ_RESULTS_ROUTING_KEY = os.getenv("RABBITMQ_RESULTS_ROUTING_KEY", "results")
 
 PICTURAS_LOG_LEVEL = os.getenv("PICTURAS_LOG_LEVEL", "INFO")
-PICTURAS_MS_NAME = os.getenv("PICTURAS_MS_NAME", "remove-background-tool-ms")
+PICTURAS_MS_NAME = os.getenv("PICTURAS_MS_NAME", "picturas-remove-background-tool-ms")
 PICTURAS_NUM_THREADS = os.getenv("PICTURAS_NUM_THREADS", 4)
