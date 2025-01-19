@@ -4,6 +4,7 @@ import './assets/style.css'
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
+import { io } from 'socket.io-client';
 
 axios.defaults.baseURL = 'http://localhost:8080'
 

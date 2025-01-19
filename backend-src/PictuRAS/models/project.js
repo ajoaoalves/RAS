@@ -46,7 +46,7 @@ var parametersSchema = new mongoose.Schema({
 var toolSchema = new mongoose.Schema({
     _id: String, 
     procedure: String,
-    parameters: { type: [parametersSchema], required: false }
+    parameters: { type: parametersSchema, required: false }
 }, { _id: false });
 
 var imageSchema = new mongoose.Schema({

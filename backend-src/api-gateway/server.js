@@ -44,7 +44,7 @@ app.put('/users/:userId/projects/:projectId', async (req, res) => {
 
     try {
         // Forward the request to the backend service with the userId and projectId
-        const response = await axios.post(`${PROJECTS_BACKEND_URL}/users/${userId}/projects/${projectId}`, req.body);
+        const response = await axios.put(`${PROJECTS_BACKEND_URL}/users/${userId}/projects/${projectId}`, req.body);
         res.status(response.status).send(response.data);
     } catch (error) {
         console.error('Error updating project for user:', error.message);
