@@ -6,8 +6,11 @@ const { v4: uuidv4 } = require('uuid');
 const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION
+    region: process.env.AWS_REGIO,
+    endpoint: 'http://minio:9000', // MinIO endpoint URL
+    s3ForcePathStyle: true // Required for MinIO
 });
+
 
 
 var parametersSchema = new mongoose.Schema({
@@ -34,7 +37,6 @@ var projectSchema = new mongoose.Schema({
     tools: [toolSchema]
 }, { versionKey: false });
 
-module.exports = mongoose.model('projects', projectSchema);
 
 
 
@@ -66,3 +68,5 @@ projectSchema.methods.addImage = async function (fileBuffer, fileName) {
     this.images.push({ uri: imageUrl });
     await this.save();
 };
+
+module.exports = mongoose.model('projects', projectSchema);
