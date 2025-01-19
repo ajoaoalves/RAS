@@ -77,25 +77,26 @@
         </section>
         <!-- Preview Section -->
         <section class="preview-section">
-          <h2>Preview</h2>
-          <div v-if="selectedImage !== null" class="preview-container">
+        <h2>Preview</h2>
+            <div v-if="selectedImage !== null" class="preview-container">
             <h3>{{ projectImages[selectedImage].name }}</h3>
-            <div
-              v-for="(step, stepIndex) in selectedTools"
-              :key="stepIndex"
-              class="preview-thumbnail"
-            >
-              <img
-                :src="projectImages[selectedImage].url"
-                :alt="`Preview Step ${stepIndex + 1}`"
-                class="thumbnail"
-                @click="openImage(projectImages[selectedImage].url)"
-              />
-              <p>Step {{ stepIndex + 1 }}: {{ step.name }}</p>
-            </div>
-          </div>
-          <p v-else>No image selected. Click on an image to view its preview.</p>
-        </section>
+    <div
+      v-for="(step, stepIndex) in selectedTools"
+      :key="stepIndex"
+      class="preview-thumbnail"
+    >
+      <!-- Use step.previewUrl if it exists, otherwise fallback to original image -->
+      <img
+        :src="step.previewUrl"
+        :alt="`Preview Step ${stepIndex + 1}`"
+        class="thumbnail"
+        @click="openImage(step.previewUrl)"
+      />
+      <p>Step {{ stepIndex + 1 }}: {{ step.procedure }}</p>
+    </div>
+  </div>
+  <p v-else>No image selected. Click on an image to view its preview.</p>
+</section>
   
         <!-- Toolchain Section -->
         
@@ -145,22 +146,32 @@
       this.projectName = projectStore.project.name;
       this.projectId = projectStore.project.id;
       this.socket = io("http://localhost:8180");
+      this.socket.on("image_data", this.handleImageData);
+      this.socket.on("images_complete", this.handleImagesComplete);
       this.socket.on("ack", (data) => {
         console.log("Server acknowledgment:", data);
       // You can set a status message or handle UI updates here
         });
-        this.socket.on("preview_image", (metadata, binaryData) => {
-      console.log("Preview image metadata:", metadata);
+        this.socket.on("preview_image", ({ numTool, contentType }, binaryData) => {
+        console.log("Received preview image for tool:", numTool);
 
-      // Construct a Blob from the binary data
-      const imageBlob = new Blob([binaryData], { type: metadata.contentType });
-      const imageUrl = URL.createObjectURL(imageBlob);
+        // 1) Convert the binary data to a Blob
+        const blob = new Blob([binaryData], { type: contentType });
 
-      // Do something with the newly received preview
-      // For instance, set it to a "previewImage" data property or replace an existing image
-      // This example simply logs it, but you could e.g. push it to projectImages, etc.
-      console.log("Preview image URL:", imageUrl);
-    });
+        // 2) Create an object URL for the Blob
+        const url = URL.createObjectURL(blob);
+
+        // 3) Set the tool’s previewUrl if numTool is a valid index
+        if (typeof numTool === "number" && this.selectedTools[numTool]) {
+          // Use Vue.set or this.$set to ensure reactivity
+          this.$set(this.selectedTools[numTool], "previewUrl", url);
+          // For clarity:
+          //   this.selectedTools[numTool].previewUrl = url;
+        } else {
+          console.warn("Invalid or out-of-range numTool:", numTool);
+        }
+      });
+      this.requestProjectImages();
     },
     data() {
       return {
@@ -240,12 +251,43 @@
           url: image.uri,
           name: image._id,
         }));
-        this.selectedTools = tools;
+        this.selectedTools = tools.map((tool) => ({
+          ...tool,
+          previewUrl: null, // initially, no preview
+        }));
         console.log("Project data loaded successfully:", response.data);
       } catch (error) {
         console.error("Error loading project data:", error.message);
         alert("Failed to load project data. Please refresh the page.");
       }
+    },
+    requestProjectImages() {
+      if (!this.projectId) {
+        console.warn("No projectId found! Cannot request images.");
+        return;
+      }
+      console.log("Requesting images for project:", this.projectId);
+      this.socket.emit("request_images", this.projectId);
+    },
+    handleImageData({ projectId, contentType, binaryData }) {
+      console.log(`Received image for project ID: ${projectId} with type: ${contentType}`);
+
+      // Convert binary data to Blob and then to Object URL
+      const blob = new Blob([binaryData], { type: contentType });
+      const url = URL.createObjectURL(blob);
+
+      // Example: If the server doesn't send a filename, you could store a generated name
+      // or some ID. For demonstration, let's generate a unique name with a timestamp.
+      const imageName = `project_${projectId}_${Date.now()}`;
+
+      // Push into projectImages
+      this.projectImages.push({
+        name: imageName,
+        url: url,
+      });
+    },
+    handleImagesComplete({ message, projectId }) {
+      console.log(`All images for project ID ${projectId} have been received. ${message}`);
     },
     uploadImages(event) {
       const projectStore = useProjectStore();
@@ -341,10 +383,6 @@
   _id: projectStore.project._id,
   name: projectStore.project.name,
   user_id: userStore.user.id,
-  images: this.projectImages.map(image => ({
-    _id: image.name,
-    uri: image.url
-  })),
   tools: this.selectedTools.map(tool => ({
     _id: tool._id,
     procedure: tool.procedure,
