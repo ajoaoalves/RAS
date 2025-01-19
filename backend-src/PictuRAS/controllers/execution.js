@@ -142,10 +142,27 @@ async function executeProject(project) {
   }
 }
 
+async function connectToRabbitMQ() {
+  let retries = 5; // Number of retries
+  while (retries) {
+    try {
+      const connection = await amqp.connect('amqp://rabbitmq:5672'); // Use RabbitMQ service name
+      console.log('Connected to RabbitMQ');
+      return connection;
+    } catch (err) {
+      console.error(`RabbitMQ connection failed: ${err.message}. Retrying...`);
+      retries -= 1;
+      await new Promise((res) => setTimeout(res, 10000)); // Wait 10 seconds before retrying
+    }
+  }
+  throw new Error('Unable to connect to RabbitMQ after multiple retries');
+}
+
 
 async function processQueueResults() {
   try {
-    const connection = await amqp.connect('amqp://rabbitmq:5672'); // Connect to RabbitMQ
+
+    const connection = await connectToRabbitMQ();
     const channel = await connection.createChannel();
 
     const resultQueue = 'results-queue'; // The name of the queue with results
