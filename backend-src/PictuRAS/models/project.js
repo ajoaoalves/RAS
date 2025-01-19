@@ -44,13 +44,13 @@ var parametersSchema = new mongoose.Schema({
 
 
 var toolSchema = new mongoose.Schema({
-    _id: String, 
+    _id: { type: String, default: uuidv4 }, 
     procedure: String,
     parameters: { type: [parametersSchema], required: false }
 }, { _id: false });
 
 var imageSchema = new mongoose.Schema({
-    _id: String,
+    _id: { type: String, default: uuidv4 },
     uri: String 
 }, { _id: false }); // Desativa o _id automático dos subdocumentos
 
