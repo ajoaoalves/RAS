@@ -2,9 +2,9 @@ const amqp = require('amqplib');
 const moment = require('moment'); // Para gerar o timestamp no formato datetime
 
 // Função genérica para enviar mensagem para a fila com parâmetros específicos de cada procedimento
-async function sendToQueue(image, tool) {
+async function sendToQueue(projectId, image, tool, index) {
   try {
-    const connection = await amqp.connect('amqp://localhost:5672'); // Conectar ao RabbitMQ
+    const connection = await amqp.connect('amqp://rabbitmq:5672'); // Conectar ao RabbitMQ
     const channel = await connection.createChannel();
 
     // Gerar o nome da fila dinamicamente
@@ -24,7 +24,8 @@ async function sendToQueue(image, tool) {
       }
     };
 
-    const outputImageURI = tool.parameters.outputImageURI;
+    //! Só está a pôr em jpg, falta generalizar
+    const outputImageURI = `/out/${projectId}/${index}/${image._id}.jpg`; // URI da imagem de saída
 
     // Usando switch para decidir os parâmetros adicionais ou modificados de cada tipo de procedimento
     switch (tool.procedure) {
@@ -79,7 +80,6 @@ async function sendToQueue(image, tool) {
 
       case 'watermark': {
         // Adicionar parâmetros específicos para watermark
-        message.parameters.angle = tool.parameters.angle;
         message.parameters.outputImageURI = outputImageURI;
         break;
       }
@@ -124,7 +124,7 @@ async function executeProject(project) {
     // Iterar sobre as ferramentas do projeto e enviar cada uma para a fila
     for (const image of project.images) {
       try {
-        await sendToQueue(image, tool);
+        await sendToQueue(project._id, image, tool, 0);
       }
       catch (error) {
         console.error(

@@ -30,7 +30,7 @@ router.post('/users/:userId/projects', function (req, res) {
     .catch(erro => res.status(523).jsonp(erro))
 });
 
-router.put('/projects/:id/exec', function (req, res) {
+router.put('/users/:userId/projects/:id/exec', function (req, res) {
   console.log(req.body);
   Project.updateProject(req.params.id, req.body)
     .then(async (data) => {
