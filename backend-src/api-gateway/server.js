@@ -2,11 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
-// Services for choosing routes, authentication, and rate limiting.
-// const authRoutes = require('./routes/authRoutes');
-// const serviceRoutes = require('./routes/serviceRoutes');
-// const rateLimiter = require('./middlewares/rateLimiter');
-
 // Configurations
 const PORT = process.env.PORT || 8080;
 const PROJECTS_BACKEND_URL = 'http://projects-api:18018';
@@ -15,7 +10,7 @@ const STATIC_FILE_SERVER = '';
 const app = express();
 
 // Middlewares
-app.use(express.json( { limit: '50mb' } ));
+app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 // Test endpoint
