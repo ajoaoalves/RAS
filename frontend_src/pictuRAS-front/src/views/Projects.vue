@@ -91,7 +91,7 @@
       async createProject() {
         const userStore = useUserStore();
         if (this.newProjectName) {
-          const newProject = { name: this.newProjectName , user_id: userStore.user.id, tools: [], images: [], _id: '0e6d0ce7-08c1-4de9-b7ff-82554bad32d8'};
+          const newProject = { name: this.newProjectName , user_id: userStore.user.id, tools: [], images: []};
           try {
             const response = await axios.post(`/users/${userStore.user.id}/projects`, newProject);
             this.projects.push(response.data);
