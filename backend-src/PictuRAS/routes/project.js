@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Project = require("../controllers/project")
-const executeProject = require('../controllers/execution');
+const { executeProject } = require('../controllers/execution');
 
 /* GET home page. */
 router.get('/projects', function (req, res, next) {
