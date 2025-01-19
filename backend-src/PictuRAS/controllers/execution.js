@@ -248,18 +248,15 @@ async function processQueueResults() {
               // Parse the imageURI to extract projectId, toolNum, and imageId
               const [_garbage, _garbage2, projectId, numToolString, imageId] = imageURI.split('/');
               const numTool = parseInt(numToolString, 10); // Converter numTool para inteiro
-              console.log(`URI ${imageURI} parsed - Project ID: ${projectId}, Tool Num: ${numTool}, Image ID: ${imageId}`);
 
 
               const project = await Project.findById(projectId);
-              console.log(`tools: ${project.tools}`);
 
               if (project && Array.isArray(project.tools)) {
                 toolCount = project.tools.length;
               } else {
                 console.log('Project not found or tools is not an array.');
               }
-              console.log(`${toolCount} == ${numTool} ?`);
 
               if (status === 'success' && toolCount == numTool) {
 

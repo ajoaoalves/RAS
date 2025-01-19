@@ -68,6 +68,19 @@ services:
     ports:
       - "8180:8180"
 
+  brightness-tool-ms:
+    image: gustominox/picturas_brightness_tool_ms:2.2
+    container_name: brightness-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        
 # Marta Binarization
   binarization-tool-ms:
     image: martagoncalves/picturas_binarization_tool_ms:latest
