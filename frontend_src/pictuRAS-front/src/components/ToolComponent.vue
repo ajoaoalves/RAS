@@ -1,9 +1,9 @@
 <template>
     <div class="tool-component">
-      <h3>{{ tool.name }}</h3>
-      <div v-if="parameters.length" class="parameters">
+      <h3>{{ tool.procedure }}</h3>
+      <div v-if="tool.parameters.length" class="parameters">
         <div
-          v-for="param in parameters"
+          v-for="param in tool.parameters"
           :key="param.name"
           class="parameter-item"
         >
@@ -40,37 +40,15 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      parameters: this.initializeParameters(),
-    };
-  },
   methods: {
-    initializeParameters() {
-      if (this.tool.name === "Rotate") {
-        return [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }];
-      } else if (this.tool.name === "Crop") {
-        return [
-          { name: "width", label: "Width (px)", type: "number", value: 100 },
-          { name: "height", label: "Height (px)", type: "number", value: 100 },
-        ];
-      } else if (this.tool.name === "Resize") {
-        return [{ name: "scale", label: "Scale (factor)", type: "number", value: 1 }];
-      } else if (this.tool.name === "Adjust Brightness") {
-        return [{ name: "brightness", label: "Brightness (%)", type: "number", value: 100 }];
-      }
-      // Default fallback
-      console.warn(`No parameters defined for tool: ${this.tool.name}`);
-      return [];
-    },
     updateParameter(name, value) {
-      const param = this.parameters.find((p) => p.name === name);
+      const param = this.tool.parameters.find((p) => p.name === name);
       if (param) param.value = value;
     },
     apply() {
       this.$emit("applyTool", {
         ...this.tool,
-        parameters: this.parameters.reduce((acc, p) => {
+        parameters: this.tool.parameters.reduce((acc, p) => {
           acc[p.name] = p.value;
           return acc;
         }, {}),
@@ -79,7 +57,7 @@ export default {
   },
 };
 </script>
-  
+
   <style scoped>
   .tool-component {
     border: 1px solid #ddd;

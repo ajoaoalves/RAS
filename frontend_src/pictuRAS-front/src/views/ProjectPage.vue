@@ -138,46 +138,70 @@
     components: { Navbar, ToolComponent },
     mounted() {
       this.fetchProjectData();
-    },
-    props: {
-      projectId: {
-        type: String,
-        required: true,
-      },
-      projectName: {
-        type: String,
-        required: true,
-      },
+      const projectStore = useProjectStore();
+      this.projectName = projectStore.project.name;
+      this.projectId = projectStore.project.id;
     },
     data() {
       return {
+        projectName: "",
+        projectId: "",
         projectImages: [],
         selectedTools: [],
         availableTools: [
-          {
-            id: 1,
-            name: "Rotate",
-            parameters: [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }],
-          },
-          {
-            id: 2,
-            name: "Crop",
-            parameters: [
-              { name: "width", label: "Width (px)", type: "number", value: 100 },
-              { name: "height", label: "Height (px)", type: "number", value: 100 },
-            ],
-          },
-          {
-            id: 3,
-            name: "Resize",
-            parameters: [{ name: "scale", label: "Scale (factor)", type: "number", value: 1 }],
-          },
-          {
-            id: 4,
-            name: "Adjust Brightness",
-            parameters: [{ name: "brightness", label: "Brightness (%)", type: "number", value: 100 }],
-          },
+      {
+        procedure: "Border",
+        parameters: [
+          { name: "bordersize", label: "Border Size (px)", type: "number", value: 1 },
+          { name: "bordercolor", label: "Border Color (hex)", type: "text", value: "#000000" },
         ],
+      },
+      {
+        procedure: "Crop",
+        parameters: [
+        { name: "left", label: "Left", type: "number", value: 0 },
+      { name: "upper", label: "Upper", type: "number", value: 0 },
+      { name: "right", label: "Right", type: "number", value: 100 },
+      { name: "lower", label: "Lower", type: "number", value: 100 },
+        ],
+      },
+      {
+        procedure: "Rotation",
+        parameters: [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }],
+      },
+      {
+        procedure: "Brightness",
+        parameters: [{ name: "brightnessValue", label: "Brightness (factor)", type: "number", value: 1.0 }],
+      },
+      {
+        procedure: "Binarization",
+        parameters: [], // No specific parameters mentioned
+      },
+      {
+        procedure: "Resize",
+        parameters: [
+          { name: "width", label: "Width (px)", type: "number", value: 1920 },
+          { name: "height", label: "Height (px)", type: "number", value: 1080 },
+        ],
+      },
+      {
+        procedure: "Count People",
+        parameters: [], // No specific parameters mentioned
+      },
+      {
+        procedure: "Object Detection",
+        parameters: [], // No specific parameters mentioned
+      },
+      {
+        procedure: "Background Removal",
+        parameters: [], // No specific parameters mentioned
+      },
+      {
+        procedure: "Watermark",
+        parameters: [
+        ],
+      },
+    ],
         uploadError: "",
         zoomedImage: null,
         selectedImage: null,
@@ -215,6 +239,7 @@
             this.uploadError = "Some files exceed the 5MB limit and were skipped.";
           }
         });
+        console.log("Uploaded images:", this.projectImages);
       },
       deleteImage(index) {
         if (this.selectedImage === index) {
@@ -223,8 +248,19 @@
         this.projectImages.splice(index, 1);
       },
       applyTool(tool) {
-        const newToolInstance = { ...tool, parameters: JSON.parse(JSON.stringify(tool.parameters)), id: Date.now() };
-        this.selectedTools.push(newToolInstance);
+        // id in string
+        const formattedTool = {
+    ...tool,
+    // name of the tool and date
+    _id: `${tool.procedure}-${Date.now()}`,
+    parameters: Object.keys(tool.parameters || {}).map((key) => ({
+      name: key,
+      value: tool.parameters[key],
+    })),
+  };
+  this.selectedTools.push(formattedTool);
+        console.log("Applied tool:", formattedTool);
+        console.log("Selected tools:", this.selectedTools);
       },
       removeTool(index) {
         this.selectedTools.splice(index, 1);
@@ -241,6 +277,8 @@
 
       saveToolEdits() {
         this.editingTool = null;
+        console.log("Tool edits saved successfully.");
+        console.log("Selected tools:", this.selectedTools);
       },
       closeEditModal() {
         this.editingTool = null;
@@ -254,9 +292,38 @@
       processImages() {
         console.log("Processing images with toolchain:", this.selectedTools);
       },
-      saveProject() {
-        console.log("Saving project...");
-      },
+      async saveProject() {
+    const userStore = useUserStore();
+    const projectStore = useProjectStore();
+    
+    const projectData = {
+      _id: projectStore.project._id,
+      name: projectStore.project.name,
+      user_id: userStore.user.id,
+      images: this.projectImages.map(image => ({
+        _id: image.name,
+        uri: image.url
+      })),
+      tools: this.selectedTools.map(tool => ({
+        _id: tool._id,
+        procedure: tool.procedure,
+        parameters: tool.parameters.map(param => ({
+            name: param.name,
+            value: param.value,
+            crop_box: param.crop_box
+        }))
+      }))
+    };
+
+    try {
+      const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}`, projectData);
+      console.log("Project saved successfully:", response.data);
+      console.log("Project data:", projectData);
+    } catch (error) {
+      console.error("Error saving project:", error.message);
+      alert("Failed to save project. Please try again.");
+    }
+  },
       selectImage(index) {
         this.selectedImage = index;
       },

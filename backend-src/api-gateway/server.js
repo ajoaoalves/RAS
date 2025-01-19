@@ -15,7 +15,7 @@ const STATIC_FILE_SERVER = '';
 const app = express();
 
 // Middlewares
-app.use(express.json());
+app.use(express.json( { limit: '50mb' } ));
 app.use(cors());
 
 // Test endpoint
