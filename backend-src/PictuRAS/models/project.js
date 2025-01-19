@@ -41,9 +41,9 @@ var projectSchema = new mongoose.Schema({
 
 
 // Upload image to S3 before saving
-projectSchema.methods.uploadImageToS3FromBrowser = async function (fileBuffer, fileName) {
+projectSchema.methods.uploadImageToS3FromBrowser = async function (fileBuffer, projectId) {
     const bucketName = process.env.AWS_S3_BUCKET_NAME;
-    const key = `src/${uuidv4()}-${fileName}`;
+    const key = `src/${projectId}/${uuidv4()}`;
 
     try {
         const uploadResult = await s3.upload({
@@ -62,8 +62,8 @@ projectSchema.methods.uploadImageToS3FromBrowser = async function (fileBuffer, f
 };
 
 // Add images to a project
-projectSchema.methods.addImageFromBrowser = async function (fileBuffer, fileName) {
-    const imageUrl = await this.uploadImageToS3FromBrowser(fileBuffer, fileName);
+projectSchema.methods.addImageFromBrowser = async function (fileBuffer, projectId) {
+    const imageUrl = await this.uploadImageToS3FromBrowser(fileBuffer, projectId);
 
     this.images.push({ uri: imageUrl });
     await this.save();
