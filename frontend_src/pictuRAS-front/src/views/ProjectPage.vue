@@ -12,25 +12,27 @@
       <div class="dashboard-main">
         <!-- Upload Images Section -->
         <section class="upload-section">
-          <h2>Upload Images</h2>
-          <input type="file" multiple @change="uploadImages" accept="image/*" />
-          <p v-if="uploadError" class="error">{{ uploadError }}</p>
-          <div class="uploaded-images">
-            <h3>Uploaded Images:</h3>
-            <ul>
-              <li v-for="(image, index) in projectImages" :key="index">
-                <img
-                  :src="image.url"
-                  :alt="image.name"
-                  class="thumbnail"
-                  @click="selectImage(index)"
-                />
-                {{ image.name }}
-                <button class="delete-button" @click="deleteImage(index)">Delete</button>
-              </li>
-            </ul>
-          </div>
-        </section>
+        <h2>Upload Images</h2> 
+        <!-- Note: @change now calls our WebSocket-based logic -->
+        <input type="file" multiple @change="uploadImages" accept="image/*" />
+        <p v-if="uploadError" class="error">{{ uploadError }}</p>
+        
+        <div class="uploaded-images">
+          <h3>Uploaded Images:</h3>
+          <ul>
+            <li v-for="(image, index) in projectImages" :key="index">
+              <img
+                :src="image.url"
+                :alt="image.name"
+                class="thumbnail"
+                @click="selectImage(index)"
+              />
+              {{ image.name }}
+              <button class="delete-button" @click="deleteImage(index)">Delete</button>
+            </li>
+          </ul>
+        </div>
+      </section>
   
         <!-- Tools Section -->
         <section class="tools-section">
@@ -132,6 +134,7 @@
   import axios from "axios";
   import { useUserStore } from "../stores/UserStore";
   import { useProjectStore } from "../stores/ProjectStore";
+  import { io } from "socket.io-client";
   
   export default {
     name: "ProjectDashboard",
@@ -141,11 +144,29 @@
       const projectStore = useProjectStore();
       this.projectName = projectStore.project.name;
       this.projectId = projectStore.project.id;
+      this.socket = io("http://localhost:8180");
+      this.socket.on("ack", (data) => {
+        console.log("Server acknowledgment:", data);
+      // You can set a status message or handle UI updates here
+        });
+        this.socket.on("preview_image", (metadata, binaryData) => {
+      console.log("Preview image metadata:", metadata);
+
+      // Construct a Blob from the binary data
+      const imageBlob = new Blob([binaryData], { type: metadata.contentType });
+      const imageUrl = URL.createObjectURL(imageBlob);
+
+      // Do something with the newly received preview
+      // For instance, set it to a "previewImage" data property or replace an existing image
+      // This example simply logs it, but you could e.g. push it to projectImages, etc.
+      console.log("Preview image URL:", imageUrl);
+    });
     },
     data() {
       return {
         projectName: "",
         projectId: "",
+        socket: null,
         projectImages: [],
         selectedTools: [],
         availableTools: [
@@ -226,21 +247,41 @@
         alert("Failed to load project data. Please refresh the page.");
       }
     },
-      uploadImages(event) {
-        const files = Array.from(event.target.files);
-        files.forEach((file) => {
-          if (file.size <= 5 * 1024 * 1024) {
-            const reader = new FileReader();
-            reader.onload = () => {
-              this.projectImages.push({ url: reader.result, name: file.name });
+    uploadImages(event) {
+      const projectStore = useProjectStore();
+      const files = Array.from(event.target.files);
+      files.forEach((file) => {
+        // Enforce a 5MB limit for demo
+        if (file.size <= 5 * 1024 * 1024) {
+          // 1) Create a FileReader for the *binary* data
+          const reader = new FileReader();
+          reader.onload = () => {
+            // Emit via socket: "image" event
+            this.socket.emit("image", {
+              projectId: projectStore.project._id,
+              imageData: reader.result, // This is the ArrayBuffer
+            });
+            console.log("Uploaded image:", file.name);
+            console.log("Project ID:", projectStore.project._id);
+
+            // (Optional) For immediate local preview as base64
+            const base64Reader = new FileReader();
+            base64Reader.onload = () => {
+              this.projectImages.push({
+                url: base64Reader.result,
+                name: file.name,
+              });
             };
-            reader.readAsDataURL(file);
-          } else {
-            this.uploadError = "Some files exceed the 5MB limit and were skipped.";
-          }
-        });
-        console.log("Uploaded images:", this.projectImages);
-      },
+            // Convert the same file to base64 for local preview
+            base64Reader.readAsDataURL(file);
+          };
+          // Read the file as ArrayBuffer for binary upload
+          reader.readAsArrayBuffer(file);
+        } else {
+          this.uploadError = "Some files exceed the 5MB limit and were skipped.";
+        }
+      });
+    },
       deleteImage(index) {
         if (this.selectedImage === index) {
           this.selectedImage = null;
@@ -297,23 +338,23 @@
     const projectStore = useProjectStore();
     
     const projectData = {
-      _id: projectStore.project._id,
-      name: projectStore.project.name,
-      user_id: userStore.user.id,
-      images: this.projectImages.map(image => ({
-        _id: image.name,
-        uri: image.url
-      })),
-      tools: this.selectedTools.map(tool => ({
-        _id: tool._id,
-        procedure: tool.procedure,
-        parameters: tool.parameters.map(param => ({
-            name: param.name,
-            value: param.value,
-            crop_box: param.crop_box
-        }))
-      }))
-    };
+  _id: projectStore.project._id,
+  name: projectStore.project.name,
+  user_id: userStore.user.id,
+  images: this.projectImages.map(image => ({
+    _id: image.name,
+    uri: image.url
+  })),
+  tools: this.selectedTools.map(tool => ({
+    _id: tool._id,
+    procedure: tool.procedure,
+    parameters: tool.parameters.reduce((acc, param) => {
+      acc[param.name] = param.value;
+      return acc;
+    }, {})
+  }))
+};
+
 
     try {
       const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}`, projectData);

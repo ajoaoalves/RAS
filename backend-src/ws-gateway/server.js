@@ -6,7 +6,7 @@ const axios = require('axios'); // For HTTP communication with Projects Backend
 
 const PORT = process.env.PORT || 8180;
 // const PROJECTS_BACKEND_URL = 'http://projects-api:18018/projects';
-const PROJECTS_BACKEND_WS_URL = 'http://projects:3000'; // Backend WebSocket URL
+const PROJECTS_BACKEND_WS_URL = 'http://projects-api:3000'; // Backend WebSocket URL
 
 // Create an Express app and HTTP server
 const app = express();
@@ -69,9 +69,9 @@ io.on('connection', (socket) => {
 
 
     socket.on('preview_update', (metadata, binaryData) => {
-        const { projectId, contentType } = metadata;
+        const { projectId, numTool, contentType } = metadata;
 
-        console.log(`Received preview update for project ID: ${projectId}`);
+        console.log(`Received preview update for project ${numTool}, Step : ${numTool}`);
 
         // Retrieve the client socket from the connections map
         const clientSocket = connections.get(projectId);
@@ -83,8 +83,9 @@ io.on('connection', (socket) => {
 
         // Send the preview image to the client
         console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('preview_image', { contentType }, binaryData);
+        clientSocket.emit('preview_image', { numTool, contentType }, binaryData);
     });
+
 
     socket.on('result', (data) => {
         const { projectId, output } = data;
