@@ -46,6 +46,7 @@ export default {
         deleteProject() {
             this.$emit("delete", this.project._id);
             this.isModalVisible = false;
+            if (event) event.stopPropagation();
         },
         navigateToProject() {
             const projectStore = useProjectStore();
