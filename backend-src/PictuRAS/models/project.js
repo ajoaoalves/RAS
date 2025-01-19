@@ -44,14 +44,14 @@ var parametersSchema = new mongoose.Schema({
 
 
 var toolSchema = new mongoose.Schema({
-    _id: String, 
+    _id: String,
     procedure: String,
     parameters: { type: parametersSchema, required: false }
 }, { _id: false });
 
 var imageSchema = new mongoose.Schema({
     _id: String,
-    uri: String 
+    uri: String
 }, { _id: false }); // Desativa o _id automático dos subdocumentos
 
 var projectSchema = new mongoose.Schema({
@@ -112,6 +112,33 @@ projectSchema.methods.addImageFromBrowser = async function (fileBuffer, projectI
 
     this.images.push({ uri: imageUrl });
     await this.save();
+};
+
+projectSchema.methods.getImages = async function () {
+    const bucketName = process.env.AWS_S3_BUCKET_NAME;
+
+    try {
+        // Map through stored image keys and download their data from S3
+        const images = await Promise.all(
+            this.images.map(async (image) => {
+                const params = {
+                    Bucket: bucketName,
+                    Key: image.uri, // The S3 key stored in `images`
+                };
+
+                const s3Object = await s3.getObject(params).promise();
+
+                return {
+                    contentType: s3Object.ContentType, // Content type (e.g., image/png, image/jpeg)
+                    data: s3Object.Body, // Binary image data
+                };
+            })
+        );
+
+        return images; // Return an array of image objects
+    } catch (error) {
+        throw new Error(`Failed to retrieve images from S3: ${error.message}`);
+    }
 };
 
 module.exports = mongoose.model('projects', projectSchema);
