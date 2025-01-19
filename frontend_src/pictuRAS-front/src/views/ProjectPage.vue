@@ -267,8 +267,8 @@
         console.warn("No projectId found! Cannot request images.");
         return;
       }
-      console.log("Requesting images for project:", this.projectId);
-      this.socket.emit("request_images", this.projectId);
+      console.log("Requesting images for project:", projectStore.project._id);
+      this.socket.emit("request_images", projectStore.project._id);
     },
     handleImageData({ projectId, contentType, binaryData }) {
       console.log(`Received image for project ID: ${projectId} with type: ${contentType}`);
