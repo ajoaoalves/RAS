@@ -67,6 +67,43 @@ io.on('connection', (socket) => {
         }
     });
 
+
+    socket.on('preview_update', (metadata, binaryData) => {
+        const { projectId, contentType } = metadata;
+
+        console.log(`Received preview update for project ID: ${projectId}`);
+
+        // Retrieve the client socket from the connections map
+        const clientSocket = connections.get(projectId);
+
+        if (!clientSocket) {
+            console.error(`No client connected for project ID: ${projectId}`);
+            return;
+        }
+
+        // Send the preview image to the client
+        console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
+        clientSocket.emit('preview_image', { contentType }, binaryData);
+    });
+
+    socket.on('result', (data) => {
+        const { projectId, output } = data;
+
+        console.log(`Received result for project ID: ${projectId}`);
+
+        // Retrieve the client socket from the connections map
+        const clientSocket = connections.get(projectId);
+
+        if (!clientSocket) {
+            console.error(`No client connected for project ID: ${projectId}`);
+            return;
+        }
+
+        // Send the result dictionary to the client
+        console.log(`Sending result to client ${clientSocket.id} for project ID: ${projectId}`);
+        clientSocket.emit('result', { output });
+    });
+
     // Handle client disconnection
     socket.on('disconnect', () => {
         console.log(`Client disconnected: ${socket.id}`);
@@ -88,23 +125,7 @@ backendSocket.on('connect', () => {
 backendSocket.on('disconnect', () => {
     console.log('Disconnected from Projects WebSocket server');
 });
-backendSocket.on('preview_update', (metadata, binaryData) => {
-    const { projectId, contentType } = metadata;
 
-    console.log(`Received preview update for project ID: ${projectId}`);
-
-    // Retrieve the client socket from the connections map
-    const clientSocket = connections.get(projectId);
-
-    if (!clientSocket) {
-        console.error(`No client connected for project ID: ${projectId}`);
-        return;
-    }
-
-    // Send the preview image to the client
-    console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
-    clientSocket.emit('preview_image', { contentType }, binaryData);
-});
 
 
 

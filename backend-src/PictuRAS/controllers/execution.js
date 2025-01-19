@@ -1,5 +1,25 @@
 const amqp = require('amqplib');
 const moment = require('moment'); // Para gerar o timestamp no formato datetime
+const { io } = require('socket.io-client'); // Import socket.io-client
+
+// Connect to the ws-gateway WebSocket
+const wsGatewayUrl = 'http://ws-gateway:8180'; // Adjust the URL and port if necessary
+const wsSocket = io(wsGatewayUrl, {
+  reconnection: true, // Automatically reconnect if disconnected
+  reconnectionAttempts: 10, // Retry 10 times
+  reconnectionDelay: 5000, // Wait 5 seconds before retrying
+});
+
+wsSocket.on('connect', () => {
+  console.log('Connected to ws-gateway WebSocket');
+});
+
+wsSocket.on('disconnect', () => {
+  console.warn('Disconnected from ws-gateway WebSocket');
+});
+
+
+
 
 // Função genérica para enviar mensagem para a fila com parâmetros específicos de cada procedimento
 async function sendToQueue(projectId, image, tool, index) {
@@ -159,6 +179,34 @@ async function connectToRabbitMQ() {
 }
 
 
+// Emit the preview image
+async function emitPreviewUpdate(projectId, imageId, correlationId, socket) {
+  try {
+    console.log(`Downloading preview image for project ID ${projectId} with key ${correlationId}`);
+
+    // Find the project to ensure it exists
+    const project = await ProjectM.findById(projectId);
+    if (!project) {
+      console.error('Project not found:', projectId);
+      socket.emit('error', { success: false, error: 'Project not found.' });
+      return;
+    }
+
+    // Download the image from S3
+    const { data: imageBuffer, contentType } = await project.downloadImageFromS3(imageId);
+
+    console.log(`Preview image downloaded for project ID ${projectId}`);
+
+    // Emit the preview update event to the ws-gateway
+    wsSocket.emit('preview_update', { projectId, contentType }, imageBuffer);
+
+    console.log(`Preview update emitted for project ID ${projectId}`);
+  } catch (error) {
+    console.error('Error downloading or emitting preview image:', error.message);
+    wsSocket.emit('error', { success: false, error: `Failed to download or emit preview image: ${error.message}` });
+  }
+}
+
 async function processQueueResults() {
   try {
 
@@ -181,14 +229,77 @@ async function processQueueResults() {
             const result = JSON.parse(message.content.toString());
             console.log('Message received from result queue:', result);
 
-            // Perform necessary actions based on the result
-            if (result.nextTool) {
-              // Example: Call sendToQueue with the next tool
-              const { projectId, image, tool, index } = result;
-              await sendToQueue(projectId, image, tool, index);
-            } else {
-              console.log(`No next tool for project: ${result.projectId}`);
+            // Extract relevant data from the result
+            const {
+              messageId,
+              correlationId,
+              timestamp,
+              metadata: { processingTime, microservice },
+              status,
+              output,
+              error,
+            } = result;
+
+            const Project = require('./controllers/project'); // Your project model
+
+            if (status === 'success' && output.type === 'image') {
+              const imageURI = output.imageURI;
+
+              // Parse the imageURI to extract projectId, toolNum, and imageId
+              const [, projectId, toolNum, imageId] = imageURI.split('/');
+              console.log(`Parsed URI - Project ID: ${projectId}, Tool Num: ${toolNum}, Image ID: ${imageId}`);
+
+              // Example: Update the project with the parsed data
+              const Project = require('./controllers/project'); // Replace with actual project model/controller
+
+              const project = await Project.findById(projectId);
+
+              if (project && Array.isArray(project.tools)) {
+                const toolCount = project.tools.length;
+              } else {
+                console.log('Project not found or tools is not an array.');
+              }
+
+              if (status === 'success' && toolCount == numTool) {
+
+                wsSocket.emit('result', { projectId, output });
+                console.log(`Image output sent for project ID: ${projectId}`);
+
+              } else {
+
+                await emitPreviewUpdate(projectId, imageId, correlationId, wsSocket);
+
+                sendToQueue(projectId, imageId, tool, toolNum)
+
+              }
+
+
+            } else if (status === 'success' && output.type === 'dict') {
+
+              console.log('Sending dict output through WebSocket:', output);
+
+              // Parse the project ID from the correlationId
+              const projectId = correlationId.split('/')[1]; // Assumes correlationId is formatted as "out/{projectId}/..."
+
+              // Emit the output dictionary through WebSocket
+              wsSocket.emit('result', { projectId, output });
+
+              console.log(`Dictionary output sent for project ID: ${projectId}`);
             }
+            else if (status === 'success' && output.type === 'int') {
+              console.log('Sending integer output through WebSocket:', output);
+
+              // Parse the project ID from the correlationId
+              const projectId = correlationId.split('/')[1]; // Assumes correlationId is formatted as "out/{projectId}/..."
+
+              // Emit the output dictionary through WebSocket
+              wsSocket.emit('result', { projectId, output });
+
+              console.log(`Integer output sent for project ID: ${projectId}`);
+            } else {
+              console.error(`Error processing result: ${error || 'Unknown error'}`);
+            }
+
 
             // Acknowledge the message
             channel.ack(message);
