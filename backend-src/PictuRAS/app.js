@@ -36,6 +36,7 @@ app.use('/', projectRouter);
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
+
   // Listen for image messages from the ws-gateway
   socket.on('image', async (data, callback) => {
     try {
@@ -79,6 +80,47 @@ io.on('connection', (socket) => {
       socket.emit('error', { message: 'Failed to process image.', error: error.message });
     }
   });
+
+  // Listen for preview_update event
+  socket.on('preview_update', async (data, callback) => {
+    try {
+      const { projectId, key } = data;
+
+      if (!projectId || !key) {
+        console.error('Invalid data received. Missing projectId or key.');
+        const errorResponse = { success: false, error: 'Invalid data. projectId and key are required.' };
+        if (callback) callback(errorResponse); // Send error response
+        return;
+      }
+
+      console.log(`Downloading preview image for project ID ${projectId} with key ${key}`);
+
+      // Find the project to ensure it exists
+      const Project = require('./models/project'); // Your project model
+      const project = await Project.findById(projectId);
+
+      if (!project) {
+        console.error('Project not found:', projectId);
+        const errorResponse = { success: false, error: 'Project not found.' };
+        if (callback) callback(errorResponse); // Send error response
+        return;
+      }
+
+      // Download the image from S3
+      const { data: imageBuffer, contentType } = await project.downloadImageFromS3(`src/${projectId}/${key}`);
+
+      console.log(`Preview image downloaded for project ID ${projectId}`);
+
+      // Send the binary image data directly to the client
+      if (callback) callback({ success: true, contentType });
+      socket.emit('preview_update', { projectId, contentType }, imageBuffer); // Send the binary data
+    } catch (error) {
+      console.error('Error downloading preview image:', error.message);
+      const errorResponse = { success: false, error: `Failed to download preview image: ${error.message}` };
+      if (callback) callback(errorResponse); // Send error response
+    }
+  });
+
 
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
