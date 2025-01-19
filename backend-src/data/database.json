@@ -1,5 +1,27 @@
 [
   {
+    "_id": "1234",
+    "name": "TESTE",
+    "user_id": "0e6d0ce7-08c1-4de9-b7ff-82554bad32d8",
+    "images": [],
+    "tools": [
+      {
+        "_id": "a5c27b9d-1261-4291-ae34-4b70877a3e58",
+        "procedure": "rotation",
+        "parameters": {
+          "angle": 90
+        }
+      },
+      {
+        "_id": "a5c27b9d-1261-4291-ae34-4b70877a3e58",
+        "procedure": "rotation",
+        "parameters": {
+          "angle": 90
+        }
+      }
+    ]
+  },
+  {
     "_id": "516d3862-2a87-4e04-baf8-5bf640b94838",
     "name": "Fotografias de astronomia",
     "user_id": "0e6d0ce7-08c1-4de9-b7ff-82554bad32d8",
