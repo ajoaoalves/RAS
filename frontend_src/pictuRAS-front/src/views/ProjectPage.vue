@@ -399,7 +399,7 @@
             }))
         };
         try {
-            const response = await axios.post(`/users/${userStore.user.id}/projects/${projectStore.project._id}/exec`, projectData);
+            const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}/exec`, projectData);
             console.log("Project processed successfully:", response.data);
         } catch (error) {
             console.error("Error processing project:", error.message);
