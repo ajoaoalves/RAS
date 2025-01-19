@@ -262,7 +262,8 @@
       }
     },
     requestProjectImages() {
-      if (!this.projectId) {
+      const projectStore = useProjectStore();
+      if (!projectStore.project._id) {
         console.warn("No projectId found! Cannot request images.");
         return;
       }
