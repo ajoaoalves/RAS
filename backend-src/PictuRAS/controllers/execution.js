@@ -255,7 +255,7 @@ async function processQueueResults() {
               const project = await Project.findById(projectId);
 
               if (project && Array.isArray(project.tools)) {
-                const toolCount = project.tools.length;
+                toolCount = project.tools.length;
               } else {
                 console.log('Project not found or tools is not an array.');
               }
