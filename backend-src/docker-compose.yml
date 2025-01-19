@@ -67,4 +67,9 @@ services:
       context: ./api-gateway
     ports:
       - "8080:8080"
-  
+  ws-gateway:
+    container_name: ws-gateway
+    build:
+      context: ./ws-gateway
+    ports:
+      - "8080:8080"

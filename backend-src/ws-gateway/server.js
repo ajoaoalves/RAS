@@ -5,8 +5,8 @@ const { io: Client } = require('socket.io-client'); // For connecting to Project
 const axios = require('axios'); // For HTTP communication with Projects Backend
 
 const PORT = process.env.PORT || 8180;
-const PROJECTS_BACKEND_URL = 'http://localhost:18018/projects';
-const PROJECTS_BACKEND_WS_URL = 'http://localhost:3000'; // Backend WebSocket URL
+// const PROJECTS_BACKEND_URL = 'http://projects-api:18018/projects';
+const PROJECTS_BACKEND_WS_URL = 'http://projects:3000'; // Backend WebSocket URL
 
 // Create an Express app and HTTP server
 const app = express();
