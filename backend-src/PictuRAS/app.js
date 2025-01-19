@@ -61,8 +61,6 @@ io.on('connection', (socket) => {
         return;
       }
 
-      console.log('Project found:', projectId);
-
       // Save the image data using addImageFromBrowser
       await project.addImageFromBrowser(imageData, projectId);
 
