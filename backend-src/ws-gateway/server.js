@@ -45,6 +45,10 @@ io.on('connection', (socket) => {
                 return;
             }
 
+            connections.set(projectId, socket);
+            console.log(`Added client ${socket.id} to connections map.`);
+
+
             console.log(`Received image for project ID: ${projectId}`);
 
             // Forward the image data to the Projects WebSocket server
@@ -67,14 +71,14 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log(`Client disconnected: ${socket.id}`);
 
-        // Clean up the mapping
-        for (const [projectId, clientSocket] of connections.entries()) {
-            if (clientSocket === socket) {
-                connections.delete(projectId);
-            }
+        // Remove the client from the connections map
+        if (connections.has(socket.id)) {
+            connections.delete(socket.id);
+            console.log(`Removed client ${socket.id} from connections map.`);
         }
     });
 });
+
 
 // Handle connection to the Projects WebSocket server
 backendSocket.on('connect', () => {
@@ -84,6 +88,25 @@ backendSocket.on('connect', () => {
 backendSocket.on('disconnect', () => {
     console.log('Disconnected from Projects WebSocket server');
 });
+backendSocket.on('preview_update', (metadata, binaryData) => {
+    const { projectId, contentType } = metadata;
+
+    console.log(`Received preview update for project ID: ${projectId}`);
+
+    // Retrieve the client socket from the connections map
+    const clientSocket = connections.get(projectId);
+
+    if (!clientSocket) {
+        console.error(`No client connected for project ID: ${projectId}`);
+        return;
+    }
+
+    // Send the preview image to the client
+    console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
+    clientSocket.emit('preview_image', { contentType }, binaryData);
+});
+
+
 
 backendSocket.on('error', (error) => {
     console.error('Error in Projects WebSocket connection:', error.message);
