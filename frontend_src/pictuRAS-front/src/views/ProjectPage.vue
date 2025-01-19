@@ -182,14 +182,16 @@
         selectedTools: [],
         availableTools: [
       {
-        procedure: "Border",
+        name: "Border",
+        procedure: "border",
         parameters: [
           { name: "bordersize", label: "Border Size (px)", type: "number", value: 1 },
           { name: "bordercolor", label: "Border Color (hex)", type: "text", value: "#000000" },
         ],
       },
       {
-        procedure: "Crop",
+        name: "Crop",
+        procedure: "crop",
         parameters: [
         { name: "left", label: "Left", type: "number", value: 0 },
       { name: "upper", label: "Upper", type: "number", value: 0 },
@@ -198,38 +200,46 @@
         ],
       },
       {
-        procedure: "Rotation",
+        name: "Rotation",
+        procedure: "rotation",
         parameters: [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }],
       },
       {
-        procedure: "Brightness",
+        name: "Brightness",
+        procedure: "brightness",
         parameters: [{ name: "brightnessValue", label: "Brightness (factor)", type: "number", value: 1.0 }],
       },
       {
-        procedure: "Binarization",
+        name: "Binarization",
+        procedure: "binarization",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Resize",
+        name: "Resize",
+        procedure: "resize",
         parameters: [
           { name: "width", label: "Width (px)", type: "number", value: 1920 },
           { name: "height", label: "Height (px)", type: "number", value: 1080 },
         ],
       },
       {
-        procedure: "Count People",
+        name: "Count People",
+        procedure: "count-people",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Object Detection",
+        name: "Object Detection",
+        procedure: "object-detection",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Background Removal",
+        name: "Background Removal",
+        procedure: "background-removal",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Watermark",
+        name: "Watermark",
+        procedure: "watermark",
         parameters: [
         ],
       },
@@ -247,10 +257,6 @@
       try {
         const response = await axios.get(`/users/${userStore.user.id}/projects/${projectStore.project._id}`);
         const { images, tools } = response.data;
-        this.projectImages = images.map((image) => ({
-          url: image.uri,
-          name: image._id,
-        }));
         this.selectedTools = tools.map((tool) => ({
           ...tool,
           previewUrl: null, // initially, no preview
@@ -376,34 +382,34 @@
       processImages() {
         console.log("Processing images with toolchain:", this.selectedTools);
       },
-      async saveProject() {
-    const userStore = useUserStore();
-    const projectStore = useProjectStore();
-    
-    const projectData = {
-  _id: projectStore.project._id,
-  name: projectStore.project.name,
-  user_id: userStore.user.id,
-  tools: this.selectedTools.map(tool => ({
-    _id: tool._id,
-    procedure: tool.procedure,
-    parameters: tool.parameters.reduce((acc, param) => {
-      acc[param.name] = param.value;
-      return acc;
-    }, {})
-  }))
-};
+    async saveProject() {
+        const userStore = useUserStore();
+        const projectStore = useProjectStore();
 
+        const projectData = {
+            _id: projectStore.project._id,
+            name: projectStore.project.name,
+            user_id: userStore.user.id,
+            tools: this.selectedTools.map(tool => ({
+                _id: tool._id,
+                procedure: tool.procedure,
+                parameters: Array.isArray(tool.parameters)
+                    ? tool.parameters.reduce((acc, param) => {
+                            acc[param.name] = param.value;
+                            return acc;
+                        }, {})
+                    : tool.parameters
+            }))
+        };
 
-    try {
-      const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}`, projectData);
-      console.log("Project saved successfully:", response.data);
-      console.log("Project data:", projectData);
-    } catch (error) {
-      console.error("Error saving project:", error.message);
-      alert("Failed to save project. Please try again.");
-    }
-  },
+        try {
+            const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}`, projectData);
+            console.log("Project saved successfully:", response.data);
+        } catch (error) {
+            console.error("Error saving project:", error.message);
+            alert("Failed to save project. Please try again.");
+        }
+    },
       selectImage(index) {
         this.selectedImage = index;
       },
