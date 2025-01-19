@@ -24,7 +24,7 @@ const io = new Server(server); // Initialize socket.io
 
 // Middlewares
 app.use(logger('dev'));
-app.use(express.json( { limit: '50mb' } ));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -78,6 +78,58 @@ io.on('connection', (socket) => {
       const errorResponse = { success: false, error: `Failed to process image: ${error.message}` };
       if (callback) callback(errorResponse); // Send error response
       socket.emit('error', { message: 'Failed to process image.', error: error.message });
+    }
+  });
+
+
+  // Handle the request_images event
+  socket.on('request_images', async (projectId, callback) => {
+    try {
+      if (!projectId) {
+        console.error('Invalid request. Missing projectId.');
+        const errorResponse = { success: false, error: 'Invalid request. projectId is required.' };
+        if (callback) callback(errorResponse); // Send error response
+        return;
+      }
+
+      console.log(`Received request for images of project ID: ${projectId}`);
+
+      // Retrieve the project from the database
+      const Project = require('./models/project'); // Your project model
+      const project = await Project.findById(projectId);
+
+      if (!project) {
+        console.error('Project not found:', projectId);
+        const errorResponse = { success: false, error: 'Project not found.' };
+        if (callback) callback(errorResponse); // Send error response
+        return;
+      }
+
+      // Retrieve the images for the project
+      const images = await project.getImages(); // Assuming this method retrieves all images for the project
+
+      if (!images || images.length === 0) {
+        console.warn(`No images found for project ID: ${projectId}`);
+        const successResponse = { success: true, images: [] };
+        if (callback) callback(successResponse); // Send success response with no images
+        return;
+      }
+
+      // Prepare images for sending
+      const imageData = images.map((image) => ({
+        contentType: image.contentType, // e.g., 'image/png'
+        binaryData: image.data, // Buffer or binary data of the image
+      }));
+
+      console.log(`Found ${images.length} images for project ID: ${projectId}`);
+
+      // Send the images back to the client
+      const successResponse = { success: true, images: imageData };
+      if (callback) callback(successResponse);
+    } catch (error) {
+      console.error('Error while fetching images:', error.message);
+      const errorResponse = { success: false, error: `Failed to retrieve images: ${error.message}` };
+      if (callback) callback(errorResponse); // Send error response
     }
   });
 
