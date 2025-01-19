@@ -37,27 +37,48 @@ io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
 
   // Listen for image messages from the ws-gateway
-  socket.on('image', async (data) => {
+  socket.on('image', async (data, callback) => {
     try {
-      console.log(`Received image data for project ID ${data.projectId}`);
+      const { projectId, imageData } = data;
 
-      // Save the image URI to the MongoDB (example schema)
-      const Project = require('./models/project'); // Your project model
-      const project = await Project.findById(data.projectId);
-
-      if (!project) {
-        console.error('Project not found:', data.projectId);
+      if (!projectId || !imageData) {
+        console.error('Invalid data received. Missing projectId or imageData.');
+        const errorResponse = { success: false, error: 'Invalid data. projectId and imageData are required.' };
+        if (callback) callback(errorResponse); // Send error response
         return;
       }
 
-      project.images.push({ uri: data.imageUri });
-      await project.save();
+      console.log(`Received image data for project ID ${projectId}`);
 
-      console.log(`Image saved for project ID ${data.projectId}`);
-      socket.emit('ack', { message: 'Image received and saved', projectId: data.projectId });
+      // Save the image URI to the MongoDB (example schema)
+      const Project = require('./models/project'); // Your project model
+      const project = await Project.findById(projectId);
+
+      if (!project) {
+        console.error('Project not found:', projectId);
+        const errorResponse = { success: false, error: 'Project not found.' };
+        if (callback) callback(errorResponse); // Send error response
+        return;
+      }
+
+      console.log('Project found:', projectId);
+
+      // Save the image data using addImageFromBrowser
+      await project.addImageFromBrowser(imageData, projectId);
+
+      console.log(`Image saved for project ID ${projectId}`);
+
+      // Send success response
+      const successResponse = { success: true, message: 'Image saved successfully.', projectId };
+      if (callback) callback(successResponse);
+
+      // Emit acknowledgment to the original socket
+      socket.emit('ack', { message: 'Image received and saved', projectId });
     } catch (error) {
       console.error('Error saving image:', error.message);
-      socket.emit('error', { message: 'Failed to process image', error: error.message });
+      const errorResponse = { success: false, error: `Failed to process image: ${error.message}` };
+      if (callback) callback(errorResponse); // Send error response
+      socket.emit('error', { message: 'Failed to process image.', error: error.message });
     }
   });
 

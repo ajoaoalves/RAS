@@ -9,4 +9,5 @@ RUN npm install express
 COPY . .
 #Expose port and start application
 EXPOSE 18018
+EXPOSE 3000
 CMD [ "npm", "start" ]
