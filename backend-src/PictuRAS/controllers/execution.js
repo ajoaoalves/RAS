@@ -180,7 +180,7 @@ async function connectToRabbitMQ() {
 
 
 // Emit the preview image
-async function emitPreviewUpdate(projectId, imageId, correlationId, socket) {
+async function emitPreviewUpdate(projectId, numTool, imageId, correlationId, socket) {
   try {
     console.log(`Downloading preview image for project ID ${projectId} with key ${correlationId}`);
 
@@ -198,7 +198,7 @@ async function emitPreviewUpdate(projectId, imageId, correlationId, socket) {
     console.log(`Preview image downloaded for project ID ${projectId}`);
 
     // Emit the preview update event to the ws-gateway
-    wsSocket.emit('preview_update', { projectId, contentType }, imageBuffer);
+    wsSocket.emit('preview_update', { projectId, numTool, contentType }, imageBuffer);
 
     console.log(`Preview update emitted for project ID ${projectId}`);
   } catch (error) {
@@ -267,7 +267,7 @@ async function processQueueResults() {
 
               } else {
 
-                await emitPreviewUpdate(projectId, imageId, correlationId, wsSocket);
+                await emitPreviewUpdate(projectId, numTool, imageId, correlationId, wsSocket);
 
                 sendToQueue(projectId, imageId, tool, toolNum)
 
