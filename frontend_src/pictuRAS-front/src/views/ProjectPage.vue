@@ -381,6 +381,31 @@
       },
       processImages() {
         console.log("Processing images with toolchain:", this.selectedTools);
+        const projectStore = useProjectStore();
+        const userStore = useUserStore();
+        const projectData = {
+            _id: projectStore.project._id,
+            name: projectStore.project.name,
+            user_id: userStore.user.id,
+            tools: this.selectedTools.map(tool => ({
+                _id: tool._id,
+                procedure: tool.procedure,
+                parameters: Array.isArray(tool.parameters)
+                    ? tool.parameters.reduce((acc, param) => {
+                            acc[param.name] = param.value;
+                            return acc;
+                        }, {})
+                    : tool.parameters
+            }))
+        };
+        try {
+            const response = await axios.post(`/users/${userStore.user.id}/projects/${projectStore.project._id}/exec`, projectData);
+            console.log("Project processed successfully:", response.data);
+        } catch (error) {
+            console.error("Error processing project:", error.message);
+            alert("Failed to process project. Please try again.");
+        }
+          
       },
     async saveProject() {
         const userStore = useUserStore();
