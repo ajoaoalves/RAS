@@ -9,7 +9,12 @@
   <h1>WebSocket Image Upload Test</h1>
   <input type="file" id="imageInput" />
   <button id="uploadButton" disabled>Upload Image</button>
+  <button id="previewButton" disabled>Request Preview</button>
   <p id="status"></p>
+  <div id="previewContainer">
+    <h2>Preview:</h2>
+    <img id="previewImage" alt="Preview Image" style="max-width: 100%; display: none;">
+  </div>
 
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
@@ -19,9 +24,12 @@
     // DOM elements
     const imageInput = document.getElementById('imageInput');
     const uploadButton = document.getElementById('uploadButton');
+    const previewButton = document.getElementById('previewButton');
     const status = document.getElementById('status');
+    const previewImage = document.getElementById('previewImage');
 
     let selectedFile = null;
+    let projectId = '98ad5c24-3b7e-4a9b-a7c0-3ec5dc5e7bfc'; // Replace with your actual project ID
 
     // Enable the upload button when a file is selected
     imageInput.addEventListener('change', (event) => {
@@ -42,10 +50,10 @@
         const binaryData = reader.result; // Binary data from the file
 
         // Emit the "image" event with the project ID and binary data
-        const projectId = '98ad5c24-3b7e-4a9b-a7c0-3ec5dc5e7bfc'; // Replace with the desired project ID
-        socket.emit('image', { projectId, imageData: binaryData});
+        socket.emit('image', { projectId, imageData: binaryData });
 
         status.textContent = 'Uploading...';
+        previewButton.disabled = false; // Enable the preview button after upload
       };
 
       reader.onerror = (error) => {
@@ -55,6 +63,17 @@
 
       // Read the file as an ArrayBuffer (binary format)
       reader.readAsArrayBuffer(selectedFile);
+    });
+
+    // Handle the preview button click
+    previewButton.addEventListener('click', () => {
+      socket.emit('preview_update', { projectId, key: `${projectId}-preview.jpg` }, (response) => {
+        if (response.success) {
+          status.textContent = 'Preview requested successfully!';
+        } else {
+          status.textContent = `Error requesting preview: ${response.error}`;
+        }
+      });
     });
 
     // Handle server acknowledgment
@@ -67,6 +86,21 @@
     socket.on('error', (error) => {
       console.error('Server error:', error);
       status.textContent = `Error: ${error.message || 'Unknown error'}`;
+    });
+
+    // Handle preview image received
+    socket.on('preview_image', (metadata, binaryData) => {
+      console.log('Preview image metadata:', metadata);
+
+      // Create a Blob from the binary data
+      const imageBlob = new Blob([binaryData], { type: metadata.contentType });
+
+      // Create a URL for the Blob
+      const imageUrl = URL.createObjectURL(imageBlob);
+
+      // Display the image
+      previewImage.src = imageUrl;
+      previewImage.style.display = 'block';
     });
   </script>
 </body>
