@@ -1,38 +1,63 @@
 <template>
-    <div>
-        <Navbar/>
-        <div class="register-view">
+  <div>
+    <Navbar />
+    <div class="register-view">
       <h1 class="title">PICTURAS</h1>
       <h2 class="subtitle">Registro</h2>
-  
+
       <div class="register-container">
         <RegisterForm @submit-register="handleRegister" />
       </div>
     </div>
-    </div>
+  </div>
 </template>
-  
+
 <script>
-import Navbar from '../components/Navbar.vue';
+import { useUserStore } from "@/stores/UserStore";
+import { useRouter } from "vue-router";
+import Navbar from "../components/Navbar.vue";
 import RegisterForm from "../components/RegisterForm.vue";
 
 export default {
   name: "RegisterView",
   components: {
     RegisterForm,
-    Navbar
+    Navbar,
   },
-  methods: {
-    handleRegister(credentials) {
+  setup() {
+    const userStore = useUserStore();
+    const router = useRouter();
+
+    const handleRegister = (credentials) => {
+      // Verificar si las contraseñas coinciden
       if (credentials.password !== credentials.confirmPassword) {
         alert("⚠️ As senhas não coincidem. Tente novamente.");
         return;
       }
-      alert("✅ Registro bem-sucedido para " + credentials.name);
-    },
+
+      // Verificar si el usuario ya está registrado
+      if (userStore.user.email === credentials.email) {
+        alert("⚠️ Este e-mail já está registrado.");
+        return;
+      }
+
+      // Guardar el usuario en Pinia
+      userStore.setUser({
+        id: new Date().getTime().toString(), // Simulación de un ID único
+        name: credentials.name,
+        email: credentials.email,
+        type: "user",
+      });
+
+      alert("✅ Registro bem-sucedido!");
+      router.push("/profile"); // Redirigir al perfil
+    };
+
+    return { handleRegister };
   },
 };
 </script>
+
   
 <style scoped>
 .register-view {

@@ -1,50 +1,51 @@
 <template>
-    <div>
-      <Navbar />
-      <div class="profile-view">
-        <div class="profile-card">
-          <h1 class="title">PICTURAS</h1>
-          <h2 class="profile-title">O teu perfil</h2>
-  
-          <div class="profile-info">
-            <p><strong>Nome completo:</strong><br> {{ user.fullName }}</p>
-            <p><strong>Nome de utilizador:</strong><br> {{ user.username }}</p>
-            <p><strong>E-mail:</strong><br> {{ user.email }}</p>
-          </div>
-  
-          <div class="button-group">
-            <button class="edit-btn" @click="editProfile">Editar perfil</button>
-          </div>
+  <div>
+    <Navbar />
+    <div class="profile-view">
+      <div class="profile-card">
+        <h1 class="title">PICTURAS</h1>
+        <h2 class="profile-title">O teu perfil</h2>
+
+        <div class="profile-info" v-if="user">
+          <p><strong>Nome completo:</strong><br> {{ user.name }}</p>
+          <p><strong>Nome de utilizador:</strong><br> {{ username }}</p>
+          <p><strong>E-mail:</strong><br> {{ user.email }}</p>
+        </div>
+
+        <div class="button-group">
+          <button class="edit-btn" @click="editProfile">Editar perfil</button>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import Navbar from '../components/Navbar.vue';
-  
-  export default {
-    name: "ProfileView",
-    components: {
-      Navbar
-    },
-    data() {
-      return {
-        user: {
-          fullName: "João Silva",
-          username: "joaosilva",
-          email: "joao.silva@email.com"
-        }
-      };
-    },
-    methods: {
-      editProfile() {
-        console.log("Redirigindo para edição do perfil...");
-        this.$router.push('/edit-profile'); // Redirige a la página de edición
-      }
-    }
-  };
-  </script>
+  </div>
+</template>
+
+<script>
+import { useUserStore } from "@/stores/UserStore";
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import Navbar from "../components/Navbar.vue";
+
+export default {
+  name: "ProfileView",
+  components: { Navbar },
+  setup() {
+    const userStore = useUserStore();
+    const router = useRouter();
+
+    // Computed para obtener datos del usuario
+    const user = computed(() => userStore.user);
+    const username = computed(() => userStore.user.email.split("@")[0]); // Genera el nombre de usuario
+
+    const editProfile = () => {
+      console.log("Redirigindo para edição do perfil...");
+      router.push("/edit-profile");
+    };
+
+    return { user, username, editProfile };
+  },
+};
+</script>
   
   <style scoped>
   /* Asegurar que la vista cubra toda la pantalla sin barras de desplazamiento */
