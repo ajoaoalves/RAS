@@ -142,5 +142,59 @@ async function executeProject(project) {
   }
 }
 
+
+async function processQueueResults() {
+  try {
+    const connection = await amqp.connect('amqp://rabbitmq:5672'); // Connect to RabbitMQ
+    const channel = await connection.createChannel();
+
+    const resultQueue = 'results-queue'; // The name of the queue with results
+
+    // Ensure the queue exists
+    await channel.assertQueue(resultQueue, { durable: true });
+
+    console.log(`Waiting for messages in queue: ${resultQueue}`);
+
+    channel.consume(
+      resultQueue,
+      async (message) => {
+        if (message !== null) {
+          try {
+            // Parse the message content
+            const result = JSON.parse(message.content.toString());
+            console.log('Message received from result queue:', result);
+
+            // Perform necessary actions based on the result
+            if (result.nextTool) {
+              // Example: Call sendToQueue with the next tool
+              const { projectId, image, tool, index } = result;
+              await sendToQueue(projectId, image, tool, index);
+            } else {
+              console.log(`No next tool for project: ${result.projectId}`);
+            }
+
+            // Acknowledge the message
+            channel.ack(message);
+          } catch (error) {
+            console.error('Error processing message:', error);
+            // Optionally reject the message (and requeue it for processing later)
+            channel.nack(message, false, true);
+          }
+        }
+      },
+      { noAck: false } // Ensure messages are acknowledged
+    );
+  } catch (error) {
+    console.error('Error in processQueueResults:', error);
+    throw error;
+  }
+}
+
+// Start the worker thread
+processQueueResults().catch((error) => {
+  console.error('Error starting queue processor:', error);
+});
+
+
 module.exports = { executeProject, sendToQueue };
 
