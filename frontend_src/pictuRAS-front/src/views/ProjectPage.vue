@@ -379,7 +379,7 @@
         this.selectedTools[index] = this.selectedTools[newIndex];
         this.selectedTools[newIndex] = temp;
       },
-      processImages() {
+      async processImages() {
         console.log("Processing images with toolchain:", this.selectedTools);
         const projectStore = useProjectStore();
         const userStore = useUserStore();
