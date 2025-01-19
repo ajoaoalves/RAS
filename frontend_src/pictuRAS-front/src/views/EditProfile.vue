@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "../stores/UserStore";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";

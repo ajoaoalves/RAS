@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { useUserStore } from "@/stores/UserStore";
+import { useUserStore } from "../stores/UserStore";
 import { useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";
 import RegisterForm from "../components/RegisterForm.vue";
