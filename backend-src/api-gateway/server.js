@@ -79,7 +79,7 @@ app.delete('/users/:userId/projects/:projectId', async (req, res) => {
     const { userId, projectId } = req.params;
     try {
         // Forward the request to the backend service with userId and projectId
-        const response = await axios.delete(`${PROJECTS_BACKEND_URL} / users / ${userId} / projects / ${projectId}`);
+        const response = await axios.delete(`${PROJECTS_BACKEND_URL}/users/${userId}/projects/${projectId}`);
         res.status(response.status).send(response.data);
     } catch (error) {
         console.error('Error deleting project for user:', error.message);
