@@ -213,7 +213,7 @@ async function processQueueResults() {
     const connection = await connectToRabbitMQ();
     const channel = await connection.createChannel();
 
-    const resultQueue = 'results-queue'; // The name of the queue with results
+    const resultQueue = 'results'; // The name of the queue with results
 
     // Ensure the queue exists
     await channel.assertQueue(resultQueue, { durable: true });
@@ -240,7 +240,7 @@ async function processQueueResults() {
               error,
             } = result;
 
-            const Project = require('./controllers/project'); // Your project model
+            const Project = require('./project'); // Your project model
 
             if (status === 'success' && output.type === 'image') {
               const imageURI = output.imageURI;
@@ -318,7 +318,7 @@ async function processQueueResults() {
   }
 }
 
-// Start the worker thread
+// // Start the worker thread
 processQueueResults().catch((error) => {
   console.error('Error starting queue processor:', error);
 });
