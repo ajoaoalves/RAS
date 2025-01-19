@@ -1,11 +1,12 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const { io: Client } = require('socket.io-client'); // For connecting to Projects WS
 const axios = require('axios'); // For HTTP communication with Projects Backend
 
 const PORT = process.env.PORT || 8180;
 const PROJECTS_BACKEND_URL = 'http://localhost:18018/projects';
-const PROJECTS_BACKEND_WS_URL = 'http://localhost:3000/'; // Backend WebSocket URL
+const PROJECTS_BACKEND_WS_URL = 'http://localhost:3000'; // Backend WebSocket URL
 
 // Create an Express app and HTTP server
 const app = express();
@@ -18,20 +19,22 @@ const io = new Server(server, {
     },
 });
 
+// Create a WebSocket client for the Projects WebSocket server
+const backendSocket = Client(PROJECTS_BACKEND_WS_URL);
+
 // Maintain a mapping of Socket.IO connections to projects
 const connections = new Map();
 
 // Serve a basic HTTP endpoint
 app.get('/', (req, res) => res.send('Socket.IO WebSocket Gateway is running...'));
 
-
 /**
-// Handle WebSocket connections from browser
-*/
-
+ * Handle WebSocket connections from browser
+ */
 io.on('connection', (socket) => {
     console.log(`New client connected: ${socket.id}`);
 
+    // Handle "image" event from the client
     socket.on('image', async (data) => {
         try {
             const { projectId, imageData } = data;
@@ -44,19 +47,21 @@ io.on('connection', (socket) => {
 
             console.log(`Received image for project ID: ${projectId}`);
 
-            // Forward the image data to the projects backend
-            const response = await axios.post(`${PROJECTS_BACKEND_URL}/projects/${projectId}/images`, {
-                imageData, // Forward the image data
+            // Forward the image data to the Projects WebSocket server
+            backendSocket.emit('image', { projectId, imageData }, (response) => {
+                if (response.success) {
+                    console.log(`Image successfully sent to Projects WS for project ID: ${projectId}`);
+                    socket.emit('ack', { message: 'Image processed successfully by Projects WS', projectId });
+                } else {
+                    console.error(`Error from Projects WS: ${response.error || 'Unknown error'}`);
+                    socket.emit('error', { message: response.error || 'Failed to process image in Projects WS' });
+                }
             });
-
-            console.log(`Image sent to projects backend for project ID: ${projectId}`);
-            socket.emit('ack', { message: 'Image processed successfully', projectId });
         } catch (error) {
             console.error('Error processing image:', error.message);
             socket.emit('error', { message: 'Failed to process image', error: error.message });
         }
     });
-
 
     // Handle client disconnection
     socket.on('disconnect', () => {
@@ -71,38 +76,18 @@ io.on('connection', (socket) => {
     });
 });
 
-// Function to connect to the Projects Backend WebSocket
-function connectToBackendWebSocket() {
-    const backendSocket = require('socket.io-client')(PROJECTS_BACKEND_WS_URL);
+// Handle connection to the Projects WebSocket server
+backendSocket.on('connect', () => {
+    console.log('Connected to Projects WebSocket server');
+});
 
-    backendSocket.on('connect', () => {
-        console.log('Connected to Projects Backend WebSocket');
-    });
+backendSocket.on('disconnect', () => {
+    console.log('Disconnected from Projects WebSocket server');
+});
 
-    // Handle project updates from the backend
-    backendSocket.on('project_update', (update) => {
-        console.log('Received project update from backend:', update);
-
-        const socket = connections.get(update.projectId);
-        if (socket) {
-            socket.emit('project_update', { state: update.state, projectId: update.projectId });
-        }
-    });
-
-    // Handle backend WebSocket disconnection
-    backendSocket.on('disconnect', () => {
-        console.warn('Projects Backend WebSocket disconnected. Reconnecting...');
-        setTimeout(connectToBackendWebSocket, 5000); // Retry connection after 5 seconds
-    });
-
-    // Handle backend WebSocket errors
-    backendSocket.on('error', (error) => {
-        console.error('Error with Projects Backend WebSocket:', error.message);
-    });
-}
-
-// Start listening for backend updates
-connectToBackendWebSocket();
+backendSocket.on('error', (error) => {
+    console.error('Error in Projects WebSocket connection:', error.message);
+});
 
 // Start the server
 server.listen(PORT, () => {
