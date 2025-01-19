@@ -1,6 +1,6 @@
 <template>
     <div class="tool-component">
-      <h3>{{ tool.procedure }}</h3>
+      <h3>{{ tool.name }}</h3>
       <div v-if="tool.parameters.length" class="parameters">
         <div
           v-for="param in tool.parameters"
