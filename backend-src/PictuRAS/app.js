@@ -39,7 +39,17 @@ io.on('connection', (socket) => {
   // Listen for image messages from the ws-gateway
   socket.on('image', async (data) => {
     try {
+
+      const { projectId, imageData } = data;
+
+      if (!projectId || !imageData) {
+        console.error('Invalid data received. Missing projectId, imageData.');
+        socket.emit('error', { message: 'Invalid data. projectId AND imageData are required.' });
+        return;
+      }
+
       console.log(`Received image data for project ID ${data.projectId}`);
+
 
       // Save the image URI to the MongoDB (example schema)
       const Project = require('./models/project'); // Your project model
@@ -49,9 +59,11 @@ io.on('connection', (socket) => {
         console.error('Project not found:', data.projectId);
         return;
       }
+      console.error('Project Found:', data.projectId);
 
       project.images.push({ uri: data.imageUri });
-      await project.save();
+      // Use the addImage method to upload the image and save the URL in the project
+      await project.addImage(imageData, "IMAGEM");
 
       console.log(`Image saved for project ID ${data.projectId}`);
       socket.emit('ack', { message: 'Image received and saved', projectId: data.projectId });
