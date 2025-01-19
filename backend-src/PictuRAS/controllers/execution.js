@@ -1,6 +1,7 @@
 const amqp = require('amqplib');
 const moment = require('moment'); // Para gerar o timestamp no formato datetime
 const { io } = require('socket.io-client'); // Import socket.io-client
+const Project = require('./project'); // Your project model
 
 // Connect to the ws-gateway WebSocket
 const wsGatewayUrl = 'http://ws-gateway:8180'; // Adjust the URL and port if necessary
@@ -185,7 +186,7 @@ async function emitPreviewUpdate(projectId, numTool, imageId, correlationId, soc
     console.log(`Downloading preview image for project ID ${projectId} with key ${correlationId}`);
 
     // Find the project to ensure it exists
-    const project = await ProjectM.findById(projectId);
+    const project = await Project.findById(projectId);
     if (!project) {
       console.error('Project not found:', projectId);
       socket.emit('error', { success: false, error: 'Project not found.' });
@@ -227,7 +228,7 @@ async function processQueueResults() {
           try {
             // Parse the message content
             const result = JSON.parse(message.content.toString());
-            console.log('Message received from result queue:', result);
+            // console.log('Message received from result queue:', result);
 
             // Extract relevant data from the result
             const {
@@ -240,25 +241,25 @@ async function processQueueResults() {
               error,
             } = result;
 
-            const Project = require('./project'); // Your project model
 
             if (status === 'success' && output.type === 'image') {
               const imageURI = output.imageURI;
 
               // Parse the imageURI to extract projectId, toolNum, and imageId
-              const [, projectId, toolNum, imageId] = imageURI.split('/');
-              console.log(`Parsed URI - Project ID: ${projectId}, Tool Num: ${toolNum}, Image ID: ${imageId}`);
+              const [_garbage, _garbage2, projectId, numToolString, imageId] = imageURI.split('/');
+              const numTool = parseInt(numToolString, 10); // Converter numTool para inteiro
+              console.log(`URI ${imageURI} parsed - Project ID: ${projectId}, Tool Num: ${numTool}, Image ID: ${imageId}`);
 
-              // Example: Update the project with the parsed data
-              const Project = require('./controllers/project'); // Replace with actual project model/controller
 
               const project = await Project.findById(projectId);
+              console.log(`tools: ${project.tools}`);
 
               if (project && Array.isArray(project.tools)) {
                 toolCount = project.tools.length;
               } else {
                 console.log('Project not found or tools is not an array.');
               }
+              console.log(`${toolCount} == ${numTool} ?`);
 
               if (status === 'success' && toolCount == numTool) {
 
@@ -267,9 +268,11 @@ async function processQueueResults() {
 
               } else {
 
-                await emitPreviewUpdate(projectId, numTool, imageId, correlationId, wsSocket);
+                const tool = project.tools[numTool];
 
-                sendToQueue(projectId, imageId, tool, toolNum)
+                await emitPreviewUpdate(projectId, numTool, imageURI, correlationId, wsSocket);
+
+                sendToQueue(projectId, imageURI, tool, numTool + 1)
 
               }
 
