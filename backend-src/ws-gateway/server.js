@@ -34,6 +34,7 @@ app.get('/', (req, res) => res.send('Socket.IO WebSocket Gateway is running...')
 io.on('connection', (socket) => {
     console.log(`New client connected: ${socket.id}`);
 
+
     // Handle "image" event from the client
     socket.on('image', async (data) => {
         try {
@@ -64,6 +65,40 @@ io.on('connection', (socket) => {
         } catch (error) {
             console.error('Error processing image:', error.message);
             socket.emit('error', { message: 'Failed to process image', error: error.message });
+        }
+    });
+
+    socket.on('request_images', async (projectId) => {
+        try {
+            if (!projectId) {
+                console.error('Invalid request. Missing projectId.');
+                socket.emit('error', { message: 'Invalid request. projectId is required.' });
+                return;
+            }
+
+            console.log(`Received request for images of project ID: ${projectId}`);
+
+            // Request images from the backend WebSocket server
+            backendSocket.emit('request_images', { projectId }, (response) => {
+                if (response.success && response.images && Array.isArray(response.images)) {
+                    console.log(`Successfully retrieved images for project ID: ${projectId}`);
+
+                    // Send each image to the client individually
+                    response.images.forEach((image) => {
+                        const { contentType, binaryData } = image;
+                        socket.emit('image_data', { projectId, contentType, binaryData });
+                    });
+
+                    // Send an acknowledgment after all images have been sent
+                    socket.emit('images_complete', { message: 'All images sent.', projectId });
+                } else {
+                    console.error(`Failed to retrieve images for project ID: ${projectId}`);
+                    socket.emit('error', { message: response.error || 'Failed to retrieve images from backend.' });
+                }
+            });
+        } catch (error) {
+            console.error('Error while requesting images:', error.message);
+            socket.emit('error', { message: 'Failed to request images.', error: error.message });
         }
     });
 
