@@ -9,7 +9,7 @@
           v-for="project in projects"
           :key="project._id"
           :project="project"
-          @delete-project="deleteProject"
+          @delete="deleteProject(project._id)"
         />
         <div v-if="projects.length === 0" class="no-projects">
           <p>No projects found. Start by creating a new one!</p>
@@ -96,7 +96,6 @@
             const response = await axios.post(`/users/${userStore.user.id}/projects`, newProject);
             this.projects.push(response.data);
             this.closeModal();
-            alert('Project created successfully');
           } catch (error) {
             console.error('Error creating project:', error);
             alert('Failed to create project');
@@ -104,7 +103,16 @@
         }
       },
       deleteProject(projectId) {
-        this.projects = this.projects.filter((project) => project.id !== projectId);
+        const userStore = useUserStore();
+        try {
+          axios.delete(`/users/${userStore.user.id}/projects/${projectId}`);
+          console.log('Deleted project:', projectId);
+          this.projects = this.projects.filter((project) => project._id !== projectId);
+          console.log('Projects:', this.projects);
+        } catch (error) {
+          console.error('Error deleting project:', error);
+          alert('Failed to delete project');
+        }
       },
     },
   };
