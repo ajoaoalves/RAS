@@ -38,7 +38,27 @@ var projectSchema = new mongoose.Schema({
 }, { versionKey: false });
 
 
+// Download an image from S3
+projectSchema.methods.downloadImageFromS3 = async function (key) {
+    const bucketName = process.env.AWS_S3_BUCKET_NAME;
 
+    try {
+        const params = {
+            Bucket: bucketName,
+            Key: key, // The S3 object key for the image
+        };
+
+        const image = await s3.getObject(params).promise();
+
+        // Return the binary data and content type
+        return {
+            data: image.Body,
+            contentType: image.ContentType,
+        };
+    } catch (error) {
+        throw new Error(`Failed to download image from S3: ${error.message}`);
+    }
+};
 
 // Upload image to S3 before saving
 projectSchema.methods.uploadImageToS3FromBrowser = async function (fileBuffer, projectId) {
@@ -55,7 +75,7 @@ projectSchema.methods.uploadImageToS3FromBrowser = async function (fileBuffer, p
         }).promise();
 
         // Return the public URL of the uploaded image
-        return uploadResult.Location;
+        return key;
     } catch (error) {
         throw new Error(`Failed to upload image to S3: ${error.message}`);
     }
