@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
 
       project.images.push({ uri: data.imageUri });
       // Use the addImage method to upload the image and save the URL in the project
-      await project.addImage(imageData, "IMAGEM");
+      await project.addImageFromBrowser(imageData, "IMAGEM");
 
       console.log(`Image saved for project ID ${data.projectId}`);
       socket.emit('ack', { message: 'Image received and saved', projectId: data.projectId });
