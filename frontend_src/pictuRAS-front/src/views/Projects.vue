@@ -7,7 +7,7 @@
       <section class="projects-list">
         <ProjectCard
           v-for="project in projects"
-          :key="project.id"
+          :key="project._id"
           :project="project"
           @delete-project="deleteProject"
         />
@@ -49,6 +49,7 @@
   import ProjectCard from "../components/ProjectCard.vue";
   import axios from 'axios';
   import { useUserStore } from '../stores/UserStore';
+  import { useProjectStore } from '../stores/ProjectStore';
 
   export default {
     name: "ProjectsView",
@@ -90,7 +91,7 @@
       async createProject() {
         const userStore = useUserStore();
         if (this.newProjectName) {
-          const newProject = { name: this.newProjectName , user_id: userStore.user.id};
+          const newProject = { name: this.newProjectName , user_id: userStore.user.id, tools: [], images: [], _id: '0e6d0ce7-08c1-4de9-b7ff-82554bad32d8'};
           try {
             const response = await axios.post(`/users/${userStore.user.id}/projects`, newProject);
             this.projects.push(response.data);

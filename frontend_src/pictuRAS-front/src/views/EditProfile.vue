@@ -9,17 +9,17 @@
         <div class="profile-info">
           <div class="form-group">
             <label>Nome completo:</label>
-            <input type="text" v-model="user.fullName" placeholder="Digite seu nome completo" />
+            <input type="text" v-model="editableUser.name" placeholder="Digite seu nome completo" />
           </div>
 
           <div class="form-group">
             <label>Nome de utilizador:</label>
-            <input type="text" v-model="user.username" placeholder="Digite seu nome de utilizador" />
+            <input type="text" v-model="editableUser.username" placeholder="Digite seu nome de utilizador" />
           </div>
 
           <div class="form-group">
             <label>E-mail:</label>
-            <input type="email" v-model="user.email" placeholder="Digite seu e-mail" />
+            <input type="email" v-model="editableUser.email" placeholder="Digite seu e-mail" />
           </div>
         </div>
 
@@ -33,36 +33,45 @@
 </template>
 
 <script>
-import Navbar from '../components/Navbar.vue';
+import { useUserStore } from "../stores/UserStore";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import Navbar from "../components/Navbar.vue";
 
 export default {
   name: "EditProfileView",
-  components: {
-    Navbar
-  },
-  data() {
-    return {
-      user: {
-        fullName: "",
-        username: "",
-        email: ""
-      }
-    };
-  },
-  methods: {
-    saveProfile() {
-      console.log("Perfil atualizado:", this.user);
+  components: { Navbar },
+  setup() {
+    const userStore = useUserStore();
+    const router = useRouter();
+
+    const editableUser = ref({
+      name: userStore.user.name,
+      username: userStore.user.username,
+      email: userStore.user.email,
+    });
+
+
+    const saveProfile = () => {
+      userStore.setUser({
+        ...userStore.user,
+        name: editableUser.value.name,
+        email: editableUser.value.email,
+      });
+
       alert("Perfil atualizado com sucesso!");
-      this.$router.push('/profile'); // Redireciona para a visualização do perfil
-    },
-    cancelEdit() {
-      console.log("Edição cancelada.");
-      alert("Edição cancelada.");
-      this.$router.push('/profile'); // Volta para a página de perfil
-    }
-  }
+      router.push("/profile");
+    };
+
+    const cancelEdit = () => {
+      router.push("/profile");
+    };
+
+    return { editableUser, saveProfile, cancelEdit };
+  },
 };
 </script>
+
 
 <style scoped>
 /* Centraliza a página e evita que saia da tela */
@@ -72,7 +81,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  width: 100vw;
+  width: 90vw;
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;

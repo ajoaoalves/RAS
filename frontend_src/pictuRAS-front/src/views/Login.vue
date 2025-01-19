@@ -1,42 +1,55 @@
 <template>
-    <div>
-        <Navbar/>
-        <div class="login-view">
+  <div>
+    <Navbar />
+    <div class="login-view">
       <h1 class="title">PICTURAS</h1>
       <h2 class="subtitle">Login</h2>
-  
+
       <div class="login-container">
         <LoginForm @submit-login="handleLogin" />
       </div>
     </div>
-    </div>
-  </template>
-  
-  <script>
-  import Navbar from '../components/Navbar.vue';
-  import LoginForm from "../components/LoginForm.vue";
-  
-  export default {
-    name: "LoginView",
-    components: {
-      LoginForm,
-      Navbar
-    },
-    methods: {
-      handleLogin(credentials) {
-        // Simulación de autenticación
-        const validEmail = "user@example.com";
-        const validPassword = "password123";
-  
-        if (credentials.email === validEmail && credentials.password === validPassword) {
-          alert("Login successful!");
-        } else {
-          alert("⚠️ Credenciais não correspondem a nenhum utilizador. Por favor tente de novo.");
-        }
-      },
-    },
-  };
-  </script>
+  </div>
+</template>
+
+<script>
+import { useUserStore } from "../stores/UserStore";
+import { useRouter } from "vue-router";
+import Navbar from "../components/Navbar.vue";
+import LoginForm from "../components/LoginForm.vue";
+
+export default {
+  name: "LoginView",
+  components: {
+    LoginForm,
+    Navbar,
+  },
+  setup() {
+    const userStore = useUserStore();
+    const router = useRouter();
+
+    const handleLogin = (credentials) => {
+      // Simulación de autenticación
+      const validUsers = [
+        { id: "1", name: "João Silva", email: "user@example.com", type: "admin" },
+        { id: "2", name: "Maria Oliveira", email: "maria@email.com", type: "user" },
+      ];
+
+      const user = validUsers.find((u) => u.email === credentials.email);
+
+      if (user && credentials.password === "password123") {
+        userStore.setUser(user);
+        alert("✅ Login successful!");
+        router.push("/profile"); // Redirige al perfil después del login
+      } else {
+        alert("⚠️ Credenciais não correspondem a nenhum utilizador. Por favor tente de novo.");
+      }
+    };
+
+    return { handleLogin };
+  },
+};
+</script>
   
   <style scoped>
   .login-view {

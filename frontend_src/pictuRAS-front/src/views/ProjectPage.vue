@@ -52,7 +52,7 @@
               :key="index"
               class="toolchain-item"
             >
-              <span>{{ tool.name }} (Instance {{ index + 1 }})</span>
+              <span>{{ tool.procedure }} (Instance {{ index + 1 }})</span>
               <button @click="editTool(index)" class="edit-button">Edit</button>
               <button @click="removeTool(index)" class="remove-button">Remove</button>
               <button
@@ -100,27 +100,24 @@
   
         <!-- Edit Tool Modal -->
         <div
-  v-if="editingTool !== null && selectedTools[editingTool] && selectedTools[editingTool].parameters && Object.keys(selectedTools[editingTool].parameters).length > 0"
-  class="modal"
-  @click="closeEditModal"
->
-  <div class="modal-content" @click.stop>
-    <h3>Edit Tool: {{ selectedTools[editingTool].name }}</h3>
-    <div v-for="(value, key) in selectedTools[editingTool].parameters" :key="key">
-      <label :for="key">{{ key }}</label>
-      <input
-        v-if="typeof value === 'number' || typeof value === 'string'"
-        :type="typeof value === 'number' ? 'number' : 'text'"
-        :id="key"
-        v-model="selectedTools[editingTool].parameters[key]"
-      />
+    v-if="editingTool !== null && selectedTools[editingTool] && selectedTools[editingTool].parameters && selectedTools[editingTool].parameters.length > 0"
+    class="modal"
+    @click="closeEditModal"
+  >
+    <div class="modal-content" @click.stop>
+      <h3>Edit Tool: {{ selectedTools[editingTool].procedure }}</h3>
+      <div v-for="(param, index) in selectedTools[editingTool].parameters" :key="index">
+        <label :for="param.name">{{ param.name }}</label>
+        <input
+          v-if="typeof param.value === 'number' || typeof param.value === 'string'"
+          :type="typeof param.value === 'number' ? 'number' : 'text'"
+          :id="param.name"
+          v-model="selectedTools[editingTool].parameters[index].value"
+        />
+      </div>
+      <button class="save-button" @click="saveToolEdits">Save</button>
     </div>
-    <button class="save-button" @click="saveToolEdits">Save</button>
-  </div>
-</div>
-
-<p v-else>No parameters to edit for this tool.</p>
-  
+</div>  
         <!-- Modal Section for Image Zoom -->
         <div v-if="zoomedImage" class="modal" @click="zoomedImage = null">
           <img :src="zoomedImage" alt="Zoomed Image" class="zoomed-image" />
@@ -132,10 +129,16 @@
   <script>
   import Navbar from "../components/Navbar.vue";
   import ToolComponent from "../components/ToolComponent.vue";
+  import axios from "axios";
+  import { useUserStore } from "../stores/UserStore";
+  import { useProjectStore } from "../stores/ProjectStore";
   
   export default {
     name: "ProjectDashboard",
     components: { Navbar, ToolComponent },
+    mounted() {
+      this.fetchProjectData();
+    },
     props: {
       projectId: {
         type: String,
@@ -182,6 +185,23 @@
       };
     },
     methods: {
+      async fetchProjectData() {
+      const userStore = useUserStore();
+      const projectStore = useProjectStore();
+      try {
+        const response = await axios.get(`/users/${userStore.user.id}/projects/${projectStore.project._id}`);
+        const { images, tools } = response.data;
+        this.projectImages = images.map((image) => ({
+          url: image.uri,
+          name: image._id,
+        }));
+        this.selectedTools = tools;
+        console.log("Project data loaded successfully:", response.data);
+      } catch (error) {
+        console.error("Error loading project data:", error.message);
+        alert("Failed to load project data. Please refresh the page.");
+      }
+    },
       uploadImages(event) {
         const files = Array.from(event.target.files);
         files.forEach((file) => {

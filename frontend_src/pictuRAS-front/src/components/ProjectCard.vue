@@ -21,6 +21,7 @@
 
 <script>
 import ConfirmationModal from "./confirmation.vue";
+import { useProjectStore } from "../stores/ProjectStore";
 
 export default {
     components: { ConfirmationModal },
@@ -47,7 +48,9 @@ export default {
             this.isModalVisible = false;
         },
         navigateToProject() {
-            this.$router.push({ name: "ProjectPage", params: { id: this.project._id } });
+            const projectStore = useProjectStore();
+            projectStore.setProject(this.project);
+            this.$router.push({ name: "ProjectPage", params: { projectId: this.project._id } });
         },
     },
 };
