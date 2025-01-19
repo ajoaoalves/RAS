@@ -29,17 +29,21 @@ router.post('/users/:userId/projects', function (req, res) {
     .then(data => res.status(201).jsonp(data))
     .catch(erro => res.status(523).jsonp(erro))
 });
-
 router.put('/users/:userId/projects/:id/exec', function (req, res) {
   console.log(req.body);
-  Project.updateProject(req.params.id, req.body)
+  Project.findById(req.params.id)
     .then(async (data) => {
+      if (!data) {
+        return res.status(404).json({ error: 'Projeto não encontrado.' });
+      }
+
       // Enviar o projeto atualizado para a fila
       try {
-        await executeProject(req.body); // `data` contém o projeto atualizado
+        await executeProject(data); // Usar o resultado do findById
         console.log('Projeto enviado para a fila com sucesso.');
         res.status(201).jsonp(data);
-      } catch (queueError) {
+      }
+      catch (queueError) {
         console.error('Erro ao enviar projeto para a fila:', queueError);
         res.status(201).jsonp({
           message: 'Projeto atualizado, mas não foi possível enviar para a fila.',
