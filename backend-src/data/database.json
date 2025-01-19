@@ -12,9 +12,9 @@
     "tools": [
       {
         "_id": "a5c27b9d-1261-4291-ae34-4b70877a3e58",
-        "procedure": "Rotação",
+        "procedure": "rotation",
         "parameters": [
-          { "name": "Ãngulo", "value": 90 }
+          { "name": "angle", "value": 90 }
         ]
       }
     ]
@@ -32,7 +32,7 @@
     "tools": [
       {
         "_id": "d8cdbb19-9a29-4e7e-a1ad-59c63b71f5e2",
-        "procedure": "Remoção do fundo da imagem",
+        "procedure": "background-removal",
         "parameters": [
         ]
       }
@@ -51,7 +51,7 @@
     "tools": [
       {
         "_id": "bc9b9a36-028d-475b-a5ff-dbf1a23c1fe2",
-        "procedure": "Alteração do brilho e contraste",
+        "procedure": "brightness",
         "parameters": [
           { "name": "Valor", "value": 2.5 }
         ]
@@ -71,7 +71,7 @@
     "tools": [
       {
         "_id": "a3e1b9d7-847e-4e93-80bb-6b26f8e4f3ad",
-        "procedure": "Contar pessoas",
+        "procedure": "count-people",
         "parameters": [
         ]
       }
@@ -90,7 +90,7 @@
     "tools": [
       {
         "_id": "f0a7d8d6-1156-49da-8782-66dbbdf6dbfc",
-        "procedure": "Contar Objectos",
+        "procedure": "object-detection",
         "parameters": [
         ]
       }
@@ -109,7 +109,7 @@
     "tools": [
       {
         "_id": "1dbed013-9254-4798-b6f9-2da9383a5fdd",
-        "procedure": "Colocação de bordos coloridos",
+        "procedure": "border",
         "parameters": [
           { "name": "Tamanho da Borda", "value": 2 },
           { "name": "Cor", "value": "Preto" }
@@ -130,7 +130,7 @@
     "tools": [
       {
         "_id": "1dbed013-9254-4798-b6f9-2da9383a5fdd",
-        "procedure": "Contar pessoas",
+        "procedure": "count-people",
         "parameters": [
         ]
       }
@@ -149,7 +149,7 @@
     "tools": [
       {
         "_id": "ac99d7d3-2040-402f-9a5c-6e1f6b27989d",
-        "procedure": "Alteração do brilho e contraste",
+        "procedure": "brightness",
         "parameters": [
           { "name": "Tamanho da Borda", "value": 4 },
           { "name": "Cor", "value": "Vermelho" }
@@ -170,7 +170,7 @@
     "tools": [
       {
         "_id": "a7736a43-1bb6-4a93-b9c7-65ac05e4f75d",
-        "procedure": "Contar Objectos",
+        "procedure": "object-detection",
         "parameters": [
         ]
       }
@@ -189,9 +189,9 @@
     "tools": [
       {
         "_id": "b6e582a3-f7a1-496b-b8d3-7f4b1c6e0f6d",
-        "procedure": "Rotação",
+        "procedure": "rotation",
         "parameters": [
-          { "name": "Ãngulo", "value": 180 }
+          { "name": "angle", "value": 180 }
         ]
       }
     ]
