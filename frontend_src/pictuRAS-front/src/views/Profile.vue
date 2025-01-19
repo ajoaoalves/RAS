@@ -33,9 +33,8 @@ export default {
     const userStore = useUserStore();
     const router = useRouter();
 
-    // Computed para obtener datos del usuario
     const user = computed(() => userStore.user);
-    const username = computed(() => userStore.user.email.split("@")[0]); // Genera el nombre de usuario
+    const username = computed(() => userStore.user.username);
 
     const editProfile = () => {
       console.log("Redirigindo para edição do perfil...");
@@ -48,7 +47,6 @@ export default {
 </script>
   
   <style scoped>
-  /* Asegurar que la vista cubra toda la pantalla sin barras de desplazamiento */
   .profile-view {
     display: flex;
     flex-direction: column;
@@ -61,19 +59,17 @@ export default {
     box-sizing: border-box;
   }
   
-  /* Tarjeta del perfil más compacta y centrada */
   .profile-card {
     background-color: #ffffff;
     padding: 30px;
     width: 50%;
-    max-width: 450px; /* Tamaño óptimo para evitar barras */
+    max-width: 450px;
     border-radius: 15px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     text-align: center;
     color: #333;
   }
   
-  /* Título principal */
   .title {
     font-size: 2.2rem;
     font-weight: bold;
@@ -81,14 +77,12 @@ export default {
     margin-bottom: 15px;
   }
   
-  /* Título del perfil */
   .profile-title {
     font-size: 1.8rem;
     font-weight: bold;
     margin-bottom: 20px;
   }
   
-  /* Información del perfil */
   .profile-info {
     text-align: center;
     font-size: 1.2rem;
@@ -100,14 +94,12 @@ export default {
     box-sizing: border-box;
   }
   
-  /* Espaciado entre el nombre del atributo y el valor */
   .profile-info p {
     margin: 15px 0;
     font-size: 1.1rem;
     line-height: 1.6;
   }
   
-  /* Botón Editar */
   .button-group {
     display: flex;
     justify-content: center;

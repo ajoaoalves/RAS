@@ -45,14 +45,13 @@ export default {
     const userStore = useUserStore();
     const router = useRouter();
 
-    // Crear una copia del usuario actual para editar sin modificar el store directamente
     const editableUser = ref({
       name: userStore.user.name,
-      username: userStore.user.email.split("@")[0], // Genera un username a partir del email
+      username: userStore.user.username,
       email: userStore.user.email,
     });
 
-    // Guardar cambios en Pinia
+
     const saveProfile = () => {
       userStore.setUser({
         ...userStore.user,
@@ -64,7 +63,6 @@ export default {
       router.push("/profile");
     };
 
-    // Cancelar edición sin guardar cambios
     const cancelEdit = () => {
       router.push("/profile");
     };
@@ -83,7 +81,7 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  width: 100vw;
+  width: 90vw;
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
