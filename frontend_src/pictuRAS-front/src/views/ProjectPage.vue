@@ -191,26 +191,26 @@
       this.socket.on('result', (data) => {
         console.log("Processing result:", data);
         // check data type and update results accordingly
-        if (data.type === "int") {
+        if (data.contentType === "int") {
           this.results.push({
             procedure: 'Counting Tool',
             type: 'int',
-            result: data.result,
+            result: data.data,
           });
-        } else if (data.type === "image") {
+        } else if (data.contentType === "image") {
           // Convert binary data to Blob and then to Object URL
-          const blob = new Blob([data.result], { type: data.contentType });
+          const blob = new Blob([data.data], { type: data.contentType });
           const url = URL.createObjectURL(blob);
           this.results.push({
             procedure: 'Image Tool',
             type: 'image',
             result: url,
           });
-        } else if (data.type === "dict") {
+        } else if (data.contentType === "dict") {
           this.results.push({
             procedure: 'Object Detection Tool',
             type: 'dict',
-            result: JSON.stringify(data.result),
+            result: JSON.stringify(data.data),
           });
         } else {
           console.warn("Unknown result type:", data.type);
@@ -425,6 +425,26 @@
         this.selectedTools[index] = this.selectedTools[newIndex];
         this.selectedTools[newIndex] = temp;
       },
+      generateDownloadLink(result) {
+    if (typeof result.result === "string" && result.result.startsWith("data:")) {
+      // For base64 data URLs (images)
+      return result.result;
+    } else if (typeof result.result === "string") {
+      // For text results
+      const blob = new Blob([result.result], { type: "text/plain" });
+      return URL.createObjectURL(blob);
+    } else if (result.result instanceof Object) {
+      // For JSON-like results (dictionaries)
+      const blob = new Blob([JSON.stringify(result.result, null, 2)], {
+        type: "application/json",
+      });
+      return URL.createObjectURL(blob);
+    }
+    return "#"; // Fallback
+  },
+  generateDownloadName(result, index) {
+    return `${result.procedure.replace(/\s+/g, "_").toLowerCase()}_result_${index + 1}`;
+  },
       async processImages() {
         console.log("Processing images with toolchain:", this.selectedTools);
         const projectStore = useProjectStore();
@@ -627,5 +647,20 @@
     background-color: #ccc;
     cursor: not-allowed;
   }
+
+  .download-button {
+  background-color: #17a2b8;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.download-button:hover {
+  background-color: #138496;
+}
+
   </style>
   
