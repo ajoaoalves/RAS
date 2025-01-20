@@ -124,21 +124,34 @@ io.on('connection', (socket) => {
 
 
     socket.on('result', (data) => {
-        const { projectId, imageURI } = data;
-        console.log(`Received result for project ID: ${projectId}`);
-        console.log(`Output ${imageURI}`);
+        const { projectId, imageData } = data;
 
-        // Retrieve the client socket from the connections map
-        const clientSocket = connections.get(projectId);
-
-        if (!clientSocket) {
-            console.error(`No client connected for project ID: ${projectId}`);
+        if (!imageData || !imageData.data || !imageData.contentType) {
+            console.error('Invalid image data received from server');
             return;
         }
 
-        // Send the result dictionary to the client
-        console.log(`Sending result to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('result', { imageURI });
+        console.log(`Received result for project ID: ${projectId}`);
+        console.log(`Content Type: ${imageData.contentType}`);
+
+        // Decode the binary data (assuming it's sent as a Buffer or binary data)
+        const binaryData = Uint8Array.from(imageData.data);
+        console.log(`data: ${binaryData}`);
+
+        // Create a Blob from the binary data
+        // const blob = new Blob([binaryData], { type: imageData.contentType });
+
+        // Generate a URL for the Blob
+        // const imageUrl = URL.createObjectURL(blob);
+
+        // Display the image in an <img> element
+        // const imgElement = document.getElementById('imagePreview');
+        // if (imgElement) {
+        //     imgElement.src = imageUrl;
+        //     console.log('Image displayed successfully');
+        // } else {
+        //     console.error('Image element not found in the DOM');
+        // }
     });
 
     // Handle client disconnection
