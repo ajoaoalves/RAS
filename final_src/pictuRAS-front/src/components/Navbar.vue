@@ -3,10 +3,10 @@
       <div class="navbar-container">
         <a href="/" class="navbar-logo">PICTURAS</a>
         <ul class="navbar-links">
-          <li><a href="/" class="navbar-link">Home</a></li>
-          <li><a href="/projects" class="navbar-link">My Projects</a></li>
-          <li><a href="/profile" class="navbar-link">Profile</a></li>
-          <li><a href="/login" class="navbar-link">Login</a></li>
+          <li><router-link to="/" class="navbar-link">Home</router-link></li>
+          <li><router-link to="/projects" class="navbar-link">Projects</router-link></li>
+          <li><router-link to="/profile" class="navbar-link">Profile</router-link></li>
+          <li><router-link to="/login" class="navbar-link">Login</router-link></li>
         </ul>
       </div>
     </nav>
