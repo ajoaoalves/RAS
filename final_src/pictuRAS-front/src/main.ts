@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 
 
 
-axios.defaults.baseURL = 'http://localhost:8080'
+axios.defaults.baseURL = '/api'
 
 const app = createApp(App)
 const pinia = createPinia()
