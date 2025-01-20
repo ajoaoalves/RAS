@@ -327,17 +327,14 @@
         url: url,
       });
     },
-    handleResult({ contentType, binaryData }) {
-        console.log("Result:", binaryData);
-        console.log("Received result with type:", contentType);
-        if (contentType.startsWith("image")) {
+    handleResult({ imageData }) {
+        console.log("Result:", imageData);
+        console.log("Received result with type:", imageData.contentType);
             // Convert binary data to Blob and then to Object URL
-            const blob = new Blob([binaryData], { type: contentType });
+            const blob = new Blob([imageData.data], { type: imageData.contentType });
             const url = URL.createObjectURL(blob);
             this.results.push({ type: "image", result: url });
-        } else {
-            this.results.push({ type: "text", result: binaryData });
-        }
+            this.results.push({ type: "text", result: imageData.data });
     },
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
