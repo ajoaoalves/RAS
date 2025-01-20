@@ -8,4 +8,11 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     command: ["npm", "run", "dev", "--", "--host"]
+    environment:
+      # AWS S3 configuration
+      AWS_ACCESS_KEY_ID: ROOTNAME
+      AWS_SECRET_ACCESS_KEY: CHANGEME123
+      AWS_REGION: us-east-1
+      AWS_S3_BUCKET_NAME: images
+  
     

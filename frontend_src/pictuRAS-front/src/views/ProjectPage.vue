@@ -327,17 +327,28 @@
         url: url,
       });
     },
-    handleResult({ contentType, binaryData }) {
-        console.log("Result:", binaryData);
-        console.log("Received result with type:", contentType);
-        if (contentType.startsWith("image")) {
-            // Convert binary data to Blob and then to Object URL
-            const blob = new Blob([binaryData], { type: contentType });
-            const url = URL.createObjectURL(blob);
-            this.results.push({ type: "image", result: url });
-        } else {
-            this.results.push({ type: "text", result: binaryData });
-        }
+    async handleResult({ imageURI }) {
+        const s3 = new AWS.S3({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: process.env.AWS_REGIO,
+    endpoint: 'http://minio:9000', // MinIO endpoint URL
+    s3ForcePathStyle: true // Required for MinIO
+});
+    const bucketName = process.env.AWS_BUCKET_NAME;
+    const params = {
+    Bucket: bucketName,
+    Key: imageURI
+};
+    const image = await s3.getObject(params).promise();
+
+    const blob = new Blob([image.Body], { type: image.ContentType });
+    const url = URL.createObjectURL(blob);
+
+    this.results.push({
+    procedure: "Object Detection",
+    result: url
+});
     },
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
