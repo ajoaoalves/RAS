@@ -263,7 +263,7 @@ async function processQueueResults() {
 
                 imageData = project.downloadImageFromS3(imageURI);
 
-                wsSocket.emit('result', { projectId, imageData });
+                wsSocket.emit('result', { imageData });
 
                 console.log(`Image output sent for project ID: ${projectId}`);
 
