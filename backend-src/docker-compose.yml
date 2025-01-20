@@ -30,6 +30,16 @@ services:
       AWS_SECRET_ACCESS_KEY: CHANGEME123
       AWS_REGION: us-east-1
       AWS_S3_BUCKET_NAME: images
+  
+  users-api:
+    container_name: users-api
+    build:
+      context: ./Users
+    ports:
+      - "19019:19019"
+    depends_on:
+      - mongo-server
+
   mongo-server:
     container_name: mongo-server
     image: mongo:latest
@@ -37,7 +47,8 @@ services:
       - "27017:27017"
     volumes:
       - ./data/db:/data/db
-      - ./data/database.json:/tmp/database.json
+      - ./databases/database.json:/tmp/database.json
+      - ./databases/users.json:/tmp/users.json
       - ./init.sh:/docker-entrypoint-initdb.d/init.sh
     restart: unless-stopped
 
