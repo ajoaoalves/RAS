@@ -194,12 +194,12 @@ async function emitPreviewUpdate(projectId, numTool, imageId, correlationId, soc
     }
 
     // Download the image from S3
-    // const { data: imageBuffer, contentType } = await project.downloadImageFromS3(imageId);
+    const imageData = await project.downloadImageFromS3(imageId);
 
     // console.log(`Preview image downloaded for project ID ${projectId}`);
 
     // Emit the preview update event to the ws-gateway
-    wsSocket.emit('preview_update', { projectId, numTool }, imageURI);
+    wsSocket.emit('preview_update', { projectId, numTool }, imageData);
 
     console.log(`Preview update emitted for project ID ${projectId}`);
   } catch (error) {

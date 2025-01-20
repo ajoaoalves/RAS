@@ -104,7 +104,7 @@ io.on('connection', (socket) => {
     });
 
 
-    socket.on('preview_update', (metadata, imageURI) => {
+    socket.on('preview_update', (metadata, imageData) => {
         const { projectId, numTool } = metadata;
 
         console.log(`Received preview update for project ${numTool}, Step : ${numTool}`);
@@ -119,7 +119,7 @@ io.on('connection', (socket) => {
 
         // Send the preview image to the client
         console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('preview_update', { numTool, imageURI });
+        clientSocket.emit('preview_update', { numTool, imageData });
     });
 
 
@@ -138,20 +138,18 @@ io.on('connection', (socket) => {
         const binaryData = Uint8Array.from(imageData.data);
         console.log(`data: ${binaryData}`);
 
-        // Create a Blob from the binary data
-        // const blob = new Blob([binaryData], { type: imageData.contentType });
 
-        // Generate a URL for the Blob
-        // const imageUrl = URL.createObjectURL(blob);
 
-        // Display the image in an <img> element
-        // const imgElement = document.getElementById('imagePreview');
-        // if (imgElement) {
-        //     imgElement.src = imageUrl;
-        //     console.log('Image displayed successfully');
-        // } else {
-        //     console.error('Image element not found in the DOM');
-        // }
+        // Retrieve the client socket from the connections map
+        const clientSocket = connections.get(projectId);
+
+        if (!clientSocket) {
+            console.error(`No client connected for project ID: ${projectId}`);
+            return;
+        }
+        clientSocket.emit('result', {
+            imageData
+        });
     });
 
     // Handle client disconnection
