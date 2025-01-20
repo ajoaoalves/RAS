@@ -188,34 +188,7 @@
           console.warn("Invalid or out-of-range numTool:", numTool);
         }
       });
-      this.socket.on('result', (data) => {
-        console.log("Processing result:", data);
-        // check data type and update results accordingly
-        if (data.contentType === "int") {
-          this.results.push({
-            procedure: 'Counting Tool',
-            type: 'int',
-            result: data.data,
-          });
-        } else if (data.contentType === "image") {
-          // Convert binary data to Blob and then to Object URL
-          const blob = new Blob([data.data], { type: data.contentType });
-          const url = URL.createObjectURL(blob);
-          this.results.push({
-            procedure: 'Image Tool',
-            type: 'image',
-            result: url,
-          });
-        } else if (data.contentType === "dict") {
-          this.results.push({
-            procedure: 'Object Detection Tool',
-            type: 'dict',
-            result: JSON.stringify(data.data),
-          });
-        } else {
-          console.warn("Unknown result type:", data.type);
-        }
-      });
+      this.socket.on('result', this.handleResult);
       this.requestProjectImages();
     },
     data() {
@@ -338,6 +311,17 @@
         name: imageName,
         url: url,
       });
+    },
+    handleResult({ contentType, data }) {
+        console.log("Received result with type:", contentType);
+        if (contentType.startsWith("image")) {
+            // Convert binary data to Blob and then to Object URL
+            const blob = new Blob([data], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            this.results.push({ type: "image", result: url });
+        } else {
+            this.results.push({ type: "text", result: data });
+        }
     },
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
