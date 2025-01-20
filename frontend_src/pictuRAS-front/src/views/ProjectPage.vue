@@ -327,16 +327,16 @@
         url: url,
       });
     },
-    handleResult({ contentType, data }) {
-        console.log("Result:", data);
+    handleResult({ contentType, binaryData }) {
+        console.log("Result:", binaryData);
         console.log("Received result with type:", contentType);
         if (contentType.startsWith("image")) {
             // Convert binary data to Blob and then to Object URL
-            const blob = new Blob([data], { type: contentType });
+            const blob = new Blob([binaryData], { type: contentType });
             const url = URL.createObjectURL(blob);
             this.results.push({ type: "image", result: url });
         } else {
-            this.results.push({ type: "text", result: data });
+            this.results.push({ type: "text", result: binaryData });
         }
     },
     handleImagesComplete({ message, projectId }) {
