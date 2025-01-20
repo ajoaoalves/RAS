@@ -132,12 +132,9 @@ io.on('connection', (socket) => {
         }
 
         console.log(`Received result for project ID: ${projectId}`);
-        console.log(`Content Type: ${imageData.contentType}`);
 
         // Decode the binary data (assuming it's sent as a Buffer or binary data)
         const binaryData = Uint8Array.from(imageData.data);
-        console.log(`data: ${binaryData}`);
-
 
 
         // Retrieve the client socket from the connections map

@@ -258,8 +258,9 @@ async function processQueueResults() {
                 console.log('Project not found or tools is not an array.');
               }
 
-              if (status === 'success' && toolCount == numTool) {
+              if (status === 'success' && toolCount - 1 == numTool) {
 
+                await emitPreviewUpdate(projectId, numTool, imageURI, correlationId, wsSocket);
 
                 const imageData = await project.downloadImageFromS3(imageURI);
 
@@ -275,7 +276,7 @@ async function processQueueResults() {
 
               } else {
 
-                const tool = project.tools[numTool];
+                const tool = project.tools[numTool + 1];
 
                 await emitPreviewUpdate(projectId, numTool, imageURI, correlationId, wsSocket);
 
