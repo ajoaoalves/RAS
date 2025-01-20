@@ -261,10 +261,16 @@ async function processQueueResults() {
               if (status === 'success' && toolCount == numTool) {
 
 
-                // Download the image from S3
-                const imageData = await project.downloadImageFromS3(imageURI);
+                // const imageData = await project.downloadImageFromS3(imageURI);
 
-                wsSocket.emit('result', { projectId, imageData });
+                // Convert the binary data to Base64
+                // const imageBase64 = imageData.data.toString('base64');
+
+                // Emit the image data with content type
+                wsSocket.emit('result', {
+                  projectId,
+                  imageURI: imageURI,
+                });
 
 
               } else {
