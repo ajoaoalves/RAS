@@ -89,7 +89,7 @@ services:
       - ./pictuRAS-front:/usr/src/app
       - /usr/src/app/node_modules
     command: ["npm", "run", "dev", "--", "--host"]
-    
+
   brightness-tool-ms:
     image: gustominox/picturas_brightness_tool_ms:2.2
     container_name: brightness-tool-ms
@@ -103,106 +103,106 @@ services:
       rabbitmq:
         condition: service_healthy
 
-#   count-people-tool-ms:
-#     image: pinheiro2/picturas_count_people_tool_ms:latest
-#     container_name: count-people-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO 
-#     volumes:
-#       - ./images/src/:/images/src/
-#       - ./images/out/:/images/out/
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
+  count-people-tool-ms:
+    image: pinheiro2/picturas_count_people_tool_ms:latest
+    container_name: count-people-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
-#   border-tool-ms:
-#     image: joaopedroabreu4/picturas_border_tool_ms:latest
-#     container_name: border-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO
-#     volumes:
-#       - ./images/src/:/images/src/
-#       - ./images/out/:/images/out/
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
+  border-tool-ms:
+    image: joaopedroabreu4/picturas_border_tool_ms:latest
+    container_name: border-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 
-#   resize-tool-ms:
-#     image: pg55090/picturas_resize_tool_ms:latest
-#     container_name: resize-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO
-#     volumes:
-#       - ./images/src/:/images/src/
-#       - ./images/out/:/images/out/
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
+  resize-tool-ms:
+    image: pg55090/picturas_resize_tool_ms:latest
+    container_name: resize-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
-#   watermark-tool-ms:
-#     image: pinheiro2/picturas-watermark-tool-ms
-#     container_name: watermark-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO 
-#     volumes:
-#       - ./images/src/:/images/src/
-#       - ./images/out/:/images/out/
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
+  watermark-tool-ms:
+    image: pinheiro2/picturas-watermark-tool-ms
+    container_name: watermark-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
-#   crop-tool-ms:
-#     image: lunafigueiredo/picturas-crop-tool-ms:latest
-#     container_name: crop-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO 
-#     volumes:
-#       - ./images/src/:/images/src/
-#       - ./images/out/:/images/out/
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
+  crop-tool-ms:
+    image: lunafigueiredo/picturas-crop-tool-ms:latest
+    container_name: crop-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
-#   remove-background-tool-ms:
-#     image: iyanfdezzz/picturas-remove-background-tool-ms:latest
-#     container_name: remove-background-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO 
-#     volumes:
-#       - ./images/src/:/images/src/
-#       - ./images/out/:/images/out/
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
-# # Ana Count objects
-#   count_objects-tool-ms:
-#     image: anajoaoalves1/picturas-count-objects-ms:latest
-#     container_name: count_objects-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO 
+  remove-background-tool-ms:
+    image: iyanfdezzz/picturas-remove-background-tool-ms:latest
+    container_name: remove-background-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+# Ana Count objects
+  count_objects-tool-ms:
+    image: anajoaoalves1/picturas-count-objects-ms:latest
+    container_name: count_objects-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
 
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
-# # Francisco Rotate
-#   rotate-tool-ms:
-#     image: kikofallout/picturas_rotate_tool_ms:latest
-#     container_name: rotate-tool-ms
-#     environment:
-#       - RABBITMQ_HOST=rabbitmq
-#       - PICTURAS_LOG_LEVEL=INFO
-#     depends_on:
-#       rabbitmq:
-#         condition: service_healthy
+# Francisco Rotate
+  rotate-tool-ms:
+    image: kikofallout/picturas_rotate_tool_ms:latest
+    container_name: rotate-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 # Marta Binarization
   binarization-tool-ms:
