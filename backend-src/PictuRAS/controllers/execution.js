@@ -261,11 +261,11 @@ async function processQueueResults() {
               if (status === 'success' && toolCount == numTool) {
 
 
-                imageData = project.downloadImageFromS3(imageURI);
+                // Download the image from S3
+                const imageData = await project.downloadImageFromS3(imageURI);
 
-                wsSocket.emit('result', { imageData });
+                wsSocket.emit('result', { projectId, imageData });
 
-                console.log(`Image output sent for project ID: ${projectId}`);
 
               } else {
 

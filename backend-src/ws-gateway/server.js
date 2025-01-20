@@ -124,9 +124,10 @@ io.on('connection', (socket) => {
 
 
     socket.on('result', (data) => {
-        const { projectId, output } = data;
+        const { projectId, imageData } = data;
 
         console.log(`Received result for project ID: ${projectId}`);
+        console.log(`Output ${imageData}`);
 
         // Retrieve the client socket from the connections map
         const clientSocket = connections.get(projectId);
@@ -138,7 +139,7 @@ io.on('connection', (socket) => {
 
         // Send the result dictionary to the client
         console.log(`Sending result to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('result', { output });
+        clientSocket.emit('result', { imageData });
     });
 
     // Handle client disconnection
