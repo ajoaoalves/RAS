@@ -174,26 +174,8 @@
         console.log("Server acknowledgment:", data);
       // You can set a status message or handle UI updates here
         });
-        this.socket.on("preview_image", ({ numTool, contentType }, binaryData) => {
-        console.log("Received preview image for tool:", numTool);
-
-        // 1) Convert the binary data to a Blob
-        const blob = new Blob([binaryData], { type: contentType });
-
-        // 2) Create an object URL for the Blob
-        const url = URL.createObjectURL(blob);
-
-        // 3) Set the tool’s previewUrl if numTool is a valid index
-        if (typeof numTool === "number" && this.selectedTools[numTool]) {
-          // Use Vue.set or this.$set to ensure reactivity
-          this.$set(this.selectedTools[numTool], "previewUrl", url);
-          // For clarity:
-          //   this.selectedTools[numTool].previewUrl = url;
-        } else {
-          console.warn("Invalid or out-of-range numTool:", numTool);
-        }
-      });
       this.socket.on('result', this.handleResult);
+      this.socket.on('preview_update', this.handlePreviewUpdate);
       this.requestProjectImages();
     },
     data() {
@@ -337,7 +319,28 @@
     } catch (error) {
         console.error("Error processing image data:", error);
     }
-},
+    },
+
+    handlePreviewUpdate({ numTool, imageData }) {
+    console.log(`Received preview update for tool ${numTool}.`);
+
+    // Determine the correct MIME type
+    let mimeType = imageData.contentType === "binary/octet" ? "image/jpeg" : imageData.contentType;
+
+    try {
+        // Convert binary data to Blob and then to Object URL
+        const blob = new Blob([new Uint8Array(imageData.data)], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+
+        // Update the preview URL for the corresponding tool
+        this.selectedTools[numTool].previewUrl = url;
+
+        console.log("Preview URL created:", url);
+    } catch (error) {
+        console.error("Error processing preview data:", error);
+    }
+    },
+    
 
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
