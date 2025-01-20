@@ -319,13 +319,26 @@
       });
     },
     handleResult({ imageData }) {
-        console.log("Result:", imageData);
-        console.log("Received result with type:", imageData.contentType);
-            // Convert binary data to Blob and then to Object URL
-            const blob = new Blob([imageData.data], { type: "image/jpg" });
-            const url = URL.createObjectURL(blob);
-            this.results.push({ type: "image", result: url });
-    },
+    console.log("Result:", imageData);
+    console.log("Received result with type:", imageData.contentType);
+
+    // Determine the correct MIME type
+    let mimeType = imageData.contentType === "binary/octet" ? "image/jpeg" : imageData.contentType;
+
+    try {
+        // Convert binary data to Blob and then to Object URL
+        const blob = new Blob([new Uint8Array(imageData.data)], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+
+        // Push to results for rendering
+        this.results.push({ type: "image", result: url });
+
+        console.log("Image URL created:", url);
+    } catch (error) {
+        console.error("Error processing image data:", error);
+    }
+},
+
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
     },
