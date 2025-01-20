@@ -116,7 +116,7 @@
   <ul>
     <li v-for="(result, index) in results" :key="index">
       <h3>{{ result.type }}</h3>
-      <p v-if="typeof result.type === 'image'">
+      <p>
         <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" />
       </p>
     </li>
