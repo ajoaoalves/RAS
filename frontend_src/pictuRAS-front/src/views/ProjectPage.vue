@@ -117,7 +117,7 @@
     <li v-for="(result, index) in results" :key="index">
       <h3>{{ result.type }}</h3>
       <p>
-        <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" />
+        <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" @click="openImage(step.previewUrl)"/>
       </p>
     </li>
   </ul>
@@ -340,7 +340,7 @@
         console.error("Error processing preview data:", error);
     }
     },
-    
+
 
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
