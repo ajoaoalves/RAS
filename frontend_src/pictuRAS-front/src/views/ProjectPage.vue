@@ -36,16 +36,30 @@
   
         <!-- Tools Section -->
         <section class="tools-section">
-          <h2>Tools</h2>
-          <div class="tools-grid">
-            <ToolComponent
-              v-for="tool in availableTools"
-              :key="tool.id"
-              :tool="tool"
-              @applyTool="applyTool"
-            />
-          </div>
-        </section>
+  <h2>Tools</h2>
+  <div class="tools-category">
+    <h3>Basic Tools</h3>
+    <div class="tools-grid">
+      <ToolComponent
+        v-for="tool in basicTools"
+        :key="tool.name"
+        :tool="tool"
+        @applyTool="applyTool"
+      />
+    </div>
+  </div>
+  <div class="tools-category">
+    <h3>Advanced Tools</h3>
+    <div class="tools-grid">
+      <ToolComponent
+        v-for="tool in advancedTools"
+        :key="tool.name"
+        :tool="tool"
+        @applyTool="applyTool"
+      />
+    </div>
+  </div>
+</section>
         <section class="toolchain-section">
           <h2>Toolchain</h2>
           <ul class="toolchain-list">
@@ -199,70 +213,71 @@
         projectImages: [],
         selectedTools: [],
         results: [],
-        availableTools: [
-      {
-        name: "Border",
-        procedure: "border",
-        parameters: [
-          { name: "bordersize", label: "Border Size (px)", type: "number", value: 1 },
-          { name: "bordercolor", label: "Border Color (hex)", type: "text", value: "#000000" },
-        ],
-      },
-      {
-        name: "Crop",
-        procedure: "crop",
-        parameters: [
-        { name: "left", label: "Left", type: "number", value: 0 },
-      { name: "upper", label: "Upper", type: "number", value: 0 },
-      { name: "right", label: "Right", type: "number", value: 100 },
-      { name: "lower", label: "Lower", type: "number", value: 100 },
-        ],
-      },
-      {
-        name: "Rotation",
-        procedure: "rotation",
-        parameters: [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }],
-      },
-      {
-        name: "Brightness",
-        procedure: "brightness",
-        parameters: [{ name: "brightnessValue", label: "Brightness (factor)", type: "number", value: 1.0 }],
-      },
-      {
-        name: "Binarization",
-        procedure: "binarization",
-        parameters: [], // No specific parameters mentioned
-      },
-      {
-        name: "Resize",
-        procedure: "resize",
-        parameters: [
-          { name: "width", label: "Width (px)", type: "number", value: 1920 },
-          { name: "height", label: "Height (px)", type: "number", value: 1080 },
-        ],
-      },
-      {
-        name: "Count People",
-        procedure: "count-people",
-        parameters: [], // No specific parameters mentioned
-      },
-      {
-        name: "Object Detection",
-        procedure: "object-detection",
-        parameters: [], // No specific parameters mentioned
-      },
-      {
-        name: "Background Removal",
-        procedure: "background-removal",
-        parameters: [], // No specific parameters mentioned
-      },
-      {
-        name: "Watermark",
-        procedure: "watermark",
-        parameters: [
-        ],
-      },
-    ],
+        basicTools: [
+        {
+          name: "Border",
+          procedure: "border",
+          parameters: [
+            { name: "bordersize", label: "Border Size (px)", type: "number", value: 1 },
+            { name: "bordercolor", label: "Border Color (hex)", type: "text", value: "#000000" },
+          ],
+        },
+        {
+          name: "Crop",
+          procedure: "crop",
+          parameters: [
+            { name: "left", label: "Left", type: "number", value: 0 },
+            { name: "upper", label: "Upper", type: "number", value: 0 },
+            { name: "right", label: "Right", type: "number", value: 100 },
+            { name: "lower", label: "Lower", type: "number", value: 100 },
+          ],
+        },
+        {
+          name: "Rotation",
+          procedure: "rotation",
+          parameters: [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }],
+        },
+        {
+          name: "Brightness",
+          procedure: "brightness",
+          parameters: [{ name: "brightnessValue", label: "Brightness (factor)", type: "number", value: 1.0 }],
+        },
+        {
+          name: "Binarization",
+          procedure: "binarization",
+          parameters: [], // No specific parameters mentioned
+        },
+        {
+          name: "Resize",
+          procedure: "resize",
+          parameters: [
+            { name: "width", label: "Width (px)", type: "number", value: 1920 },
+            { name: "height", label: "Height (px)", type: "number", value: 1080 },
+          ],
+        },
+      ],
+      advancedTools: [
+        {
+          name: "Count People",
+          procedure: "count-people",
+          parameters: [], // No specific parameters mentioned
+        },
+        {
+          name: "Object Detection",
+          procedure: "object-detection",
+          parameters: [], // No specific parameters mentioned
+        },
+        {
+          name: "Background Removal",
+          procedure: "background-removal",
+          parameters: [], // No specific parameters mentioned
+        },
+        {
+          name: "Watermark",
+          procedure: "watermark",
+          parameters: [],
+        },
+      ],
         uploadError: "",
         zoomedImage: null,
         selectedImage: null,
@@ -313,6 +328,7 @@
       });
     },
     handleResult({ contentType, data }) {
+        console.log("Result:", data);
         console.log("Received result with type:", contentType);
         if (contentType.startsWith("image")) {
             // Convert binary data to Blob and then to Object URL
