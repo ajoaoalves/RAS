@@ -1,0 +1,216 @@
+services:
+  rabbitmq:
+    build: ./rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # RabbitMQ messaging port
+      - "15672:15672" # Management UI port
+    restart: unless-stopped
+    volumes:
+      - ./rabbitmq/setup_queues.py:/setup_queues.py # Mount the setup script
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 5s
+      timeout: 30s
+
+  projects-api:
+    container_name: projects-api
+    build:
+      context: ./PictuRAS
+    ports:
+      - "18018:18018"
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+      - mongo-server
+    environment:
+
+      # AWS S3 configuration
+      AWS_ACCESS_KEY_ID: ROOTNAME
+      AWS_SECRET_ACCESS_KEY: CHANGEME123
+      AWS_REGION: us-east-1
+      AWS_S3_BUCKET_NAME: images
+  
+  users-api:
+    container_name: users-api
+    build:
+      context: ./Users
+    ports:
+      - "19019:19019"
+    depends_on:
+      - mongo-server
+
+  mongo-server:
+    container_name: mongo-server
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/db:/data/db
+      - ./databases/database.json:/tmp/database.json
+      - ./databases/users.json:/tmp/users.json
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+    restart: unless-stopped
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"  
+      - "9001:9001"  
+    volumes:
+      - ~/minio/data:/data  
+    environment:
+      MINIO_ROOT_USER: ROOTNAME  # Set MinIO root user
+      MINIO_ROOT_PASSWORD: CHANGEME123  # Set MinIO root password
+    command: server /data --console-address ":9001"  # Start MinIO with console on port 9001
+    restart: unless-stopped  # Automatically restart unless stopped manually
+
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+
+  ws-gateway:
+    container_name: ws-gateway
+    build:
+      context: ./ws-gateway
+    ports:
+      - "8180:8180"
+
+  frontend:
+    build:
+      context: ./pictuRAS-front
+    ports:
+      - "80:80"
+    volumes:
+      - ./pictuRAS-front:/usr/src/app
+      - /usr/src/app/node_modules
+    command: ["npm", "run", "dev", "--", "--host"]
+    
+  brightness-tool-ms:
+    image: gustominox/picturas_brightness_tool_ms:2.2
+    container_name: brightness-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO 
+    volumes:
+      - ./images/src/:/images/src/
+      - ./images/out/:/images/out/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+#   count-people-tool-ms:
+#     image: pinheiro2/picturas_count_people_tool_ms:latest
+#     container_name: count-people-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO 
+#     volumes:
+#       - ./images/src/:/images/src/
+#       - ./images/out/:/images/out/
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+
+#   border-tool-ms:
+#     image: joaopedroabreu4/picturas_border_tool_ms:latest
+#     container_name: border-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO
+#     volumes:
+#       - ./images/src/:/images/src/
+#       - ./images/out/:/images/out/
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+
+
+#   resize-tool-ms:
+#     image: pg55090/picturas_resize_tool_ms:latest
+#     container_name: resize-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO
+#     volumes:
+#       - ./images/src/:/images/src/
+#       - ./images/out/:/images/out/
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+
+#   watermark-tool-ms:
+#     image: pinheiro2/picturas-watermark-tool-ms
+#     container_name: watermark-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO 
+#     volumes:
+#       - ./images/src/:/images/src/
+#       - ./images/out/:/images/out/
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+
+#   crop-tool-ms:
+#     image: lunafigueiredo/picturas-crop-tool-ms:latest
+#     container_name: crop-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO 
+#     volumes:
+#       - ./images/src/:/images/src/
+#       - ./images/out/:/images/out/
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+
+#   remove-background-tool-ms:
+#     image: iyanfdezzz/picturas-remove-background-tool-ms:latest
+#     container_name: remove-background-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO 
+#     volumes:
+#       - ./images/src/:/images/src/
+#       - ./images/out/:/images/out/
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+# # Ana Count objects
+#   count_objects-tool-ms:
+#     image: anajoaoalves1/picturas-count-objects-ms:latest
+#     container_name: count_objects-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO 
+
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+
+# # Francisco Rotate
+#   rotate-tool-ms:
+#     image: kikofallout/picturas_rotate_tool_ms:latest
+#     container_name: rotate-tool-ms
+#     environment:
+#       - RABBITMQ_HOST=rabbitmq
+#       - PICTURAS_LOG_LEVEL=INFO
+#     depends_on:
+#       rabbitmq:
+#         condition: service_healthy
+
+# Marta Binarization
+  binarization-tool-ms:
+    image: martagoncalves/picturas_binarization_tool_ms:latest
+    container_name: binarization-tool-ms
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - PICTURAS_LOG_LEVEL=INFO
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

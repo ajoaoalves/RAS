@@ -85,9 +85,6 @@ services:
     environment:
       - RABBITMQ_HOST=rabbitmq
       - PICTURAS_LOG_LEVEL=INFO 
-    volumes:
-      - ./images/src/:/images/src/
-      - ./images/out/:/images/out/
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -99,9 +96,6 @@ services:
     environment:
       - RABBITMQ_HOST=rabbitmq
       - PICTURAS_LOG_LEVEL=INFO
-    volumes:
-      - ./images/src/:/images/src/
-      - ./images/out/:/images/out/
     depends_on:
       rabbitmq:
         condition: service_healthy
