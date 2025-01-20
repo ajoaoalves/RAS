@@ -167,6 +167,7 @@
   import { useUserStore } from "../stores/UserStore";
   import { useProjectStore } from "../stores/ProjectStore";
   import { io } from "socket.io-client";
+  import AWS from "aws-sdk";
   
   export default {
     name: "ProjectDashboard",

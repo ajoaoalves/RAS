@@ -5,6 +5,8 @@ import App from './App.vue'
 import router from './router'
 import axios from 'axios'
 import { io } from 'socket.io-client';
+import AWS from 'aws-sdk'
+
 
 axios.defaults.baseURL = 'http://localhost:8080'
 

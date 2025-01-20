@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "pinia": "^2.3.0",
     "socket.io-client": "^4.8.1",
