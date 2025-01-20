@@ -65,6 +65,7 @@ class WatermarkTool(Tool):
         """
         bucket_name = 'images'
         input_image = self.s3_client.download_image(bucket_name, parameters.inputImageURI)
+        input_image = input_image.convert("RGBA")
         # Open the input image
         #input_image = Image.open(parameters.inputImageURI).convert("RGBA")
 
