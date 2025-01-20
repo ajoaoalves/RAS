@@ -115,11 +115,25 @@
   <h2>Results</h2>
   <ul>
     <li v-for="(result, index) in results" :key="index">
-      <h3>{{ result.type }}</h3>
-      <p>
-        <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" @click="openImage(step.previewUrl)"/>
-      </p>
-    </li>
+  <h3>{{ result.type }}</h3>
+  <p>
+    <img
+      :src="result.result"
+      :alt="`Result ${index + 1}`"
+      class="thumbnail"
+      @click="openImage(result.result)"
+    />
+  </p>
+  <!-- Add a download button -->
+  <a
+    :href="result.result"
+    class="download-button"
+    :download="`result-${index+1}.jpg`"
+  >
+    Download
+  </a>
+</li>
+
   </ul>
 </section>
 

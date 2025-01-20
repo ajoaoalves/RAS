@@ -41,14 +41,26 @@ router.delete('/users/:id', function (req, res) {
 });
 
 /* Autenticación de usuario (Login) */
-router.post('/users/login', async function (req, res) {
+router.post('/users/login', async (req, res) => {
+    const { email, password } = req.body;
+    console.log("Dados recebidos:", email, password); // Verificar os dados recebidos
+
     try {
-        const { emailOrUsername, password } = req.body;
-        const user = await User.authenticate(emailOrUsername, password);
-        res.status(200).jsonp(user);
+        const user = await User.findByEmail( email );
+        console.log("Usuário encontrado:", user); // Verificar se encontrou o usuário
+
+        if (user && user.password === password) { // Comparação simples
+            console.log("Login bem-sucedido!");
+            res.json(user);
+        } else {
+            console.log("Credenciais inválidas");
+            res.status(401).json({ message: 'Credenciais inválidas' });
+        }
     } catch (error) {
-        res.status(401).jsonp({ error: error.message });
+        console.error("Erro no servidor:", error);
+        res.status(500).json({ message: 'Erro no servidor', error });
     }
 });
+
 
 module.exports = router;

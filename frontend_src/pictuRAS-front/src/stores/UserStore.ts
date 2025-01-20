@@ -11,13 +11,16 @@ export const useUserStore = defineStore('user', {
         isLoggedIn: false,
     }),
     actions: {
-        setUser(user: { id: string; name: string; email: string ; type: string }) {
+        setUser(user) {
+            console.log('setUser', user);
             this.user = user;
             this.isLoggedIn = true;
+            localStorage.setItem('user', JSON.stringify(user));  // Salva o usuário no localStorage
         },
         clearUser() {
-            this.user = { id: '', name: '', email: '' , type: ''};
+            this.user = { id: '', name: '', email: '', type: '' };
             this.isLoggedIn = false;
+            localStorage.removeItem('user');  // Remove o usuário do localStorage
         },
     },
     getters: {
