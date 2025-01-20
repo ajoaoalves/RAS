@@ -96,11 +96,28 @@
     </div>
   </div>
   <p v-else>No image selected. Click on an image to view its preview.</p>
+</section>        
+<section class="result-section">
+  <h2>Results</h2>
+  <ul>
+    <li v-for="(result, index) in results" :key="index">
+      <h3>{{ result.procedure }}</h3>
+      <p v-if="typeof result.type === 'image'">
+        <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" />
+      </p>
+      <p v-else>{{ result.result }}</p>
+      <a
+        v-if="result.result"
+        :href="generateDownloadLink(result)"
+        :download="generateDownloadName(result, index)"
+        class="download-button"
+      >
+        Download
+      </a>
+    </li>
+  </ul>
 </section>
-  
-        <!-- Toolchain Section -->
-        
-  
+
         <!-- Edit Tool Modal -->
         <div
     v-if="editingTool !== null && selectedTools[editingTool] && selectedTools[editingTool].parameters && selectedTools[editingTool].parameters.length > 0"
@@ -171,6 +188,34 @@
           console.warn("Invalid or out-of-range numTool:", numTool);
         }
       });
+      this.socket.on('result', (data) => {
+        console.log("Processing result:", data);
+        // check data type and update results accordingly
+        if (data.type === "int") {
+          this.results.push({
+            procedure: 'Counting Tool',
+            type: 'int',
+            result: data.result,
+          });
+        } else if (data.type === "image") {
+          // Convert binary data to Blob and then to Object URL
+          const blob = new Blob([data.result], { type: data.contentType });
+          const url = URL.createObjectURL(blob);
+          this.results.push({
+            procedure: 'Image Tool',
+            type: 'image',
+            result: url,
+          });
+        } else if (data.type === "dict") {
+          this.results.push({
+            procedure: 'Object Detection Tool',
+            type: 'dict',
+            result: JSON.stringify(data.result),
+          });
+        } else {
+          console.warn("Unknown result type:", data.type);
+        }
+      });
       this.requestProjectImages();
     },
     data() {
@@ -180,6 +225,7 @@
         socket: null,
         projectImages: [],
         selectedTools: [],
+        results: [],
         availableTools: [
       {
         name: "Border",
