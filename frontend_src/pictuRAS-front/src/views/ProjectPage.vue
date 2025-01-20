@@ -115,19 +115,11 @@
   <h2>Results</h2>
   <ul>
     <li v-for="(result, index) in results" :key="index">
-      <h3>{{ result.procedure }}</h3>
+      <h3>{{ result.type }}</h3>
       <p v-if="typeof result.type === 'image'">
         <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" />
       </p>
       <p v-else>{{ result.result }}</p>
-      <a
-        v-if="result.result"
-        :href="generateDownloadLink(result)"
-        :download="generateDownloadName(result, index)"
-        class="download-button"
-      >
-        Download
-      </a>
     </li>
   </ul>
 </section>
@@ -422,26 +414,6 @@
         this.selectedTools[index] = this.selectedTools[newIndex];
         this.selectedTools[newIndex] = temp;
       },
-      generateDownloadLink(result) {
-    if (typeof result.result === "string" && result.result.startsWith("data:")) {
-      // For base64 data URLs (images)
-      return result.result;
-    } else if (typeof result.result === "string") {
-      // For text results
-      const blob = new Blob([result.result], { type: "text/plain" });
-      return URL.createObjectURL(blob);
-    } else if (result.result instanceof Object) {
-      // For JSON-like results (dictionaries)
-      const blob = new Blob([JSON.stringify(result.result, null, 2)], {
-        type: "application/json",
-      });
-      return URL.createObjectURL(blob);
-    }
-    return "#"; // Fallback
-  },
-  generateDownloadName(result, index) {
-    return `${result.procedure.replace(/\s+/g, "_").toLowerCase()}_result_${index + 1}`;
-  },
       async processImages() {
         console.log("Processing images with toolchain:", this.selectedTools);
         const projectStore = useProjectStore();
