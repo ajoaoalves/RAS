@@ -119,7 +119,6 @@
       <p v-if="typeof result.type === 'image'">
         <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" />
       </p>
-      <p v-else>{{ result.result }}</p>
     </li>
   </ul>
 </section>
