@@ -88,7 +88,7 @@ projectSchema.methods.downloadImageFromS3 = async function (key) {
 // Upload image to S3 before saving
 projectSchema.methods.uploadImageToS3FromBrowser = async function (fileBuffer, projectId) {
     const bucketName = process.env.AWS_S3_BUCKET_NAME;
-    const key = `src/${projectId}/${uuidv4()}`;
+    const key = `src/${projectId}/${uuidv4()}.jpg`;
 
     try {
         const uploadResult = await s3.upload({

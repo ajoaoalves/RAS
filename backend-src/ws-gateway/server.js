@@ -46,7 +46,6 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            connections.set(projectId, socket);
             console.log(`Added client ${socket.id} to connections map.`);
 
 
@@ -75,6 +74,8 @@ io.on('connection', (socket) => {
                 socket.emit('error', { message: 'Invalid request. projectId is required.' });
                 return;
             }
+            connections.set(projectId, socket);
+
 
             console.log(`Received request for images of project ID: ${projectId}`);
 
@@ -118,7 +119,7 @@ io.on('connection', (socket) => {
 
         // Send the preview image to the client
         console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('preview_image', { numTool, contentType }, binaryData);
+        clientSocket.emit('preview_update', { numTool, contentType }, binaryData);
     });
 
 

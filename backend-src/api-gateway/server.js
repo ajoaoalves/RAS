@@ -2,27 +2,26 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
-// Services for choosing routes, authentication, and rate limiting.
-// const authRoutes = require('./routes/authRoutes');
-// const serviceRoutes = require('./routes/serviceRoutes');
-// const rateLimiter = require('./middlewares/rateLimiter');
-
 // Configurations
 const PORT = process.env.PORT || 8080;
 const PROJECTS_BACKEND_URL = 'http://projects-api:18018';
 const USERS_BACKEND_URL = 'http://users-api:19019';
 const STATIC_FILE_SERVER = '';
 
+
 const app = express();
 
 // Middlewares
-app.use(express.json( { limit: '50mb' } ));
+app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 // Test endpoint
 app.get('/', (req, res) => {
     res.send('API Gateway is running...');
 });
+
+
+
 
 // Route to create a new project for a specific user
 app.post('/users/:userId/projects', async (req, res) => {
@@ -77,6 +76,18 @@ app.get('/users/:userId/projects/:projectId', async (req, res) => {
         res.status(response.status).send(response.data);
     } catch (error) {
         console.error('Error fetching project for user:', error.message);
+        res.status(error.response?.status || 500).send({ error: error.message });
+    }
+});
+
+app.delete('/users/:userId/projects/:projectId', async (req, res) => {
+    const { userId, projectId } = req.params;
+    try {
+        // Forward the request to the backend service with userId and projectId
+        const response = await axios.delete(`${PROJECTS_BACKEND_URL}/users/${userId}/projects/${projectId}`);
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error deleting project for user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });

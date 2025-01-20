@@ -96,11 +96,28 @@
     </div>
   </div>
   <p v-else>No image selected. Click on an image to view its preview.</p>
+</section>        
+<section class="result-section">
+  <h2>Results</h2>
+  <ul>
+    <li v-for="(result, index) in results" :key="index">
+      <h3>{{ result.procedure }}</h3>
+      <p v-if="typeof result.type === 'image'">
+        <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" />
+      </p>
+      <p v-else>{{ result.result }}</p>
+      <a
+        v-if="result.result"
+        :href="generateDownloadLink(result)"
+        :download="generateDownloadName(result, index)"
+        class="download-button"
+      >
+        Download
+      </a>
+    </li>
+  </ul>
 </section>
-  
-        <!-- Toolchain Section -->
-        
-  
+
         <!-- Edit Tool Modal -->
         <div
     v-if="editingTool !== null && selectedTools[editingTool] && selectedTools[editingTool].parameters && selectedTools[editingTool].parameters.length > 0"
@@ -171,6 +188,7 @@
           console.warn("Invalid or out-of-range numTool:", numTool);
         }
       });
+      this.socket.on('result', this.handleResult);
       this.requestProjectImages();
     },
     data() {
@@ -180,16 +198,19 @@
         socket: null,
         projectImages: [],
         selectedTools: [],
+        results: [],
         availableTools: [
       {
-        procedure: "Border",
+        name: "Border",
+        procedure: "border",
         parameters: [
           { name: "bordersize", label: "Border Size (px)", type: "number", value: 1 },
           { name: "bordercolor", label: "Border Color (hex)", type: "text", value: "#000000" },
         ],
       },
       {
-        procedure: "Crop",
+        name: "Crop",
+        procedure: "crop",
         parameters: [
         { name: "left", label: "Left", type: "number", value: 0 },
       { name: "upper", label: "Upper", type: "number", value: 0 },
@@ -198,38 +219,46 @@
         ],
       },
       {
-        procedure: "Rotation",
+        name: "Rotation",
+        procedure: "rotation",
         parameters: [{ name: "angle", label: "Angle (degrees)", type: "number", value: 0 }],
       },
       {
-        procedure: "Brightness",
+        name: "Brightness",
+        procedure: "brightness",
         parameters: [{ name: "brightnessValue", label: "Brightness (factor)", type: "number", value: 1.0 }],
       },
       {
-        procedure: "Binarization",
+        name: "Binarization",
+        procedure: "binarization",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Resize",
+        name: "Resize",
+        procedure: "resize",
         parameters: [
           { name: "width", label: "Width (px)", type: "number", value: 1920 },
           { name: "height", label: "Height (px)", type: "number", value: 1080 },
         ],
       },
       {
-        procedure: "Count People",
+        name: "Count People",
+        procedure: "count-people",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Object Detection",
+        name: "Object Detection",
+        procedure: "object-detection",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Background Removal",
+        name: "Background Removal",
+        procedure: "background-removal",
         parameters: [], // No specific parameters mentioned
       },
       {
-        procedure: "Watermark",
+        name: "Watermark",
+        procedure: "watermark",
         parameters: [
         ],
       },
@@ -247,10 +276,6 @@
       try {
         const response = await axios.get(`/users/${userStore.user.id}/projects/${projectStore.project._id}`);
         const { images, tools } = response.data;
-        this.projectImages = images.map((image) => ({
-          url: image.uri,
-          name: image._id,
-        }));
         this.selectedTools = tools.map((tool) => ({
           ...tool,
           previewUrl: null, // initially, no preview
@@ -262,12 +287,13 @@
       }
     },
     requestProjectImages() {
-      if (!this.projectId) {
+      const projectStore = useProjectStore();
+      if (!projectStore.project._id) {
         console.warn("No projectId found! Cannot request images.");
         return;
       }
-      console.log("Requesting images for project:", this.projectId);
-      this.socket.emit("request_images", this.projectId);
+      console.log("Requesting images for project:", projectStore.project._id);
+      this.socket.emit("request_images", projectStore.project._id);
     },
     handleImageData({ projectId, contentType, binaryData }) {
       console.log(`Received image for project ID: ${projectId} with type: ${contentType}`);
@@ -285,6 +311,17 @@
         name: imageName,
         url: url,
       });
+    },
+    handleResult({ contentType, data }) {
+        console.log("Received result with type:", contentType);
+        if (contentType.startsWith("image")) {
+            // Convert binary data to Blob and then to Object URL
+            const blob = new Blob([data], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            this.results.push({ type: "image", result: url });
+        } else {
+            this.results.push({ type: "text", result: data });
+        }
     },
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
@@ -372,37 +409,82 @@
         this.selectedTools[index] = this.selectedTools[newIndex];
         this.selectedTools[newIndex] = temp;
       },
-      processImages() {
-        console.log("Processing images with toolchain:", this.selectedTools);
-      },
-      async saveProject() {
-    const userStore = useUserStore();
-    const projectStore = useProjectStore();
-    
-    const projectData = {
-  _id: projectStore.project._id,
-  name: projectStore.project.name,
-  user_id: userStore.user.id,
-  tools: this.selectedTools.map(tool => ({
-    _id: tool._id,
-    procedure: tool.procedure,
-    parameters: tool.parameters.reduce((acc, param) => {
-      acc[param.name] = param.value;
-      return acc;
-    }, {})
-  }))
-};
-
-
-    try {
-      const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}`, projectData);
-      console.log("Project saved successfully:", response.data);
-      console.log("Project data:", projectData);
-    } catch (error) {
-      console.error("Error saving project:", error.message);
-      alert("Failed to save project. Please try again.");
+      generateDownloadLink(result) {
+    if (typeof result.result === "string" && result.result.startsWith("data:")) {
+      // For base64 data URLs (images)
+      return result.result;
+    } else if (typeof result.result === "string") {
+      // For text results
+      const blob = new Blob([result.result], { type: "text/plain" });
+      return URL.createObjectURL(blob);
+    } else if (result.result instanceof Object) {
+      // For JSON-like results (dictionaries)
+      const blob = new Blob([JSON.stringify(result.result, null, 2)], {
+        type: "application/json",
+      });
+      return URL.createObjectURL(blob);
     }
+    return "#"; // Fallback
   },
+  generateDownloadName(result, index) {
+    return `${result.procedure.replace(/\s+/g, "_").toLowerCase()}_result_${index + 1}`;
+  },
+      async processImages() {
+        console.log("Processing images with toolchain:", this.selectedTools);
+        const projectStore = useProjectStore();
+        const userStore = useUserStore();
+        const projectData = {
+            _id: projectStore.project._id,
+            name: projectStore.project.name,
+            user_id: userStore.user.id,
+            tools: this.selectedTools.map(tool => ({
+                _id: tool._id,
+                procedure: tool.procedure,
+                parameters: Array.isArray(tool.parameters)
+                    ? tool.parameters.reduce((acc, param) => {
+                            acc[param.name] = param.value;
+                            return acc;
+                        }, {})
+                    : tool.parameters
+            }))
+        };
+        try {
+            const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}/exec`, projectData);
+            console.log("Project processed successfully:", response.data);
+        } catch (error) {
+            console.error("Error processing project:", error.message);
+            alert("Failed to process project. Please try again.");
+        }
+          
+      },
+    async saveProject() {
+        const userStore = useUserStore();
+        const projectStore = useProjectStore();
+
+        const projectData = {
+            _id: projectStore.project._id,
+            name: projectStore.project.name,
+            user_id: userStore.user.id,
+            tools: this.selectedTools.map(tool => ({
+                _id: tool._id,
+                procedure: tool.procedure,
+                parameters: Array.isArray(tool.parameters)
+                    ? tool.parameters.reduce((acc, param) => {
+                            acc[param.name] = param.value;
+                            return acc;
+                        }, {})
+                    : tool.parameters
+            }))
+        };
+
+        try {
+            const response = await axios.put(`/users/${userStore.user.id}/projects/${projectStore.project._id}`, projectData);
+            console.log("Project saved successfully:", response.data);
+        } catch (error) {
+            console.error("Error saving project:", error.message);
+            alert("Failed to save project. Please try again.");
+        }
+    },
       selectImage(index) {
         this.selectedImage = index;
       },
@@ -549,5 +631,20 @@
     background-color: #ccc;
     cursor: not-allowed;
   }
+
+  .download-button {
+  background-color: #17a2b8;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.download-button:hover {
+  background-color: #138496;
+}
+
   </style>
   
