@@ -194,12 +194,12 @@ async function emitPreviewUpdate(projectId, numTool, imageId, correlationId, soc
     }
 
     // Download the image from S3
-    const { data: imageBuffer, contentType } = await project.downloadImageFromS3(imageId);
+    const imageData = await project.downloadImageFromS3(imageId);
 
-    console.log(`Preview image downloaded for project ID ${projectId}`);
+    // console.log(`Preview image downloaded for project ID ${projectId}`);
 
     // Emit the preview update event to the ws-gateway
-    wsSocket.emit('preview_update', { projectId, numTool, contentType }, imageBuffer);
+    wsSocket.emit('preview_update', { projectId, numTool }, imageData);
 
     console.log(`Preview update emitted for project ID ${projectId}`);
   } catch (error) {
@@ -258,18 +258,25 @@ async function processQueueResults() {
                 console.log('Project not found or tools is not an array.');
               }
 
-              if (status === 'success' && toolCount == numTool) {
+              if (status === 'success' && toolCount - 1 == numTool) {
 
+                await emitPreviewUpdate(projectId, numTool, imageURI, correlationId, wsSocket);
 
-                // Download the image from S3
                 const imageData = await project.downloadImageFromS3(imageURI);
 
-                wsSocket.emit('result', { projectId, imageData });
+                // Convert the binary data to Base64
+                // const imageBase64 = imageData.data.toString('base64');
+
+                // Emit the image data with content type
+                wsSocket.emit('result', {
+                  projectId,
+                  imageData,
+                });
 
 
               } else {
 
-                const tool = project.tools[numTool];
+                const tool = project.tools[numTool + 1];
 
                 await emitPreviewUpdate(projectId, numTool, imageURI, correlationId, wsSocket);
 

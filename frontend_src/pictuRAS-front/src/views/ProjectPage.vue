@@ -115,20 +115,25 @@
   <h2>Results</h2>
   <ul>
     <li v-for="(result, index) in results" :key="index">
-      <h3>{{ result.procedure }}</h3>
-      <p v-if="typeof result.type === 'image'">
-        <img :src="result.result" :alt="`Result ${index + 1}`" class="thumbnail" />
-      </p>
-      <p v-else>{{ result.result }}</p>
-      <a
-        v-if="result.result"
-        :href="generateDownloadLink(result)"
-        :download="generateDownloadName(result, index)"
-        class="download-button"
-      >
-        Download
-      </a>
-    </li>
+  <h3>{{ result.type }}</h3>
+  <p>
+    <img
+      :src="result.result"
+      :alt="`Result ${index + 1}`"
+      class="thumbnail"
+      @click="openImage(result.result)"
+    />
+  </p>
+  <!-- Add a download button -->
+  <a
+    :href="result.result"
+    class="download-button"
+    :download="`result-${index+1}.jpg`"
+  >
+    Download
+  </a>
+</li>
+
   </ul>
 </section>
 
@@ -183,26 +188,8 @@
         console.log("Server acknowledgment:", data);
       // You can set a status message or handle UI updates here
         });
-        this.socket.on("preview_image", ({ numTool, contentType }, binaryData) => {
-        console.log("Received preview image for tool:", numTool);
-
-        // 1) Convert the binary data to a Blob
-        const blob = new Blob([binaryData], { type: contentType });
-
-        // 2) Create an object URL for the Blob
-        const url = URL.createObjectURL(blob);
-
-        // 3) Set the tool’s previewUrl if numTool is a valid index
-        if (typeof numTool === "number" && this.selectedTools[numTool]) {
-          // Use Vue.set or this.$set to ensure reactivity
-          this.$set(this.selectedTools[numTool], "previewUrl", url);
-          // For clarity:
-          //   this.selectedTools[numTool].previewUrl = url;
-        } else {
-          console.warn("Invalid or out-of-range numTool:", numTool);
-        }
-      });
       this.socket.on('result', this.handleResult);
+      this.socket.on('preview_update', this.handlePreviewUpdate);
       this.requestProjectImages();
     },
     data() {
@@ -327,18 +314,48 @@
         url: url,
       });
     },
-    handleResult({ contentType, binaryData }) {
-        console.log("Result:", binaryData);
-        console.log("Received result with type:", contentType);
-        if (contentType.startsWith("image")) {
-            // Convert binary data to Blob and then to Object URL
-            const blob = new Blob([binaryData], { type: contentType });
-            const url = URL.createObjectURL(blob);
-            this.results.push({ type: "image", result: url });
-        } else {
-            this.results.push({ type: "text", result: binaryData });
-        }
+    handleResult({ imageData }) {
+    console.log("Result:", imageData);
+    console.log("Received result with type:", imageData.contentType);
+
+    // Determine the correct MIME type
+    let mimeType = imageData.contentType === "binary/octet" ? "image/jpeg" : imageData.contentType;
+
+    try {
+        // Convert binary data to Blob and then to Object URL
+        const blob = new Blob([new Uint8Array(imageData.data)], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+
+        // Push to results for rendering
+        this.results.push({ type: "image", result: url });
+
+        console.log("Image URL created:", url);
+    } catch (error) {
+        console.error("Error processing image data:", error);
+    }
     },
+
+    handlePreviewUpdate({ numTool, imageData }) {
+    console.log(`Received preview update for tool ${numTool}.`);
+
+    // Determine the correct MIME type
+    let mimeType = imageData.contentType === "binary/octet" ? "image/jpeg" : imageData.contentType;
+
+    try {
+        // Convert binary data to Blob and then to Object URL
+        const blob = new Blob([new Uint8Array(imageData.data)], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+
+        // Update the preview URL for the corresponding tool
+        this.selectedTools[numTool].previewUrl = url;
+
+        console.log("Preview URL created:", url);
+    } catch (error) {
+        console.error("Error processing preview data:", error);
+    }
+    },
+
+
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
     },
@@ -425,26 +442,6 @@
         this.selectedTools[index] = this.selectedTools[newIndex];
         this.selectedTools[newIndex] = temp;
       },
-      generateDownloadLink(result) {
-    if (typeof result.result === "string" && result.result.startsWith("data:")) {
-      // For base64 data URLs (images)
-      return result.result;
-    } else if (typeof result.result === "string") {
-      // For text results
-      const blob = new Blob([result.result], { type: "text/plain" });
-      return URL.createObjectURL(blob);
-    } else if (result.result instanceof Object) {
-      // For JSON-like results (dictionaries)
-      const blob = new Blob([JSON.stringify(result.result, null, 2)], {
-        type: "application/json",
-      });
-      return URL.createObjectURL(blob);
-    }
-    return "#"; // Fallback
-  },
-  generateDownloadName(result, index) {
-    return `${result.procedure.replace(/\s+/g, "_").toLowerCase()}_result_${index + 1}`;
-  },
       async processImages() {
         console.log("Processing images with toolchain:", this.selectedTools);
         const projectStore = useProjectStore();

@@ -78,7 +78,7 @@ projectSchema.methods.downloadImageFromS3 = async function (key) {
         // Return the binary data and content type
         return {
             data: image.Body,
-            contentType: 'image/jpeg',
+            contentType: image.ContentType,
         };
     } catch (error) {
         throw new Error(`Failed to download image from S3: ${error.message}`);

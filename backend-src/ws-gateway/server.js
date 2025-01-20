@@ -104,8 +104,8 @@ io.on('connection', (socket) => {
     });
 
 
-    socket.on('preview_update', (metadata, binaryData) => {
-        const { projectId, numTool, contentType } = metadata;
+    socket.on('preview_update', (metadata, imageData) => {
+        const { projectId, numTool } = metadata;
 
         console.log(`Received preview update for project ${numTool}, Step : ${numTool}`);
 
@@ -119,15 +119,23 @@ io.on('connection', (socket) => {
 
         // Send the preview image to the client
         console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('preview_update', { numTool, contentType }, binaryData);
+        clientSocket.emit('preview_update', { numTool, imageData });
     });
 
 
     socket.on('result', (data) => {
         const { projectId, imageData } = data;
-        const { contentType, binaryData } = imageData;
+
+        if (!imageData || !imageData.data || !imageData.contentType) {
+            console.error('Invalid image data received from server');
+            return;
+        }
+
         console.log(`Received result for project ID: ${projectId}`);
-        console.log(`Output ${imageData}`);
+
+        // Decode the binary data (assuming it's sent as a Buffer or binary data)
+        const binaryData = Uint8Array.from(imageData.data);
+
 
         // Retrieve the client socket from the connections map
         const clientSocket = connections.get(projectId);
@@ -136,10 +144,9 @@ io.on('connection', (socket) => {
             console.error(`No client connected for project ID: ${projectId}`);
             return;
         }
-
-        // Send the result dictionary to the client
-        console.log(`Sending result to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('result', { contentType, binaryData });
+        clientSocket.emit('result', {
+            imageData
+        });
     });
 
     // Handle client disconnection
