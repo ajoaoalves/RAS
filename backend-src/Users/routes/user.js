@@ -17,11 +17,11 @@ router.get('/users/:id', function (req, res) {
 });
 
 /* Registrar un nuevo usuario */
-router.post('/users', function (req, res) {
-    console.log(req.body);
+router.post('/users', async (req, res) => {
+    console.log(req.body)
     User.insert(req.body)
         .then(data => res.status(201).jsonp(data))
-        .catch(error => res.status(500).jsonp(error));
+        .catch(erro => res.status(523).jsonp(erro))
 });
 
 /* Actualizar datos de un usuario */

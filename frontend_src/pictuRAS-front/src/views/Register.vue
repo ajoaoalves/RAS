@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import axios from 'axios'; // Certifique-se de importar axios aqui
 import { useUserStore } from "../stores/UserStore";
 import { useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";
@@ -28,17 +29,39 @@ export default {
     const userStore = useUserStore();
     const router = useRouter();
 
-    const handleRegister = (credentials) => {
+    const handleRegister = async (credentials) => {
       // Verificar si las contraseñas coinciden
       if (credentials.password !== credentials.confirmPassword) {
         alert("⚠️ As senhas não coincidem. Tente novamente.");
         return;
       }
 
-      // Verificar si el usuario ya está registrado
-      if (userStore.user.email === credentials.email) {
-        alert("⚠️ Este e-mail já está registrado.");
-        return;
+      // // Verificar si el usuario ya está registrado
+      // if (userStore.user.email === credentials.email) {
+      //   alert("⚠️ Este e-mail já está registrado.");
+      //   return;
+      // }
+
+      try {
+        const response = await axios.post('/users', credentials); // Corrigido o URL
+        console.log("Resposta do backend:", response.data); // Verifique a resposta
+        const user = response.data;
+
+        if (user) {
+          userStore.setUser(user);
+          console.log("Utilizador autenticado:", userStore.user);
+          alert("✅ Registo bem-sucedido!");
+          router.push("/profile");
+        } else {
+          alert("⚠️ Credenciais más.");
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          alert("⚠️ Credenciais inválidas!");
+        } else {
+          alert("⚠️ Erro no servidor. Por favor, tente novamente.");
+        }
+        console.error("Erro no registo:", error);
       }
 
       // Guardar el usuario en Pinia
@@ -49,7 +72,7 @@ export default {
         type: "user",
       });
 
-      alert("✅ Registro bem-sucedido!");
+      //alert("✅ Registro bem-sucedido!");
       router.push("/profile"); // Redirigir al perfil
     };
 
