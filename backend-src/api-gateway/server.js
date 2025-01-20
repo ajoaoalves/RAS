@@ -6,7 +6,6 @@ const cors = require('cors');
 const PORT = process.env.PORT || 8080;
 const PROJECTS_BACKEND_URL = 'http://projects-api:18018';
 const STATIC_FILE_SERVER = '';
-const { createProxyMiddleware } = require('http-proxy-middleware');
 
 
 const app = express();
@@ -21,12 +20,6 @@ app.get('/', (req, res) => {
 });
 
 
-// Proxy requests to the frontend service
-app.use('/frontend', createProxyMiddleware({
-    target: 'http://localhost:5173', // `frontend` is the container name from Docker Compose
-    changeOrigin: true,
-    pathRewrite: { '^/frontend': '' }, // Remove `/frontend` prefix when forwarding
-}));
 
 
 // Route to create a new project for a specific user
