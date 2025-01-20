@@ -104,8 +104,8 @@ io.on('connection', (socket) => {
     });
 
 
-    socket.on('preview_update', (metadata, binaryData) => {
-        const { projectId, numTool, contentType } = metadata;
+    socket.on('preview_update', (metadata, imageURI) => {
+        const { projectId, numTool } = metadata;
 
         console.log(`Received preview update for project ${numTool}, Step : ${numTool}`);
 
@@ -119,7 +119,7 @@ io.on('connection', (socket) => {
 
         // Send the preview image to the client
         console.log(`Sending preview to client ${clientSocket.id} for project ID: ${projectId}`);
-        clientSocket.emit('preview_update', { numTool, contentType }, binaryData);
+        clientSocket.emit('preview_update', { numTool, imageURI });
     });
 
 
