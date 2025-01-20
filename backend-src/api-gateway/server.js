@@ -10,6 +10,7 @@ const cors = require('cors');
 // Configurations
 const PORT = process.env.PORT || 8080;
 const PROJECTS_BACKEND_URL = 'http://projects-api:18018';
+const USERS_BACKEND_URL = 'http://users-api:19019';
 const STATIC_FILE_SERVER = '';
 
 const app = express();
@@ -103,6 +104,71 @@ app.get('/projects', async (req, res) => {
         res.status(response.status).send(response.data);
     } catch (error) {
         console.error('Error listing projects:', error.message);
+        res.status(error.response?.status || 500).send({ error: error.message });
+    }
+});
+
+
+
+// USERS
+
+app.post('/users', async (req, res) => {
+
+    try {
+        // Forward the request to the backend service with the userId
+        const response = await axios.post(`${USERS_BACKEND_URL}/users`, req.body);
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error creating user:', error.message);
+        res.status(error.response?.status || 500).send({ error: error.message });
+    }
+});
+
+app.put('/users/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        // Forward the request to the backend service with the userId and projectId
+        const response = await axios.put(`${USERS_BACKEND_URL}/users/${userId}`, req.body);
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error updating user:', error.message);
+        res.status(error.response?.status || 500).send({ error: error.message });
+    }
+});
+
+app.get('/users/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        // Forward the request to the backend service with userId and projectId
+        const response = await axios.get(`${USERS_BACKEND_URL}/users/${userId}`);
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error fetching project for user:', error.message);
+        res.status(error.response?.status || 500).send({ error: error.message });
+    }
+});
+
+app.get('/users', async (req, res) => {
+    try {
+        // Forward the request to the backend service with the userId
+        const response = await axios.get(`${USERS_BACKEND_URL}/users`);
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error listing projects for user:', error.message);
+        console.error('Request:' + `${USERS_BACKEND_URL}/users`);
+        res.status(error.response?.status || 500).send({ error: error.message });
+    }
+});
+
+app.post('/users/login', async (req, res) => {
+    try {
+        // Forward the request to the backend service with the userId
+        const response = await axios.post(`${USERS_BACKEND_URL}/users/login`, req.body);
+        res.status(response.status).send(response.data);
+    } catch (error) {
+        console.error('Error creating user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });
