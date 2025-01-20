@@ -322,10 +322,9 @@
         console.log("Result:", imageData);
         console.log("Received result with type:", imageData.contentType);
             // Convert binary data to Blob and then to Object URL
-            const blob = new Blob([imageData.data], { type: imageData.contentType });
+            const blob = new Blob([imageData.data], { type: "image/jpg" });
             const url = URL.createObjectURL(blob);
             this.results.push({ type: "image", result: url });
-            this.results.push({ type: "text", result: imageData.data });
     },
     handleImagesComplete({ message, projectId }) {
       console.log(`All images for project ID ${projectId} have been received. ${message}`);
