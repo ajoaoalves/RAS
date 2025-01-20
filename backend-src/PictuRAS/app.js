@@ -93,7 +93,6 @@ io.on('connection', (socket) => {
       }
 
       console.log(`Received request for images of project ID: ${projectId}`);
-      // "{ projectId: 'f62e5dba-adc8-48aa-8b57-778f162a088c' }" (type Object) at path "_id" for model "projects"
       // Retrieve the project from the database
 
       const Project = require('./models/project'); // Your project model
