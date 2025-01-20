@@ -12,6 +12,10 @@ module.exports.findByUsername = function (username) {
     return User.findOne({ username: username }).exec();
 };
 
+module.exports.findByEmail = function (email) {
+    return User.findOne({ email: email }).exec();
+};
+
 module.exports.insert = function (user) {
     return User.create(user);
 };
@@ -26,7 +30,8 @@ module.exports.deleteUser = function (id) {
 
 // Autenticación de usuario (Login)
 module.exports.authenticate = async function (emailOrUsername, password) {
-    let user = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] }).exec();
+    //let user = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] }).exec();
+    let user = await User.findByEmail(emailOrUsername);
     if (!user) throw new Error('User not found');
 
     const isMatch = await user.comparePassword(password);
