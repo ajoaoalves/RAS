@@ -39,6 +39,14 @@ class WatermarkTool(Tool):
             watermark_image_path (str): Path to the watermark image.
             opacity (float): Transparency level of the watermark (0.0 to 1.0).
         """
+        
+        self.s3_client = S3Client(
+            endpoint_url="http://minio:9000",  # Use the MinIO endpoint from the Docker network
+            access_key='ROOTNAME',  
+            secret_key='CHANGEME123',  
+            region_name='us-east-1'  
+        )
+        
         self.watermark_image = Image.open(watermark_image_path).convert("RGBA")
         self.opacity = opacity
 

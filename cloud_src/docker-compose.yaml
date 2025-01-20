@@ -81,7 +81,7 @@ services:
         condition: service_healthy
 
   watermark-tool-ms:
-    image: prcsousa/picturas-watermark-tool-ms:latest
+    image: pinheiro2/picturas_count_people_tool_ms:latest
     container_name: watermark-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
