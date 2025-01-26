@@ -125,7 +125,9 @@ app.get('/projects', async (req, res) => {
 
 app.post('/users', async (req, res) => {
 
+    console.log('Incoming request to /users:', req.body);
     try {
+
         // Forward the request to the backend service with the userId
         const response = await axios.post(`${USERS_BACKEND_URL}/users`, req.body);
         res.status(response.status).send(response.data);
