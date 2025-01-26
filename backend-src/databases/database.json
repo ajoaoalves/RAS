@@ -56,7 +56,6 @@
         "_id": "d8cdbb19-9a29-4e7e-a1ad-59c63b71f5e2",
         "procedure": "background-removal",
         "parameters": {
-          "inputImageURI": "https://s3.picturas.com/fa9012eb-874d-4cd7-a0e5-432b2e9fbe8a.jpeg"
         }
       }
     ]
@@ -76,7 +75,6 @@
         "_id": "bc9b9a36-028d-475b-a5ff-dbf1a23c1fe2",
         "procedure": "brightness",
         "parameters": {
-          "inputImageURI": "https://s3.picturas.com/b7c5a9f3-3827-45e2-a5d8-8f32c5e4f9a6.jpeg",
           "brightnessValue": 2.5
         }
       }
@@ -97,7 +95,6 @@
         "_id": "a3e1b9d7-847e-4e93-80bb-6b26f8e4f3ad",
         "procedure": "count-people",
         "parameters": {
-          "inputImageURI": "https://s3.picturas.com/e93c5f7a-b2a4-489f-8493-7f6a1e0d9b2c.jpeg"
         }
       }
     ]
@@ -117,7 +114,6 @@
         "_id": "f0a7d8d6-1156-49da-8782-66dbbdf6dbfc",
         "procedure": "object-detection",
         "parameters": {
-          "inputImageURI": "https://s3.picturas.com/a2b3c4d5-678e-4a9b-923c-8f6e5b7d1f0a.jpeg"
         }
       }
     ]
@@ -137,7 +133,6 @@
         "_id": "1dbed013-9254-4798-b6f9-2da9383a5fdd",
         "procedure": "border",
         "parameters": {
-          "inputImageURI": "https://s3.picturas.com/b8c7f5e9-2a3d-45c9-bd8f-9a1e0c6f4b7a.jpeg",
           "bordersize": 2,
           "bordercolor": "Preto"
         }
@@ -159,7 +154,6 @@
         "_id": "1dbed013-9254-4798-b6f9-2da9383a5fdd",
         "procedure": "count-people",
         "parameters": {
-          "inputImageURI": "https://s3.picturas.com/c9d0e1f2-34a5-45b8-94c3-e7f6a9b0d1a8.jpeg"
         }
       }
     ]
@@ -179,7 +173,6 @@
         "_id": "bdc3e7a6-01a2-4f5e-9b7d-c5a8f0e4a3d1",
         "procedure": "watermark",
         "parameters": {
-          "inputImageURI": "https://s3.picturas.com/d1f3a5c6-7b8a-4c9e-923f-0e9a1c6d4f7b.jpeg",
           "targetColor": "Green",
           "intensity": 5
         }
