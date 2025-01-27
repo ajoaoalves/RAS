@@ -169,18 +169,18 @@ services:
       rabbitmq:
         condition: service_healthy
 
-  remove-background-tool-ms:
-    image: iyanfdezzz/picturas-remove-background-tool-ms:latest
-    container_name: remove-background-tool-ms
-    environment:
-      - RABBITMQ_HOST=rabbitmq
-      - PICTURAS_LOG_LEVEL=INFO 
-    volumes:
-      - ./images/src/:/images/src/
-      - ./images/out/:/images/out/
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+  #remove-background-tool-ms:
+  #  image: iyanfdezzz/picturas-remove-background-tool-ms:latest
+  #  container_name: remove-background-tool-ms
+  #  environment:
+  #    - RABBITMQ_HOST=rabbitmq
+  #    - PICTURAS_LOG_LEVEL=INFO 
+  #  volumes:
+  #    - ./images/src/:/images/src/
+  #    - ./images/out/:/images/out/
+  #  depends_on:
+  #    rabbitmq:
+  #      condition: service_healthy
 # Ana Count objects
   count_objects-tool-ms:
     image: anajoaoalves1/picturas-count-objects-ms:latest
