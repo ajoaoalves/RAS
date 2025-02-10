@@ -1,6 +1,6 @@
 # Requisitos e Arquiteturas de Software
 
-Este repositório contém a implementação do Minimum Viable Product (MVP) da plataforma de gestão e edição de imagens em projetos. O sistema permite criar e gerir projetos, carregar imagens, adicionar ferramentas de edição e processar imagens com essas ferramentas.
+Este repositório contém a implementação do Minimum Viable Product (MVP) da plataforma de gestão e edição de imagens em projetos baseado nesta [solução arquitetural](docs/Solução%20arquitetural%20pictuRAS%20v1.1.pdf). O sistema permite criar e gerir projetos, carregar imagens, adicionar ferramentas de edição e processar imagens com essas ferramentas.
 
 ## Funcionalidades Implementadas
 
