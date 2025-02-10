@@ -71,3 +71,4 @@ Must have docker and docker-compose plugin to run the App
 
 - Create S3 bucket automatically
 - PNG input not working
+- Choose Image in Preview not working
