@@ -56,11 +56,14 @@ Must have docker and docker-compose plugin to run the App
 ## Estrutura do Projeto
 
 ```
-/nome-do-repositorio
-├── backend/  # Código-fonte do back-end
-├── frontend/  # Código-fonte do front-end
-├── database/  # Scripts de configuração da base de dados
+/RAS
+├── src/ 
+│   ├── backend_src/     # Código-fonte do back-end
+│   ├── cloud_src/       # Código-fonte do setup cloud
+│   ├── frontend_src/    # Código-fonte do front-end
+│   └── tools_src/       # Código-fonte das tools
 ├── docs/  # Documentação do projeto
+├── test_images/  # Imagens para teste
 └── README.md  # Este ficheiro
 ```
 
