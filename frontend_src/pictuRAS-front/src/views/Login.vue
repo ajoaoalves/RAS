@@ -13,7 +13,6 @@
 </template>
 
 <script>
-import axios from 'axios'; // Certifique-se de importar axios aqui
 import { useUserStore } from "../stores/UserStore";
 import { useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";
@@ -29,28 +28,21 @@ export default {
     const userStore = useUserStore();
     const router = useRouter();
 
-    const handleLogin = async (credentials) => {
-      console.log("Credenciais enviadas:", credentials); // Log para verificar
-      try {
-        const response = await axios.post('/users/login', credentials); // Corrigido o URL
-        console.log("Resposta do backend:", response.data); // Verifique a resposta
-        const user = response.data;
+    const handleLogin = (credentials) => {
+      // Simulación de autenticación
+      const validUsers = [
+        { id: "1", name: "João Silva", email: "user@example.com", type: "admin" },
+        { id: "2", name: "Maria Oliveira", email: "maria@email.com", type: "user" },
+      ];
 
-        if (user) {
-          userStore.setUser(user);
-          console.log("Utilizador autenticado:", userStore.user);
-          alert("✅ Login bem-sucedido!");
-          router.push("/profile");
-        } else {
-          alert("⚠️ Credenciais não correspondem a nenhum utilizador. Por favor tente de novo.");
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          alert("⚠️ Credenciais inválidas!");
-        } else {
-          alert("⚠️ Erro no servidor. Por favor, tente novamente.");
-        }
-        console.error("Erro no login:", error);
+      const user = validUsers.find((u) => u.email === credentials.email);
+
+      if (user && credentials.password === "password123") {
+        userStore.setUser(user);
+        alert("✅ Login successful!");
+        router.push("/profile"); // Redirige al perfil después del login
+      } else {
+        alert("⚠️ Credenciais não correspondem a nenhum utilizador. Por favor tente de novo.");
       }
     };
 
@@ -88,3 +80,4 @@ export default {
     width: 350px;
   }
   </style>
+  

@@ -181,7 +181,7 @@
       const projectStore = useProjectStore();
       this.projectName = projectStore.project.name;
       this.projectId = projectStore.project.id;
-      this.socket = io("http://ws-gateway:8180");
+      this.socket = io("http://localhost:8180");
       this.socket.on("image_data", this.handleImageData);
       this.socket.on("images_complete", this.handleImagesComplete);
       this.socket.on("ack", (data) => {

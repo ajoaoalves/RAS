@@ -4,9 +4,9 @@
         <a href="/" class="navbar-logo">PICTURAS</a>
         <ul class="navbar-links">
           <li><router-link to="/" class="navbar-link">Home</router-link></li>
-          <li><router-link to="/register" class="navbar-link">Register</router-link></li>
-          <li><router-link to="/login" class="navbar-link">Login</router-link></li>
+          <li><router-link to="/projects" class="navbar-link">Projects</router-link></li>
           <li><router-link to="/profile" class="navbar-link">Profile</router-link></li>
+          <li><router-link to="/login" class="navbar-link">Login</router-link></li>
         </ul>
       </div>
     </nav>

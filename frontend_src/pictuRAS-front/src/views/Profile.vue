@@ -35,7 +35,7 @@ export default {
 
     const user = computed(() => userStore.user);
     const username = computed(() => userStore.user.username);
-    console.log("Utilizador:", userStore.user._id);
+
     const editProfile = () => {
       console.log("Redirigindo para edição do perfil...");
       router.push("/edit-profile");

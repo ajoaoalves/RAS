@@ -66,14 +66,7 @@
     },
     mounted() {
       const userStore = useUserStore();
-      console.log('User:', userStore.user);
-      // Se o usuário não estiver autenticado, redireciona para a página de login
-      if (!userStore.isLoggedIn) {
-        this.$router.push('/login');
-        return;
-      }
-
-      // Se o usuário estiver autenticado, faz a busca dos projetos
+      userStore.setUser({ id: '0e6d0ce7-08c1-4de9-b7ff-82554bad32d8', name: 'Alice', email: 'a', type: 'sub' });
       this.fetchProjects();
     },
     methods: {
