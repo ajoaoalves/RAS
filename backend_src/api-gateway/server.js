@@ -175,11 +175,11 @@ app.get('/users', async (req, res) => {
 
 app.post('/users/login', async (req, res) => {
     try {
-        // Forward the request to the backend service
+        // Forward the request to the backend service with the userId
         const response = await axios.post(`${USERS_BACKEND_URL}/users/login`, req.body);
         res.status(response.status).send(response.data);
     } catch (error) {
-        console.error('Error logging in user:', error.message);
+        console.error('Error creating user:', error.message);
         res.status(error.response?.status || 500).send({ error: error.message });
     }
 });
