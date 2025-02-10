@@ -1,13 +1,13 @@
 services:
   rabbitmq:
-    build: ./rabbitmq
+    build: ./cloud_src/rabbitmq
     container_name: rabbitmq
     ports:
       - "5672:5672" # RabbitMQ messaging port
       - "15672:15672" # Management UI port
     restart: unless-stopped
     volumes:
-      - ./rabbitmq/setup_queues.py:/setup_queues.py # Mount the setup script
+      - ./cloud_src/rabbitmq/setup_queues.py:/setup_queues.py # Mount the setup script
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 5s
@@ -16,7 +16,7 @@ services:
   projects-api:
     container_name: projects-api
     build:
-      context: ./PictuRAS
+      context: ./backend_src/PictuRAS
     ports:
       - "18018:18018"
       - "3000:3000"
@@ -34,7 +34,7 @@ services:
   users-api:
     container_name: users-api
     build:
-      context: ./Users
+      context: ./backend_src/Users
     ports:
       - "19019:19019"
     depends_on:
@@ -46,10 +46,10 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./data/db:/data/db
-      - ./databases/database.json:/tmp/database.json
-      - ./databases/users.json:/tmp/users.json
-      - ./init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./backend_src/data/db:/data/db
+      - ./backend_src/databases/database.json:/tmp/database.json
+      - ./backend_src/databases/users.json:/tmp/users.json
+      - ./backend_src/init.sh:/docker-entrypoint-initdb.d/init.sh
     restart: unless-stopped
 
   minio:
@@ -69,24 +69,24 @@ services:
   api-gateway:
     container_name: api-gateway
     build:
-      context: ./api-gateway
+      context: ./backend_src/api-gateway
     ports:
       - "8080:8080"
 
   ws-gateway:
     container_name: ws-gateway
     build:
-      context: ./ws-gateway
+      context: ./backend_src/ws-gateway
     ports:
       - "8180:8180"
 
   frontend:
     build:
-      context: ./pictuRAS-front
+      context: ./frontend_src/pictuRAS-front
     ports:
       - "80:80"
     volumes:
-      - ./pictuRAS-front:/usr/src/app
+      - ./frontend_src/pictuRAS-front:/usr/src/app
       - /usr/src/app/node_modules
     command: ["npm", "run", "dev", "--", "--host"]
 
@@ -95,10 +95,7 @@ services:
     container_name: brightness-tool-ms
     environment:
       - RABBITMQ_HOST=rabbitmq
-      - PICTURAS_LOG_LEVEL=INFO 
-    volumes:
-      - ./images/src/:/images/src/
-      - ./images/out/:/images/out/
+      - PICTURAS_LOG_LEVEL=INFO
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -169,6 +166,7 @@ services:
       rabbitmq:
         condition: service_healthy
 
+## THIS TOOL IS NOT WORKING
   #remove-background-tool-ms:
   #  image: iyanfdezzz/picturas-remove-background-tool-ms:latest
   #  container_name: remove-background-tool-ms
@@ -181,6 +179,7 @@ services:
   #  depends_on:
   #    rabbitmq:
   #      condition: service_healthy
+
 # Ana Count objects
   count_objects-tool-ms:
     image: anajoaoalves1/picturas-count-objects-ms:latest
