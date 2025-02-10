@@ -69,5 +69,5 @@ Must have docker and docker-compose plugin to run the App
 
 ## TODO
 
-Create S3 bucket automatically 
-PNG input not working
+- Create S3 bucket automatically
+- PNG input not working
